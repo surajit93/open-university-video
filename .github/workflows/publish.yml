@@ -1,0 +1,54 @@
+name: Publish Video
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install deps
+        run: |
+          pip install requests jq google-api-python-client google-auth google-auth-oauthlib
+
+      - name: Pick topic
+        run: python scripts/pick_topic.py
+
+      - name: Generate script
+        run: python scripts/generate_script.py
+
+      - name: Generate MCQs
+        run: python scripts/generate_mcq.py
+
+      - name: Validate MCQs
+        run: python scripts/validate_mcq.py
+
+      - name: Call Colab renderer
+        run: python scripts/call_colab.py
+
+      - name: Upload to YouTube
+        run: python scripts/upload_youtube.py
+
+      - name: Mark topic done
+        run: python scripts/mark_done.py
+
+      - name: Cleanup
+        run: rm -rf *
