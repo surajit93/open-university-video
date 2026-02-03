@@ -1,0 +1,11 @@
+{
+  "india": {
+    "label": "Donate (India – GPay)",
+    "upi_id": "mediaopenuniversity@okhdfcbank",
+    "upi_link": "upi://pay?pa=mediaopenuniversity@okhdfcbank&pn=Open%20University"
+  },
+  "international": {
+    "label": "Donate (International – PayPal)",
+    "url": "https://www.paypal.me/openuniversity"
+  }
+}

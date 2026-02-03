@@ -1,0 +1,108 @@
+# .github/workflows/publish.yml
+
+name: Publish Video
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+      YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install requests jq \
+            google-api-python-client google-auth google-auth-oauthlib \
+            pillow moviepy groq
+
+      # ---------------------------
+      # TOPIC SELECTION
+      # ---------------------------
+      - name: Pick topic
+        run: python scripts/pick_topic.py
+
+      # ---------------------------
+      # LLM: SLIDES + NARRATION (ONE CALL)
+      # ---------------------------
+      - name: Generate slide plan
+        run: python scripts/generate_slides.py
+      - name: Generate narration  
+        run: python scripts/generate_narration.py
+
+      # ---------------------------
+      # VALIDATION (HARD FAIL)
+      # ---------------------------
+      - name: Validate slide + audio output
+        run: python scripts/validate_output.py
+
+      # ---------------------------
+      # MCQ GENERATION
+      # ---------------------------
+      - name: Generate MCQs (JSON + HTML)
+        run: python scripts/generate_mcq.py
+
+      - name: Validate MCQs
+        run: python scripts/validate_mcq.py
+
+      # ---------------------------
+      # PUBLISH MCQ (GITHUB PAGES)
+      # ---------------------------
+      - name: Publish MCQ to GitHub Pages
+        run: python scripts/publish_mcq.py
+
+      # ---------------------------
+      # RENDER VIDEO (COLAB)
+      # ---------------------------
+      - name: Call Colab renderer
+        run: python scripts/call_colab.py
+
+      # ---------------------------
+      # SUBTITLES (SLIDE-ALIGNED)
+      # ---------------------------
+      - name: Generate subtitles
+        run: python scripts/generate_srt.py
+
+      # ---------------------------
+      # THUMBNAIL
+      # ---------------------------
+      - name: Generate thumbnail
+        run: python scripts/generate_thumbnail.py
+
+      # ---------------------------
+      # UPLOAD TO YOUTUBE
+      # ---------------------------
+      - name: Upload to YouTube
+        run: python scripts/upload_youtube.py
+
+      # ---------------------------
+      # MARK DONE
+      # ---------------------------
+      - name: Mark topic done
+        run: python scripts/mark_done.py
+
+      # ---------------------------
+      # CLEANUP
+      # ---------------------------
+      - name: Cleanup workspace
+        run: |
+          rm -rf *.png *.wav *.mp4 *.srt \
+            slide_plan.json slide_audio_map.json mcq_link.txt

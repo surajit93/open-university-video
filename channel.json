@@ -1,0 +1,11 @@
+{
+  "channel_name": "Open University",
+  "default_tags": [
+    "education",
+    "online course",
+    "university lecture",
+    "self learning"
+  ],
+  "channel_footer": "📚 Open University\nHigh-quality academic lectures and practice tests.\nSubscribe for structured learning.",
+  "max_daily_uploads": 5
+}

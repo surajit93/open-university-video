@@ -1,0 +1,3750 @@
+{
+  "version": "1.0",
+  "content_strategy": "University-grade long-form lectures",
+  "topics": [
+    {
+      "id": "computer_science_foundations_001",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_002",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_003",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_004",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_005",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_006",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_007",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_008",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_009",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_010",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_011",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "computer_science_foundations_012",
+      "domain": "cs",
+      "track": "computer_science_foundations",
+      "level": "foundation",
+      "title": "Computer Science Foundations — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "computer science foundations",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_001",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_002",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_003",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_004",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_005",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_006",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_007",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_008",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_009",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_010",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_011",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "data_structures_algorithms_012",
+      "domain": "cs",
+      "track": "data_structures_algorithms",
+      "level": "foundation",
+      "title": "Data Structures Algorithms — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "data structures algorithms",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_001",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_002",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_003",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_004",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_005",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_006",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_007",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_008",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_009",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_010",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_011",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "system_design_012",
+      "domain": "cs",
+      "track": "system_design",
+      "level": "foundation",
+      "title": "System Design — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "system design",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_001",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_002",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_003",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_004",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_005",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_006",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_007",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_008",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_009",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_010",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_011",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "databases_012",
+      "domain": "cs",
+      "track": "databases",
+      "level": "foundation",
+      "title": "Databases — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "databases",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_001",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_002",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_003",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_004",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_005",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_006",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_007",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_008",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_009",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_010",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_011",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "networking_012",
+      "domain": "cs",
+      "track": "networking",
+      "level": "foundation",
+      "title": "Networking — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "networking",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_001",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_002",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_003",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_004",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_005",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_006",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_007",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_008",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_009",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_010",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_011",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cloud_computing_012",
+      "domain": "cs",
+      "track": "cloud_computing",
+      "level": "foundation",
+      "title": "Cloud Computing — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cloud computing",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_001",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_002",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_003",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_004",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_005",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_006",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_007",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_008",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_009",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_010",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_011",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "ai_for_non_ai_012",
+      "domain": "cs",
+      "track": "ai_for_non_ai",
+      "level": "foundation",
+      "title": "Ai For Non Ai — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "ai for non ai",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_001",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_002",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_003",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_004",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_005",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_006",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_007",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_008",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_009",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_010",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_011",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "software_engineering_012",
+      "domain": "cs",
+      "track": "software_engineering",
+      "level": "foundation",
+      "title": "Software Engineering — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "software engineering",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_001",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_002",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_003",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_004",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_005",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_006",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_007",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_008",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_009",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_010",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_011",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "cybersecurity_012",
+      "domain": "cs",
+      "track": "cybersecurity",
+      "level": "foundation",
+      "title": "Cybersecurity — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "cybersecurity",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_001",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_002",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_003",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_004",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_005",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_006",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_007",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_008",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_009",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_010",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_011",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "finance_for_engineers_012",
+      "domain": "finance",
+      "track": "finance_for_engineers",
+      "level": "foundation",
+      "title": "Finance For Engineers — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "finance for engineers",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_001",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_002",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_003",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_004",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_005",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_006",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_007",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_008",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_009",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_010",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_011",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "career_intelligence_012",
+      "domain": "career",
+      "track": "career_intelligence",
+      "level": "foundation",
+      "title": "Career Intelligence — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "career intelligence",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_001",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 1",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_002",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 2",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_003",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 3",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_004",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 4",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_005",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 5",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_006",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 6",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_007",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 7",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_008",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 8",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_009",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 9",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_010",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 10",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_011",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 11",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "tech_failures_012",
+      "domain": "cs",
+      "track": "tech_failures",
+      "level": "foundation",
+      "title": "Tech Failures — Concept 12",
+      "learning_objectives": [
+        "Understand the core concept deeply",
+        "Explain the concept using first principles",
+        "Reason about real-world implications"
+      ],
+      "key_questions": [
+        "Why does this concept exist?",
+        "What problem does it solve?",
+        "What breaks if it is misunderstood?"
+      ],
+      "outline": "Concept motivation, internal mechanics, real-world examples, common misconceptions, practical consequences",
+      "slide_guidance": "Prefer diagrams and system flows. Avoid text-only slides unless strictly necessary.",
+      "expected_duration_min": 8,
+      "tags": [
+        "tech failures",
+        "education",
+        "fundamentals"
+      ],
+      "status": "pending"
+    }
+  ]
+}
