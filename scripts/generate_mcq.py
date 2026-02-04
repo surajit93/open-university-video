@@ -17,7 +17,7 @@ CURRENT_TOPIC_FILE = Path("current_topic.json")
 TRANSCRIPT_FILE = Path("script.txt")
 
 # MCQ REPO OUTPUT
-MCQ_REPO_ROOT = Path("../open-university-mcq")
+MCQ_REPO_ROOT = Path("open-university-mcq")
 MCQ_OUTPUT_DIR = MCQ_REPO_ROOT / "tests"
 
 PAYPAL_ID_FILE = MCQ_REPO_ROOT / "PAYPAL_ID.txt"
