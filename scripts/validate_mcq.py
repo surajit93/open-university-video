@@ -1,6 +1,7 @@
 import sys
-from pathlib import Path
+import json
 import re
+from pathlib import Path
 
 # ============================
 # CONFIG
@@ -18,6 +19,25 @@ def fail(msg: str):
     sys.exit(1)
 
 
+def extract_questions(html: str):
+    """
+    Extracts the QUESTIONS JS array from HTML.
+    """
+    match = re.search(
+        r"const QUESTIONS\s*=\s*(\[[\s\S]*?\]);",
+        html
+    )
+    if not match:
+        fail("QUESTIONS array not found in MCQ HTML")
+
+    raw = match.group(1)
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        fail(f"QUESTIONS JSON invalid: {e}")
+
+
 def main():
     if not MCQ_REPO_ROOT.exists():
         fail("open-university-mcq repo not found")
@@ -30,14 +50,17 @@ def main():
     if not html_files:
         fail("No MCQ HTML files found in tests/")
 
-    # Validate the most recent MCQ
     mcq_file = html_files[-1]
     html = mcq_file.read_text(encoding="utf-8")
+
+    questions = extract_questions(html)
 
     # ----------------------------
     # Question count
     # ----------------------------
-    questions = re.findall(r'class="question"', html)
+    if not isinstance(questions, list):
+        fail("QUESTIONS is not a list")
+
     if len(questions) != REQUIRED_QUESTIONS:
         fail(
             f"Expected {REQUIRED_QUESTIONS} questions, "
@@ -45,19 +68,30 @@ def main():
         )
 
     # ----------------------------
-    # Options per question
+    # Per-question validation
     # ----------------------------
-    option_blocks = re.findall(
-        r'<input type="radio" name="q\d+"',
-        html
-    )
+    for i, q in enumerate(questions):
+        if not isinstance(q, dict):
+            fail(f"Question {i} is not an object")
 
-    if len(option_blocks) != REQUIRED_QUESTIONS * REQUIRED_OPTIONS:
-        fail(
-            f"Expected {REQUIRED_OPTIONS} options per question "
-            f"({REQUIRED_QUESTIONS * REQUIRED_OPTIONS} total), "
-            f"found {len(option_blocks)}"
-        )
+        for key in ["q", "options", "answer"]:
+            if key not in q:
+                fail(f"Question {i} missing key: {key}")
+
+        if not isinstance(q["options"], list):
+            fail(f"Question {i} options not a list")
+
+        if len(q["options"]) != REQUIRED_OPTIONS:
+            fail(
+                f"Question {i} expected {REQUIRED_OPTIONS} options, "
+                f"found {len(q['options'])}"
+            )
+
+        if not isinstance(q["answer"], int):
+            fail(f"Question {i} answer is not an integer")
+
+        if q["answer"] < 0 or q["answer"] >= REQUIRED_OPTIONS:
+            fail(f"Question {i} answer index out of range")
 
     print(f"✔ MCQ validation passed ({mcq_file.name})")
 
