@@ -1,5 +1,3 @@
-# generate_narration.py
-
 import json, os, sys, re
 from pathlib import Path
 from groq import Groq
@@ -8,28 +6,22 @@ from groq import Groq
 # CONFIG
 # ============================
 
-GROQ_API_KEY = os.environ["GROQ_API_KEY"]
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 MODEL = "llama-3.1-8b-instant"
 
 SLIDE_PLAN_FILE = Path("slide_plan.json")
 SLIDE_AUDIO_MAP_FILE = Path("slide_audio_map.json")
 
-# ✅ transcript output for MCQ generation
+# transcript output for MCQ generation
 SCRIPT_FILE = Path("script.txt")
 
 MIN_WORDS = 750
-
-client = Groq(api_key=GROQ_API_KEY)
 
 # ============================
 # SAFE JSON EXTRACTION
 # ============================
 
 def extract_json(text: str) -> dict:
-    """
-    Extract the FIRST valid JSON object from model output.
-    Handles extra text, newlines, trailing commentary.
-    """
     text = text.strip()
 
     # Fast path
@@ -46,18 +38,29 @@ def extract_json(text: str) -> dict:
 
     return json.loads(match.group(0))
 
+
 # ============================
 # MAIN
 # ============================
 
 def main():
+    if not GROQ_API_KEY:
+        print("ERROR: GROQ_API_KEY missing or empty")
+        sys.exit(1)
+
     if not SLIDE_PLAN_FILE.exists():
         print("ERROR: slide_plan.json missing")
         sys.exit(1)
 
     slides = json.loads(
         SLIDE_PLAN_FILE.read_text(encoding="utf-8")
-    )["slides"]
+    ).get("slides")
+
+    if not slides or not isinstance(slides, list):
+        print("ERROR: slides missing or invalid in slide_plan.json")
+        sys.exit(1)
+
+    client = Groq(api_key=GROQ_API_KEY)
 
     prompt = f"""
 Generate ONLY narration JSON.
@@ -117,6 +120,18 @@ Rules:
         sys.exit(1)
 
     # ---------------------------
+    # 🔒 HARD ALIGNMENT CHECK
+    # ---------------------------
+    slide_ids = [s["slide_id"] for s in slides]
+    narration_ids = [n.get("slide_id") for n in narration]
+
+    if narration_ids != slide_ids:
+        print("ERROR: narration slide_id mismatch")
+        print("Slides:   ", slide_ids)
+        print("Narration:", narration_ids)
+        sys.exit(1)
+
+    # ---------------------------
     # WRITE slide_audio_map.json
     # ---------------------------
     SLIDE_AUDIO_MAP_FILE.write_text(
@@ -126,13 +141,14 @@ Rules:
     print("✔ slide_audio_map.json written")
 
     # ---------------------------
-    # WRITE script.txt (MCQ input)
+    # WRITE script.txt
     # ---------------------------
     SCRIPT_FILE.write_text(
         "\n\n".join(n["spoken_text"] for n in narration),
         encoding="utf-8"
     )
     print("✔ script.txt written")
+
 
 if __name__ == "__main__":
     main()
