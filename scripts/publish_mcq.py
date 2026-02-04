@@ -13,7 +13,7 @@ from pathlib import Path
 # CONFIG
 # =========================
 
-MCQ_REPO_ROOT = Path("../open-university-mcq")
+MCQ_REPO_ROOT = Path("open-university-mcq")
 MCQ_TESTS_DIR = MCQ_REPO_ROOT / "tests"
 
 CURRENT_TOPIC_FILE = Path("current_topic.json")
