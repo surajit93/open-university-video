@@ -1,6 +1,7 @@
 import json, os, sys, re
 from pathlib import Path
 from groq import Groq
+from collections import OrderedDict
 
 # ============================
 # CONFIG
@@ -24,19 +25,51 @@ MIN_WORDS = 750
 def extract_json(text: str) -> dict:
     text = text.strip()
 
-    # Fast path
     if text.startswith("{") and text.endswith("}"):
         return json.loads(text)
 
-    # Regex fallback
     match = re.search(r"\{[\s\S]*\}", text)
     if not match:
         print("❌ No JSON object found in LLM output")
-        print("----- RAW OUTPUT (first 1000 chars) -----")
         print(text[:1000])
         raise ValueError("No JSON object found")
 
     return json.loads(match.group(0))
+
+
+# ============================
+# 🔧 NARRATION NORMALIZATION
+# ============================
+
+def normalize_narration(narration: list, slides: list) -> list:
+    """
+    Merge multiple narration entries per slide_id into ONE.
+    Deterministic, order-safe, validator-safe.
+    """
+    merged = OrderedDict()
+
+    for entry in narration:
+        sid = entry.get("slide_id")
+        text = entry.get("spoken_text", "").strip()
+
+        if sid not in merged:
+            merged[sid] = []
+        if text:
+            merged[sid].append(text)
+
+    normalized = []
+    for slide in slides:
+        sid = slide["slide_id"]
+        if sid not in merged:
+            print(f"ERROR: missing narration for slide {sid}")
+            sys.exit(1)
+
+        normalized.append({
+            "slide_id": sid,
+            "spoken_text": "\n\n".join(merged[sid])
+        })
+
+    return normalized
 
 
 # ============================
@@ -93,10 +126,7 @@ Rules:
         messages=[
             {
                 "role": "system",
-                "content": (
-                    "You are a university lecturer. "
-                    "Return STRICT JSON only."
-                )
+                "content": "You are a university lecturer. Return STRICT JSON only."
             },
             {
                 "role": "user",
@@ -114,22 +144,13 @@ Rules:
     except Exception:
         sys.exit(1)
 
-    narration = data.get("narration")
-    if not narration or not isinstance(narration, list):
+    narration_raw = data.get("narration")
+    if not narration_raw or not isinstance(narration_raw, list):
         print("ERROR: narration missing or invalid")
         sys.exit(1)
 
-    # ---------------------------
-    # 🔒 HARD ALIGNMENT CHECK
-    # ---------------------------
-    slide_ids = [s["slide_id"] for s in slides]
-    narration_ids = [n.get("slide_id") for n in narration]
-
-    if narration_ids != slide_ids:
-        print("ERROR: narration slide_id mismatch")
-        print("Slides:   ", slide_ids)
-        print("Narration:", narration_ids)
-        sys.exit(1)
+    # 🔧 NORMALIZE (THIS FIXES YOUR ERROR)
+    narration = normalize_narration(narration_raw, slides)
 
     # ---------------------------
     # WRITE slide_audio_map.json
