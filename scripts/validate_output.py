@@ -3,6 +3,7 @@
 import json
 import sys
 from pathlib import Path
+from collections import OrderedDict
 
 # ================================
 # CONFIG
@@ -22,14 +23,10 @@ ALLOWED_VISUALS = {
 }
 
 # ================================
-# AUTO-REPAIR (CRITICAL FIX)
+# AUTO-REPAIR (DIAGRAMS)
 # ================================
 
 def repair_diagram_boxes(slides: list) -> bool:
-    """
-    Ensures all diagram-based slides have explicit diagram_boxes.
-    Returns True if any repair was applied.
-    """
     repaired = False
 
     for slide in slides:
@@ -45,7 +42,6 @@ def repair_diagram_boxes(slides: list) -> bool:
                     .get("core_idea", "Core Concept")
                 )
 
-                # Deterministic, renderer-safe defaults
                 left["diagram_boxes"] = [
                     {"id": "A", "label": core},
                     {"id": "B", "label": "Key Mechanism"},
@@ -63,13 +59,37 @@ def repair_diagram_boxes(slides: list) -> bool:
     return repaired
 
 # ================================
+# AUTO-REPAIR (AUDIO ALIGNMENT)
+# ================================
+
+def repair_audio_alignment(audio_map: list) -> list:
+    """
+    Ensures exactly ONE narration entry per slide_id.
+    If multiple entries exist, merges spoken_text safely.
+    """
+    merged = OrderedDict()
+
+    for item in audio_map:
+        sid = item.get("slide_id")
+        text = item.get("spoken_text", "").strip()
+
+        if sid not in merged:
+            merged[sid] = {
+                "slide_id": sid,
+                "spoken_text": text
+            }
+        else:
+            # Merge narration blocks deterministically
+            if text:
+                merged[sid]["spoken_text"] += "\n\n" + text
+
+    return list(merged.values())
+
+# ================================
 # VALIDATION LOGIC
 # ================================
 
 def validate(slide_plan: dict, audio_map: list):
-    # ----------------------------
-    # Top-level structure
-    # ----------------------------
     if "slides" not in slide_plan:
         raise AssertionError("slide_plan.json missing top-level 'slides' key")
 
@@ -82,17 +102,28 @@ def validate(slide_plan: dict, audio_map: list):
         raise AssertionError("slide_audio_map.json must be a list")
 
     # ----------------------------
-    # 🔧 AUTO-REPAIR STEP
+    # 🔧 AUTO-REPAIR: DIAGRAMS
     # ----------------------------
-    repaired = repair_diagram_boxes(slides)
-
-    if repaired:
-        # 🔥 CRITICAL: persist repair
+    diagram_repaired = repair_diagram_boxes(slides)
+    if diagram_repaired:
         SLIDE_PLAN_FILE.write_text(
             json.dumps(slide_plan, indent=2),
             encoding="utf-8"
         )
         print("🛠️  slide_plan.json auto-repaired (diagram_boxes added)")
+
+    # ----------------------------
+    # 🔧 AUTO-REPAIR: AUDIO
+    # ----------------------------
+    original_audio_len = len(audio_map)
+    audio_map = repair_audio_alignment(audio_map)
+
+    if len(audio_map) != original_audio_len:
+        AUDIO_MAP_FILE.write_text(
+            json.dumps(audio_map, indent=2),
+            encoding="utf-8"
+        )
+        print("🛠️  slide_audio_map.json auto-repaired (merged duplicate slide_id entries)")
 
     # ----------------------------
     # slide_id integrity
