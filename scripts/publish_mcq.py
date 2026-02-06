@@ -20,7 +20,7 @@ CURRENT_TOPIC_FILE = Path("current_topic.json")
 MCQ_LINK_FILE = Path("mcq_link.txt")
 
 GITHUB_PAGES_BASE = "https://surajit93.github.io/open-university-mcq/tests"
-
+TARGET_BRANCH = "main"
 
 # =========================
 # UTILS
@@ -29,16 +29,11 @@ GITHUB_PAGES_BASE = "https://surajit93.github.io/open-university-mcq/tests"
 def run(cmd, cwd=None):
     subprocess.run(cmd, cwd=cwd, check=True)
 
-
 # =========================
 # MAIN
 # =========================
 
 def main():
-    # -------------------------
-    # VALIDATION
-    # -------------------------
-
     if not MCQ_REPO_ROOT.exists():
         print("ERROR: open-university-mcq repo not found")
         sys.exit(1)
@@ -56,34 +51,37 @@ def main():
         print(f"ERROR: MCQ HTML not found: {html_file}")
         sys.exit(1)
 
-    # 🔑 RELATIVE PATH (THIS IS THE FIX)
-    rel_html_path = html_file.relative_to(MCQ_REPO_ROOT)
-
-    # -------------------------
-    # GIT OPERATIONS
-    # -------------------------
-
     print("Publishing MCQ to GitHub Pages...")
 
+    # -------------------------
+    # 🔒 ENSURE BRANCH (CRITICAL)
+    # -------------------------
+    run(["git", "fetch", "origin"], cwd=MCQ_REPO_ROOT)
+    run(["git", "checkout", TARGET_BRANCH], cwd=MCQ_REPO_ROOT)
+    run(["git", "pull", "origin", TARGET_BRANCH], cwd=MCQ_REPO_ROOT)
+
+    # -------------------------
+    # COMMIT
+    # -------------------------
     run(["git", "status", "--short"], cwd=MCQ_REPO_ROOT)
-    run(["git", "add", str(rel_html_path)], cwd=MCQ_REPO_ROOT)
+    run(["git", "add", "tests"], cwd=MCQ_REPO_ROOT)
 
     commit_msg = f"Add MCQ test for topic {topic_id}"
     run(["git", "commit", "-m", commit_msg], cwd=MCQ_REPO_ROOT)
 
-    run(["git", "push"], cwd=MCQ_REPO_ROOT)
+    # -------------------------
+    # PUSH
+    # -------------------------
+    run(["git", "push", "origin", TARGET_BRANCH], cwd=MCQ_REPO_ROOT)
 
     # -------------------------
     # PUBLIC URL
     # -------------------------
-
     mcq_url = f"{GITHUB_PAGES_BASE}/{topic_id}.html"
-
     MCQ_LINK_FILE.write_text(mcq_url, encoding="utf-8")
 
     print("✔ MCQ published")
     print("✔ URL:", mcq_url)
-
 
 if __name__ == "__main__":
     main()
