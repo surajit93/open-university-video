@@ -21,9 +21,26 @@ jobs:
       YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
 
     steps:
-      - uses: actions/checkout@v4
+      # ---------------------------
+      # CHECKOUT (WITH SUBMODULES)
+      # ---------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-            submodules: recursive
+          submodules: recursive
+          fetch-depth: 0
+
+      # ---------------------------
+      # GIT IDENTITY (CRITICAL FOR MCQ PUBLISH)
+      # ---------------------------
+      - name: Configure git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # ---------------------------
+      # PYTHON
+      # ---------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -31,9 +48,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests jq \
-            google-api-python-client google-auth google-auth-oauthlib \
-            pillow moviepy groq
+          python -m pip install --upgrade pip
+          pip install \
+            requests \
+            jq \
+            google-api-python-client \
+            google-auth \
+            google-auth-oauthlib \
+            pillow \
+            moviepy \
+            groq
 
       # ---------------------------
       # TOPIC SELECTION
@@ -42,45 +66,52 @@ jobs:
         run: python scripts/pick_topic.py
 
       # ---------------------------
-      # LLM: SLIDES + NARRATION (ONE CALL)
+      # SLIDES
       # ---------------------------
       - name: Generate slide plan
         run: python scripts/generate_slides.py
-      - name: Generate narration  
+
+      # ---------------------------
+      # NARRATION + script.txt
+      # ---------------------------
+      - name: Generate narration
         run: python scripts/generate_narration.py
 
       # ---------------------------
-      # VALIDATION (HARD FAIL)
+      # VALIDATE SLIDES + AUDIO
       # ---------------------------
       - name: Validate slide + audio output
         run: python scripts/validate_output.py
 
       # ---------------------------
-      # MCQ GENERATION
+      # MCQ GENERATION (GROQ)
       # ---------------------------
-      - name: Generate MCQs (JSON + HTML)
+      - name: Generate MCQs (HTML)
         run: python scripts/generate_mcq.py
 
+      # ---------------------------
+      # MCQ VALIDATION
+      # ---------------------------
       - name: Validate MCQs
         run: python scripts/validate_mcq.py
 
       # ---------------------------
-      # PUBLISH MCQ (GITHUB PAGES)
+      # PUBLISH MCQ (SUBMODULE COMMIT + PUSH)
       # ---------------------------
       - name: Publish MCQ to GitHub Pages
         run: python scripts/publish_mcq.py
 
       # ---------------------------
-      # RENDER VIDEO (COLAB)
+      # VIDEO RENDER
       # ---------------------------
       - name: Call Colab renderer
         run: python scripts/call_colab.py
 
       # ---------------------------
-      # SUBTITLES (SLIDE-ALIGNED)
+      # SUBTITLES
       # ---------------------------
       - name: Generate subtitles
-        run: python scripts/generate_srt.py
+        run: python scripts/generate_subtitles.py
 
       # ---------------------------
       # THUMBNAIL
@@ -95,15 +126,18 @@ jobs:
         run: python scripts/upload_youtube.py
 
       # ---------------------------
-      # MARK DONE
+      # MARK TOPIC DONE
       # ---------------------------
       - name: Mark topic done
         run: python scripts/mark_done.py
 
       # ---------------------------
-      # CLEANUP
+      # CLEANUP (END ONLY)
       # ---------------------------
       - name: Cleanup workspace
         run: |
           rm -rf *.png *.wav *.mp4 *.srt \
-            slide_plan.json slide_audio_map.json mcq_link.txt
+            slide_plan.json \
+            slide_audio_map.json \
+            script.txt \
+            mcq_link.txt
