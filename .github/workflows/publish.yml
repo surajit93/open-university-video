@@ -81,10 +81,12 @@ jobs:
             pillow \
             moviepy \
             groq \
-            torch \
-            torchaudio \
+            torch==2.1.0 \
+            torchaudio==2.1.0 \
             soundfile \
+            transformers==4.35.2 \
             "coqui-tts[codec]"
+
 
       # ---------------------------
       # TOPIC SELECTION
