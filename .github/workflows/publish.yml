@@ -1,5 +1,3 @@
-# .github/workflows/publish.yml
-
 name: Publish Video
 
 on:
@@ -21,24 +19,30 @@ jobs:
       YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
       MCQ_PUSH_TOKEN: ${{ secrets.MCQ_PUSH_TOKEN }}
 
-
     steps:
       # ---------------------------
-      # CHECKOUT (WITH SUBMODULES)
+      # CHECKOUT MAIN REPO ONLY
       # ---------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 0
 
       # ---------------------------
-      # GIT IDENTITY (CRITICAL FOR MCQ PUBLISH)
+      # CLONE MCQ REPO WITH PAT
+      # ---------------------------
+      - name: Clone MCQ repo (PAT authenticated)
+        run: |
+          rm -rf open-university-mcq
+          git clone https://x-access-token:${MCQ_PUSH_TOKEN}@github.com/surajit93/open-university-mcq.git open-university-mcq
+
+      # ---------------------------
+      # GIT IDENTITY (FOR MCQ PUSH)
       # ---------------------------
       - name: Configure git identity
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "Open University CI"
+          git config --global user.email "ci@open-university"
 
       # ---------------------------
       # PYTHON
@@ -86,7 +90,7 @@ jobs:
         run: python scripts/validate_output.py
 
       # ---------------------------
-      # MCQ GENERATION (GROQ)
+      # MCQ GENERATION
       # ---------------------------
       - name: Generate MCQs (HTML)
         run: python scripts/generate_mcq.py
@@ -98,7 +102,7 @@ jobs:
         run: python scripts/validate_mcq.py
 
       # ---------------------------
-      # PUBLISH MCQ (SUBMODULE COMMIT + PUSH)
+      # PUBLISH MCQ (PAT PUSH)
       # ---------------------------
       - name: Publish MCQ to GitHub Pages
         run: python scripts/publish_mcq.py
@@ -134,7 +138,7 @@ jobs:
         run: python scripts/mark_done.py
 
       # ---------------------------
-      # CLEANUP (END ONLY)
+      # CLEANUP
       # ---------------------------
       - name: Cleanup workspace
         run: |
