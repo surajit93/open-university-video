@@ -56,6 +56,9 @@ def main():
         print(f"ERROR: MCQ HTML not found: {html_file}")
         sys.exit(1)
 
+    # 🔑 RELATIVE PATH (THIS IS THE FIX)
+    rel_html_path = html_file.relative_to(MCQ_REPO_ROOT)
+
     # -------------------------
     # GIT OPERATIONS
     # -------------------------
@@ -63,7 +66,7 @@ def main():
     print("Publishing MCQ to GitHub Pages...")
 
     run(["git", "status", "--short"], cwd=MCQ_REPO_ROOT)
-    run(["git", "add", str(html_file)], cwd=MCQ_REPO_ROOT)
+    run(["git", "add", str(rel_html_path)], cwd=MCQ_REPO_ROOT)
 
     commit_msg = f"Add MCQ test for topic {topic_id}"
     run(["git", "commit", "-m", commit_msg], cwd=MCQ_REPO_ROOT)
