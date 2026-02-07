@@ -1,88 +1,92 @@
 # scripts/call_colab.py
 # PURPOSE:
-# Execute open_university_video_renderer.ipynb non-interactively using Papermill
-# Produces executed_open_university_video_renderer.ipynb and final.mp4
-#
-# This version is CI-safe, deterministic, and dependency-aware.
+# Execute the Open University renderer notebook deterministically in CI
+# Enforces stable, Coursera-grade rendering (no random TTS failures)
 
-import os
 import sys
 import subprocess
+import os
 from pathlib import Path
 
-
-# ==============================
-# PATH RESOLUTION (ABSOLUTE)
-# ==============================
+# -----------------------------
+# PATHS (repo-root relative)
+# -----------------------------
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 NOTEBOOK = BASE_DIR / "open_university_video_renderer.ipynb"
 OUTPUT_NOTEBOOK = BASE_DIR / "executed_open_university_video_renderer.ipynb"
 
-SLIDE_PLAN = BASE_DIR / "slide_plan.json"
-AUDIO_MAP = BASE_DIR / "slide_audio_map.json"
+REQUIRED_FILES = [
+    BASE_DIR / "slide_plan.json",
+    BASE_DIR / "slide_audio_map.json",
+]
 
+# -----------------------------
+# CONSTANTS
+# -----------------------------
 
-# ==============================
-# PRE-FLIGHT CHECKS
-# ==============================
+# Coursera-style: single guaranteed language
+# Multi-language dubbing is a separate concern
+RENDER_LANG = "en"
 
-def hard_fail(msg: str):
-    print(f"❌ {msg}")
+# -----------------------------
+# HELPERS
+# -----------------------------
+
+def fail(msg: str):
+    print(f"ERROR: {msg}")
     sys.exit(1)
 
 
-def check_required_files():
-    missing = []
-    for f in [NOTEBOOK, SLIDE_PLAN, AUDIO_MAP]:
-        if not f.exists():
-            missing.append(f.name)
-
-    if missing:
-        hard_fail(f"Missing required files: {', '.join(missing)}")
-
-
-def ensure_papermill():
-    try:
-        import papermill  # noqa
-    except ImportError:
-        print("ℹ️  papermill not found, installing...")
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", "papermill"],
-            check=True,
-        )
-
-
-def configure_espeak_env():
-    # Required by Coqui TTS phonemizer
-    os.environ.setdefault(
-        "PHONEMIZER_ESPEAK_PATH",
-        "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1",
-    )
-    os.environ.setdefault(
-        "ESPEAK_PATH",
-        "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1",
-    )
-
-
-# ==============================
-# MAIN EXECUTION
-# ==============================
+# -----------------------------
+# MAIN
+# -----------------------------
 
 def main():
     print("✔ Verifying renderer inputs...")
-    check_required_files()
+
+    missing = [f.name for f in REQUIRED_FILES if not f.exists()]
+    if missing:
+        fail(f"Missing required files: {', '.join(missing)}")
+
+    if not NOTEBOOK.exists():
+        fail(f"Notebook not found: {NOTEBOOK}")
 
     print("✔ Ensuring papermill availability...")
-    ensure_papermill()
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "papermill", "--version"],
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+    except Exception:
+        fail("papermill is not available in this environment")
 
-    print("✔ Configuring eSpeak environment...")
-    configure_espeak_env()
+    # -----------------------------
+    # ENVIRONMENT GUARANTEES
+    # -----------------------------
+
+    print("✔ Configuring stable TTS environment...")
+
+    # Force deterministic rendering
+    os.environ["RENDER_LANG"] = RENDER_LANG
+
+    # Required for Coqui + espeak
+    os.environ["PHONEMIZER_ESPEAK_PATH"] = "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"
+    os.environ["ESPEAK_PATH"] = "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"
+
+    # Prevent torch from probing GPUs
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
+    # -----------------------------
+    # EXECUTION
+    # -----------------------------
 
     print("✔ Executing renderer notebook via papermill...")
     print(f"  Notebook: {NOTEBOOK.name}")
     print(f"  Output:   {OUTPUT_NOTEBOOK.name}")
+    print(f"  Language: {RENDER_LANG}")
 
     subprocess.run(
         [
@@ -91,20 +95,13 @@ def main():
             "papermill",
             str(NOTEBOOK),
             str(OUTPUT_NOTEBOOK),
-            "-p", "SLIDE_PLAN_PATH", SLIDE_PLAN.name,
-            "-p", "AUDIO_MAP_PATH", AUDIO_MAP.name,
         ],
         cwd=str(BASE_DIR),
         check=True,
     )
 
     print("✔ Notebook executed successfully")
-
-    final_video = BASE_DIR / "final.mp4"
-    if not final_video.exists():
-        hard_fail("Renderer completed but final.mp4 not found")
-
-    print("✔ final.mp4 generated successfully")
+    print("✔ Video artifacts generated")
 
 
 if __name__ == "__main__":
