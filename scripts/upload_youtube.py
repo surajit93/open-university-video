@@ -42,7 +42,8 @@ def get_youtube():
         client_secret=CLIENT_SECRET,
         scopes=["https://www.googleapis.com/auth/youtube.upload"],
     )
-    creds.refresh(Request())
+    if not creds.valid:
+        creds.refresh(Request())
     return build("youtube", "v3", credentials=creds)
 
 # =========================
@@ -101,7 +102,6 @@ def main():
                 "title": title,
                 "description": description,
                 "tags": tags,
-                "channelId": CHANNEL_ID,
                 "categoryId": "27",  # Education
             },
             "status": {
@@ -147,7 +147,7 @@ def main():
             },
             media_body=MediaFileUpload(
                 SUBTITLE_FILE,
-                mimetype="application/octet-stream"
+                mimetype="application/x-subrip"
             )
         ).execute()
         print("✔ Subtitles uploaded")
