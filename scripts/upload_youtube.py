@@ -17,8 +17,8 @@ VIDEO_FILE = Path("final.mp4")
 SUBTITLE_FILE = Path("final.srt")
 THUMBNAIL_FILE = Path("thumbnail.png")
 TOPIC_FILE = Path("current_topic.json")
-MCQ_LINK_FILE = Path("mcq_link.txt")          # written by publish_mcq.py
-CHANNEL_META_FILE = Path("channel.json")      # course / channel metadata
+MCQ_LINK_FILE = Path("mcq_link.txt")
+CHANNEL_META_FILE = Path("channel.json")
 
 # =========================
 # ENV
@@ -27,7 +27,6 @@ CHANNEL_META_FILE = Path("channel.json")      # course / channel metadata
 CLIENT_ID = os.environ["YT_CLIENT_ID"]
 CLIENT_SECRET = os.environ["YT_CLIENT_SECRET"]
 REFRESH_TOKEN = os.environ["YT_REFRESH_TOKEN"]
-CHANNEL_ID = os.environ["YT_CHANNEL_ID"]
 
 # =========================
 # AUTH
@@ -73,7 +72,7 @@ def main():
         mcq_link = MCQ_LINK_FILE.read_text(encoding="utf-8").strip()
 
     # -------------------------
-    # DESCRIPTION (ENRICHED)
+    # DESCRIPTION
     # -------------------------
 
     description = base_desc.strip()
@@ -102,7 +101,7 @@ def main():
                 "title": title,
                 "description": description,
                 "tags": tags,
-                "categoryId": "27",  # Education
+                "categoryId": "27",
             },
             "status": {
                 "privacyStatus": "public"
@@ -120,15 +119,18 @@ def main():
     print("✔ Uploaded video:", video_id)
 
     # -------------------------
-    # THUMBNAIL
+    # THUMBNAIL (SAFE)
     # -------------------------
 
     if THUMBNAIL_FILE.exists():
-        youtube.thumbnails().set(
-            videoId=video_id,
-            media_body=MediaFileUpload(THUMBNAIL_FILE)
-        ).execute()
-        print("✔ Thumbnail uploaded")
+        try:
+            youtube.thumbnails().set(
+                videoId=video_id,
+                media_body=MediaFileUpload(THUMBNAIL_FILE)
+            ).execute()
+            print("✔ Thumbnail uploaded")
+        except Exception as e:
+            print("⚠️ Thumbnail skipped:", e)
 
     # -------------------------
     # SUBTITLES
