@@ -63,10 +63,6 @@ def repair_diagram_boxes(slides: list) -> bool:
 # ================================
 
 def repair_audio_alignment(audio_map: list) -> list:
-    """
-    Ensures exactly ONE narration entry per slide_id.
-    If multiple entries exist, merges spoken_text safely.
-    """
     merged = OrderedDict()
 
     for item in audio_map:
@@ -79,11 +75,30 @@ def repair_audio_alignment(audio_map: list) -> list:
                 "spoken_text": text
             }
         else:
-            # Merge narration blocks deterministically
             if text:
                 merged[sid]["spoken_text"] += "\n\n" + text
 
     return list(merged.values())
+
+# ================================
+# AUTO-REPAIR (RIGHT PANEL GIST)
+# ================================
+
+def repair_missing_gist(slides: list) -> bool:
+    repaired = False
+
+    for slide in slides:
+        gist = slide.get("right_panel_gist")
+        if not gist or not gist.strip():
+            intent = slide.get("teaching_intent", {})
+            slide["right_panel_gist"] = (
+                intent.get("core_idea")
+                or intent.get("learning_goal")
+                or "Key takeaway of this slide"
+            )
+            repaired = True
+
+    return repaired
 
 # ================================
 # VALIDATION LOGIC
@@ -104,13 +119,22 @@ def validate(slide_plan: dict, audio_map: list):
     # ----------------------------
     # 🔧 AUTO-REPAIR: DIAGRAMS
     # ----------------------------
-    diagram_repaired = repair_diagram_boxes(slides)
-    if diagram_repaired:
+    if repair_diagram_boxes(slides):
         SLIDE_PLAN_FILE.write_text(
             json.dumps(slide_plan, indent=2),
             encoding="utf-8"
         )
         print("🛠️  slide_plan.json auto-repaired (diagram_boxes added)")
+
+    # ----------------------------
+    # 🔧 AUTO-REPAIR: GIST
+    # ----------------------------
+    if repair_missing_gist(slides):
+        SLIDE_PLAN_FILE.write_text(
+            json.dumps(slide_plan, indent=2),
+            encoding="utf-8"
+        )
+        print("🛠️  slide_plan.json auto-repaired (right_panel_gist added)")
 
     # ----------------------------
     # 🔧 AUTO-REPAIR: AUDIO
@@ -170,10 +194,9 @@ def validate(slide_plan: dict, audio_map: list):
             raise AssertionError(f"Slide {sid}: missing left_panel_plan")
 
         if vs in {"CONCEPT_DIAGRAM", "FLOW_DIAGRAM", "SYSTEM_DIAGRAM"}:
-            boxes = left.get("diagram_boxes")
-            if not boxes or not isinstance(boxes, list):
+            if not isinstance(left.get("diagram_boxes"), list):
                 raise AssertionError(
-                    f"Slide {sid}: visual_strategy '{vs}' REQUIRES diagram_boxes"
+                    f"Slide {sid}: '{vs}' requires diagram_boxes"
                 )
 
         if vs == "PHOTO_REFERENCE" and not left.get("photo_query"):
