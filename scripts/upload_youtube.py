@@ -29,6 +29,15 @@ CLIENT_SECRET = os.environ["YT_CLIENT_SECRET"]
 REFRESH_TOKEN = os.environ["YT_REFRESH_TOKEN"]
 
 # =========================
+# SCOPES (CRITICAL)
+# =========================
+
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.force-ssl",
+]
+
+# =========================
 # AUTH
 # =========================
 
@@ -39,10 +48,16 @@ def get_youtube():
         token_uri="https://oauth2.googleapis.com/token",
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
-        scopes=["https://www.googleapis.com/auth/youtube.upload"],
+        scopes=SCOPES,  # MUST be here
     )
-    if not creds.valid:
-        creds.refresh(Request())
+
+    # Always refresh explicitly
+    creds.refresh(Request())
+
+    # Safety check (debug once if needed)
+    if not creds.scopes or "youtube.force-ssl" not in " ".join(creds.scopes):
+        raise RuntimeError(f"Invalid OAuth scopes on token: {creds.scopes}")
+
     return build("youtube", "v3", credentials=creds)
 
 # =========================
@@ -94,7 +109,7 @@ def main():
     # UPLOAD VIDEO
     # -------------------------
 
-    request = youtube.videos().insert(
+    response = youtube.videos().insert(
         part="snippet,status",
         body={
             "snippet": {
@@ -112,28 +127,24 @@ def main():
             mimetype="video/mp4",
             resumable=True
         )
-    )
+    ).execute()
 
-    response = request.execute()
     video_id = response["id"]
     print("✔ Uploaded video:", video_id)
 
     # -------------------------
-    # THUMBNAIL (SAFE)
+    # THUMBNAIL
     # -------------------------
 
     if THUMBNAIL_FILE.exists():
-        try:
-            youtube.thumbnails().set(
-                videoId=video_id,
-                media_body=MediaFileUpload(THUMBNAIL_FILE)
-            ).execute()
-            print("✔ Thumbnail uploaded")
-        except Exception as e:
-            print("⚠️ Thumbnail skipped:", e)
+        youtube.thumbnails().set(
+            videoId=video_id,
+            media_body=MediaFileUpload(THUMBNAIL_FILE)
+        ).execute()
+        print("✔ Thumbnail uploaded")
 
     # -------------------------
-    # SUBTITLES
+    # SUBTITLES (THIS WAS FAILING)
     # -------------------------
 
     if SUBTITLE_FILE.exists():
