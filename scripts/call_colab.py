@@ -26,8 +26,6 @@ REQUIRED_FILES = [
 # CONSTANTS
 # -----------------------------
 
-# Coursera-style: single guaranteed language
-# Multi-language dubbing is a separate concern
 RENDER_LANG = "en"
 
 # -----------------------------
@@ -37,7 +35,6 @@ RENDER_LANG = "en"
 def fail(msg: str):
     print(f"ERROR: {msg}")
     sys.exit(1)
-
 
 # -----------------------------
 # MAIN
@@ -69,15 +66,19 @@ def main():
 
     print("✔ Configuring stable TTS environment...")
 
-    # Force deterministic rendering
+    # Deterministic language
     os.environ["RENDER_LANG"] = RENDER_LANG
 
-    # Required for Coqui + espeak
+    # Coqui + espeak
     os.environ["PHONEMIZER_ESPEAK_PATH"] = "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"
     os.environ["ESPEAK_PATH"] = "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"
 
-    # Prevent torch from probing GPUs
+    # Hard-disable GPU + thread storms (BIG slowdown fix)
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
     # -----------------------------
     # EXECUTION
@@ -95,6 +96,9 @@ def main():
             "papermill",
             str(NOTEBOOK),
             str(OUTPUT_NOTEBOOK),
+            "--log-output",
+            "--progress-bar",
+            "--request-save-on-cell-execute",
         ],
         cwd=str(BASE_DIR),
         check=True,
@@ -102,7 +106,6 @@ def main():
 
     print("✔ Notebook executed successfully")
     print("✔ Video artifacts generated")
-
 
 if __name__ == "__main__":
     main()
