@@ -8,6 +8,18 @@ from scripts.expected_value_model import run_expected_value_projection
 from scripts.manual_override import check_manual_override
 from config.channel_growth_plan import load_growth_plan
 
+def fail_fast(stage_name):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                raise RuntimeError(
+                    f"Pipeline halted at stage '{stage_name}': {str(e)}"
+                )
+        return wrapper
+    return decorator
+
 
 # ===============================
 # LOGGING SETUP
