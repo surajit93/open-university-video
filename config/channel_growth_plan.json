@@ -1,0 +1,7 @@
+{
+  "min_upload_commitment": 100,
+  "optimization_window": 10,
+  "no_major_pivot_before": 30,
+  "ctr_shift_threshold": 5,
+  "retention_shift_threshold": 5
+}
