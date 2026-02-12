@@ -1,5 +1,11 @@
 import sqlite3
 import datetime
+from googleapiclient.discovery import build
+from scripts.youtube_auth import get_authenticated_credentials
+from scripts.retry_utils import retry_with_backoff
+import json
+import os
+
 
 PERF_DB = "data/performance.db"
 IMPROVE_DB = "data/improvement_history.db"
