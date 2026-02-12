@@ -1,87 +1,75 @@
-import datetime
+import time
 import logging
-from pathlib import Path
-
-from scripts.upload_cadence_enforcer import enforce_cadence
-from scripts.runway_guard import check_runway
-from scripts.manual_override import should_pause
-from scripts.expected_value_model import calculate_expected_growth
+from scripts.upload_cadence_enforcer import enforce_upload_cadence
+from scripts.runway_guard import enforce_runway_guard
 from scripts.performance_tracker import track_performance
 from scripts.adaptive_optimizer import run_adaptive_optimization
+from scripts.expected_value_model import run_expected_value_projection
+from scripts.manual_override import check_manual_override
+from config.channel_growth_plan import load_growth_plan
 
-from config_loader import load_channel_config, load_growth_plan
 
-logging.basicConfig(level=logging.INFO)
+# ===============================
+# LOGGING SETUP
+# ===============================
 
-class OrchestratorState:
-    INIT = "INIT"
-    TOPIC = "TOPIC"
-    SCRIPT = "SCRIPT"
-    VALIDATION = "VALIDATION"
-    PACKAGING = "PACKAGING"
-    RENDER = "RENDER"
-    UPLOAD = "UPLOAD"
-    TRACK = "TRACK"
-    OPTIMIZE = "OPTIMIZE"
-    COMPLETE = "COMPLETE"
-    PAUSED = "PAUSED"
+logging.basicConfig(
+    filename="logs/pipeline.log",
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
 
-class VideoOrchestrator:
 
-    def __init__(self):
-        self.channel_config = load_channel_config()
-        self.growth_plan = load_growth_plan()
-        self.state = OrchestratorState.INIT
+# ===============================
+# STATE MACHINE
+# ===============================
+
+class PipelineOrchestrator:
+
+    def __init__(self, video_id):
+        self.video_id = video_id
 
     def run(self):
-        logging.info("Starting lifecycle orchestration")
+        start_time = time.time()
 
-        if should_pause():
-            self.state = OrchestratorState.PAUSED
-            logging.warning("System paused due to override rules")
-            return
+        try:
+            logging.info("Pipeline started.")
 
-        self.state = OrchestratorState.TOPIC
-        self.generate_topic()
+            # 1️⃣ Manual Override Check
+            if check_manual_override():
+                logging.warning("Manual override active. Halting pipeline.")
+                return
 
-        self.state = OrchestratorState.SCRIPT
-        self.generate_script()
+            # 2️⃣ Runway Protection
+            enforce_runway_guard()
 
-        self.state = OrchestratorState.VALIDATION
-        self.validate_script()
+            # 3️⃣ Cadence Enforcement
+            enforce_upload_cadence()
 
-        self.state = OrchestratorState.PACKAGING
-        self.package_video()
+            # 4️⃣ Upload already assumed completed
+            logging.info("Upload stage complete.")
 
-        self.state = OrchestratorState.RENDER
-        self.render_video()
+            # 5️⃣ Track Performance
+            track_performance(self.video_id)
 
-        self.state = OrchestratorState.UPLOAD
-        enforce_cadence(self.channel_config)
-        self.upload_video()
+            # 6️⃣ Expected Growth Projection
+            run_expected_value_projection()
 
-        self.state = OrchestratorState.TRACK
-        track_performance()
+            # 7️⃣ Adaptive Optimization
+            run_adaptive_optimization(self.video_id)
 
-        self.state = OrchestratorState.OPTIMIZE
-        check_runway(self.growth_plan)
-        run_adaptive_optimization()
+            duration = time.time() - start_time
+            logging.info(f"Pipeline completed in {duration:.2f} seconds.")
 
-        calculate_expected_growth()
+        except Exception as e:
+            logging.error(f"Pipeline failed: {str(e)}")
+            raise
 
-        self.state = OrchestratorState.COMPLETE
-        logging.info("Lifecycle completed successfully")
 
-    # --- placeholder hooks ---
-    def generate_topic(self): pass
-    def generate_script(self): pass
-    def validate_script(self): pass
-    def package_video(self): pass
-    def render_video(self): pass
-    def upload_video(self): pass
-
+# ===============================
+# ENTRY POINT
+# ===============================
 
 if __name__ == "__main__":
-    orchestrator = VideoOrchestrator()
+    orchestrator = PipelineOrchestrator(video_id="latest_video")
     orchestrator.run()
-
