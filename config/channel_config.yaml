@@ -1,1 +1,18 @@
+brand_voice: "calm_analytical_futurist"
 
+font_family: "Montserrat"
+accent_color: "#00FFC6"
+animation_curve: "ease_in_out_soft"
+
+emotional_mix_targets:
+  fear: 0.35
+  curiosity: 0.40
+  optimism: 0.25
+
+upload_days:
+  - Tuesday
+  - Friday
+
+upload_time: "18:00"
+
+vertical_module: "ai_future"
