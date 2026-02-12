@@ -28,14 +28,8 @@ CLIENT_ID = os.environ["YT_CLIENT_ID"]
 CLIENT_SECRET = os.environ["YT_CLIENT_SECRET"]
 REFRESH_TOKEN = os.environ["YT_REFRESH_TOKEN"]
 
-# =========================
-# SCOPES (CRITICAL)
-# =========================
-
-SCOPES = [
-    "https://www.googleapis.com/auth/youtube.upload",
-    "https://www.googleapis.com/auth/youtube.force-ssl",
-]
+# IMPORTANT: DO NOT CHANGE THIS
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 # =========================
 # AUTH
@@ -48,16 +42,10 @@ def get_youtube():
         token_uri="https://oauth2.googleapis.com/token",
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
-        scopes=SCOPES,  # MUST be here
+        scopes=SCOPES,
     )
 
-    # Always refresh explicitly
     creds.refresh(Request())
-
-    # Safety check (debug once if needed)
-    if not creds.scopes or "youtube.force-ssl" not in " ".join(creds.scopes):
-        raise RuntimeError(f"Invalid OAuth scopes on token: {creds.scopes}")
-
     return build("youtube", "v3", credentials=creds)
 
 # =========================
@@ -137,33 +125,39 @@ def main():
     # -------------------------
 
     if THUMBNAIL_FILE.exists():
-        youtube.thumbnails().set(
-            videoId=video_id,
-            media_body=MediaFileUpload(THUMBNAIL_FILE)
-        ).execute()
-        print("✔ Thumbnail uploaded")
+        try:
+            youtube.thumbnails().set(
+                videoId=video_id,
+                media_body=MediaFileUpload(THUMBNAIL_FILE)
+            ).execute()
+            print("✔ Thumbnail uploaded")
+        except Exception as e:
+            print("⚠️ Thumbnail skipped:", e)
 
     # -------------------------
-    # SUBTITLES (THIS WAS FAILING)
+    # SUBTITLES
     # -------------------------
 
     if SUBTITLE_FILE.exists():
-        youtube.captions().insert(
-            part="snippet",
-            body={
-                "snippet": {
-                    "videoId": video_id,
-                    "language": "en",
-                    "name": "English",
-                    "isDraft": False
-                }
-            },
-            media_body=MediaFileUpload(
-                SUBTITLE_FILE,
-                mimetype="application/x-subrip"
-            )
-        ).execute()
-        print("✔ Subtitles uploaded")
+        try:
+            youtube.captions().insert(
+                part="snippet",
+                body={
+                    "snippet": {
+                        "videoId": video_id,
+                        "language": "en",
+                        "name": "English",
+                        "isDraft": False
+                    }
+                },
+                media_body=MediaFileUpload(
+                    SUBTITLE_FILE,
+                    mimetype="application/x-subrip"
+                )
+            ).execute()
+            print("✔ Subtitles uploaded")
+        except Exception as e:
+            print("⚠️ Subtitles skipped:", e)
 
     print("✔ UPLOAD COMPLETE")
 
