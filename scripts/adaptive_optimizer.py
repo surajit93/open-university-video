@@ -15,6 +15,12 @@ except Exception:
     def detect_plateau(*args, **kwargs):
         return {"plateau": False}
 
+# 🔥 NEW: Retention Dominance Engine (additive only)
+try:
+    from scripts.retention_dominance_engine import RetentionDominanceEngine
+except Exception:
+    RetentionDominanceEngine = None
+
 PERF_DB = "data/performance.db"
 IMPROVE_DB = "data/improvement_history.db"
 
@@ -180,6 +186,28 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         if plateau_signal.get("plateau") or flatten_signal:
             logging.warning("[PLATEAU DETECTED] Subscriber growth flattening.")
             pattern_memory.penalize_recent_pattern(video_id)
+
+    # 🔥 NEW: Retention Dominance Weak Point Detection (additive only)
+    if RetentionDominanceEngine and latest_metrics:
+        try:
+            retention_engine = RetentionDominanceEngine()
+
+            # Safe synthetic curve using available metrics
+            synthetic_curve = [
+                avg_retention,
+                max(avg_retention - 5, 0),
+                max(avg_retention - 12, 0)
+            ]
+
+            weak_points = retention_engine.detect_weak_points(synthetic_curve)
+
+            if weak_points:
+                logging.warning(
+                    f"[RETENTION WEAK POINTS DETECTED] Indices: {weak_points}"
+                )
+
+        except Exception as e:
+            logging.warning(f"[RETENTION ENGINE ERROR] {e}")
 
     # --- ORIGINAL LOGIC BELOW REMAINS UNCHANGED ---
 
