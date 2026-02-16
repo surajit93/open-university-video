@@ -1,15 +1,16 @@
+# scripts/performance_tracker.py
+
 import sqlite3
 import datetime
 import os
 import json
-import time
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
 from scripts.youtube_auth import get_authenticated_credentials
 from scripts.retry_utils import retry_with_backoff
 
 PERF_DB = "data/performance.db"
-IMPROVE_DB = "data/improvement_history.db"
 RETENTION_DIR = "data/retention"
 
 
@@ -43,12 +44,15 @@ def init_performance_db():
 
 
 # ==============================
-# YOUTUBE ANALYTICS SERVICE
+# SAFE ANALYTICS SERVICE
 # ==============================
 
 def get_analytics_service():
-    creds = get_authenticated_credentials()
-    return build("youtubeAnalytics", "v2", credentials=creds)
+    def build_service():
+        creds = get_authenticated_credentials()
+        return build("youtubeAnalytics", "v2", credentials=creds)
+
+    return retry_with_backoff(build_service)
 
 
 # ==============================
@@ -58,16 +62,15 @@ def get_analytics_service():
 def fetch_video_metrics(video_id, start_date, end_date):
     service = get_analytics_service()
 
-    def query():
-        return service.reports().query(
+    return retry_with_backoff(
+        lambda: service.reports().query(
             ids="channel==MINE",
             startDate=start_date,
             endDate=end_date,
             metrics="views,impressions,averageViewDuration,averageViewPercentage,subscribersGained",
             filters=f"video=={video_id}"
         ).execute()
-
-    return retry_with_backoff(query)
+    )
 
 
 # ==============================
@@ -77,8 +80,8 @@ def fetch_video_metrics(video_id, start_date, end_date):
 def fetch_retention_curve(video_id, start_date, end_date):
     service = get_analytics_service()
 
-    def query():
-        return service.reports().query(
+    return retry_with_backoff(
+        lambda: service.reports().query(
             ids="channel==MINE",
             startDate=start_date,
             endDate=end_date,
@@ -87,22 +90,17 @@ def fetch_retention_curve(video_id, start_date, end_date):
             filters=f"video=={video_id}",
             sort="elapsedVideoTimeRatio"
         ).execute()
-
-    return retry_with_backoff(query)
+    )
 
 
 def store_retention_curve(video_id, data):
     os.makedirs(RETENTION_DIR, exist_ok=True)
-    path = os.path.join(RETENTION_DIR, f"{video_id}.json")
-    with open(path, "w") as f:
+
+    with open(os.path.join(RETENTION_DIR, f"{video_id}.json"), "w") as f:
         json.dump(data, f)
 
 
 def extract_30s_retention(retention_response):
-    """
-    Extract retention at ~30% timeline.
-    elapsedVideoTimeRatio is between 0 and 1.
-    """
     if "rows" not in retention_response:
         return None
 
@@ -113,10 +111,6 @@ def extract_30s_retention(retention_response):
 
     return None
 
-
-# ==============================
-# VIEWS PER HOUR CALCULATION
-# ==============================
 
 def calculate_views_per_hour(views, published_hours=24):
     if published_hours <= 0:
@@ -141,7 +135,6 @@ def track_performance(video_id, published_hours=24):
 
         store_retention_curve(video_id, retention_response)
 
-        # Parse metrics
         if "rows" not in metrics_response:
             print("No analytics rows returned.")
             return
@@ -151,17 +144,12 @@ def track_performance(video_id, published_hours=24):
         views = int(row[0])
         impressions = int(row[1])
         avg_view_duration = float(row[2])
-        avg_view_pct = float(row[3])
         subscribers_gained = int(row[4])
 
-        ctr = 0
-        if impressions > 0:
-            ctr = (views / impressions) * 100
-
+        ctr = (views / impressions) * 100 if impressions else 0
         retention_30 = extract_30s_retention(retention_response)
         views_per_hour = calculate_views_per_hour(views, published_hours)
-
-        returning_viewer_pct = 0  # Placeholder until cohort query added
+        returning_viewer_pct = 0  # Future cohort integration
 
         conn = sqlite3.connect(PERF_DB)
         cursor = conn.cursor()
@@ -194,6 +182,6 @@ def track_performance(video_id, published_hours=24):
     except Exception as e:
         print(f"[ERROR] Unexpected failure: {e}")
 
-def ensure_retention_folder():
-    os.makedirs("data/retention", exist_ok=True)
 
+def ensure_retention_folder():
+    os.makedirs(RETENTION_DIR, exist_ok=True)
