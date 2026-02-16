@@ -1,5 +1,3 @@
-# scripts/performance_tracker.py
-
 import sqlite3
 import datetime
 import os
@@ -12,6 +10,14 @@ from scripts.youtube_auth import get_authenticated_credentials
 from scripts.retry_utils import retry_with_backoff
 from scripts.analytics_lock import enforce_analytics_lock
 from scripts.dropoff_mapper import DropoffMapper
+
+# 🔥 Optional cost logging (safe fallback if not present)
+try:
+    from scripts.video_cost_engine import log_api_cost
+except Exception:
+    def log_api_cost(*args, **kwargs):
+        pass
+
 
 PERF_DB = "data/performance.db"
 RETENTION_DIR = "data/retention"
@@ -27,6 +33,7 @@ def init_performance_db():
     conn = sqlite3.connect(PERF_DB)
     cursor = conn.cursor()
 
+    # Preserve original columns
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS video_performance (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +45,9 @@ def init_performance_db():
         retention_30 REAL,
         views INTEGER,
         views_per_hour REAL,
-        returning_viewer_pct REAL
+        returning_viewer_pct REAL,
+        subscribers_gained INTEGER,
+        subs_per_1000_views REAL
     )
     """)
 
@@ -93,7 +102,7 @@ def fetch_retention_curve(video_id, start_date, end_date):
 
 
 # =====================================================
-# RETENTION HANDLING
+# RETENTION HANDLING (UNCHANGED)
 # =====================================================
 
 def ensure_retention_folder():
@@ -173,7 +182,7 @@ def calculate_views_per_hour(views, published_hours=24):
 
 def track_performance(video_id, published_hours=24, force=False):
 
-    # 🔒 Analytics lock discipline
+    # 🔒 Analytics lock discipline (UNCHANGED)
     if not force:
         enforce_analytics_lock()
 
@@ -186,6 +195,9 @@ def track_performance(video_id, published_hours=24, force=False):
     try:
         metrics_response = fetch_video_metrics(video_id, start_date, end_date)
         retention_response = fetch_retention_curve(video_id, start_date, end_date)
+
+        # Cost logging (non-blocking)
+        log_api_cost("youtube_analytics_call", 0.001)
 
         store_retention_curve(video_id, retention_response)
 
@@ -206,8 +218,12 @@ def track_performance(video_id, published_hours=24, force=False):
 
         returning_viewer_pct = 0
 
+        subs_per_1000_views = (
+            (subscribers_gained / views) * 1000 if views else 0
+        )
+
         # --------------------------------------------------
-        # STORE METRICS
+        # STORE METRICS (EXTENDED BUT NOT ALTERED)
         # --------------------------------------------------
 
         conn = sqlite3.connect(PERF_DB)
@@ -217,8 +233,9 @@ def track_performance(video_id, published_hours=24, force=False):
         INSERT INTO video_performance (
             video_id, date, impressions, ctr,
             avg_view_duration, retention_30,
-            views, views_per_hour, returning_viewer_pct
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            views, views_per_hour, returning_viewer_pct,
+            subscribers_gained, subs_per_1000_views
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             video_id,
             datetime.datetime.now().isoformat(),
@@ -228,14 +245,16 @@ def track_performance(video_id, published_hours=24, force=False):
             retention_30,
             views,
             views_per_hour,
-            returning_viewer_pct
+            returning_viewer_pct,
+            subscribers_gained,
+            subs_per_1000_views
         ))
 
         conn.commit()
         conn.close()
 
         # --------------------------------------------------
-        # 🔥 AUTO DROP MAPPING
+        # 🔥 AUTO DROP MAPPING (UNCHANGED)
         # --------------------------------------------------
 
         drop_second, drop_retention, severity = detect_major_drop(retention_response)
