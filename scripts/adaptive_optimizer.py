@@ -33,6 +33,31 @@ def get_last_n(n=5):
     return rows
 
 
+def get_latest_video_metrics(video_id):
+    conn = sqlite3.connect(PERF_DB)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT ctr, retention_30, views_per_hour
+    FROM video_performance
+    WHERE video_id = ?
+    ORDER BY id DESC
+    LIMIT 1
+    """, (video_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return None
+
+    return {
+        "ctr": row[0] or 0,
+        "retention_30": row[1] or 0,
+        "velocity": row[2] or 0
+    }
+
+
 def log_breakout_event(video_id, ratio):
     conn = sqlite3.connect(IMPROVE_DB)
     cursor = conn.cursor()
@@ -85,11 +110,28 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
     pattern_memory = PatternSuccessMemory()
     velocity_monitor = VelocityMonitor()
 
+    latest_metrics = get_latest_video_metrics(video_id)
+    breakout_data = velocity_monitor.detect_breakout(video_id)
+
     # ============================================================
-    # 1️⃣ Breakout Detection (Single Video Spike)
+    # STORE PERFORMANCE SNAPSHOT (REAL COUPLING)
     # ============================================================
 
-    breakout_data = velocity_monitor.detect_breakout(video_id)
+    if latest_metrics:
+        pattern_memory.store({
+            "video_id": video_id,
+            "hook_type": "default_hook",         # replace with real hook tag later
+            "thumbnail_style": "dark_centered",  # replace with real style later
+            "emotional_tone": saturated_emotion or "neutral",
+            "twist_position": 0.6,
+            "ctr": latest_metrics["ctr"],
+            "retention_30": latest_metrics["retention_30"],
+            "velocity": latest_metrics["velocity"]
+        })
+
+    # ============================================================
+    # 1️⃣ Breakout Detection
+    # ============================================================
 
     if breakout_data["is_breakout"]:
         logging.warning(
@@ -102,7 +144,7 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         logging.info("[ACTION] Boosting cluster + follow-up priority.")
 
     # ============================================================
-    # 2️⃣ CTR Governance
+    # 2️⃣ CTR Governance (Window-based)
     # ============================================================
 
     if avg_ctr < 4:
@@ -110,7 +152,7 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         pattern_memory.penalize_recent_pattern(video_id)
 
     # ============================================================
-    # 3️⃣ Retention Governance
+    # 3️⃣ Retention Governance (Window-based)
     # ============================================================
 
     if avg_retention < 40:
@@ -123,8 +165,7 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
 
     if allow_pivot and avg_velocity < 5:
         logging.warning(
-            "[RUNWAY COMPLETE + FLAT VELOCITY] "
-            "Angle shift recommended."
+            "[RUNWAY COMPLETE + FLAT VELOCITY] Angle shift recommended."
         )
         pattern_memory.penalize_recent_pattern(video_id)
 
@@ -147,13 +188,11 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         pattern_memory.penalize_emotion(saturated_emotion)
 
     # ============================================================
-    # 7️⃣ Weak Structural Detection
+    # 7️⃣ Weak Structural Detection (Single Video)
     # ============================================================
 
     if breakout_data["ratio"] < 0.8:
-        logging.info(
-            "[UNDERPERFORMING] Penalizing structural pattern."
-        )
+        logging.info("[UNDERPERFORMING] Penalizing structural pattern.")
         pattern_memory.penalize_recent_pattern(video_id)
 
     logging.info("========== ADAPTIVE OPTIMIZATION COMPLETE ==========")
