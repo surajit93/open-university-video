@@ -4,11 +4,13 @@ import re
 
 GREETING_PATTERNS = ["welcome", "today we are going to", "hi everyone"]
 
-PHILOSOPHY_PATTERNS = [
+PHILOSOPHY_KEYWORDS = [
     "why this matters",
     "this affects you",
-    "what changes",
-    "what this means for you"
+    "what this means",
+    "what changes for you",
+    "how this impacts you",
+    "this could change your"
 ]
 
 
@@ -17,7 +19,7 @@ def contains_greeting(text):
 
 
 def contains_stakes(text):
-    keywords = ["could", "risk", "impact", "threat", "future"]
+    keywords = ["could", "risk", "impact", "threat", "future", "change"]
     return any(k in text.lower() for k in keywords)
 
 
@@ -26,21 +28,27 @@ def contains_curiosity(text):
 
 
 def contains_promise(text):
-    keywords = ["in this video", "you will see", "you'll understand"]
+    keywords = [
+        "in this video",
+        "you will see",
+        "you'll understand",
+        "we’ll break down",
+        "let's explore"
+    ]
     return any(k in text.lower() for k in keywords)
 
 
 def contains_philosophy_signal(text):
     """
-    Enforces: viewer relevance must exist.
-    Prevents generic documentary-style drift.
+    Enforces viewer-centered narrative.
+    Prevents documentary drift.
     """
-    return any(p in text.lower() for p in PHILOSOPHY_PATTERNS)
+    return any(k in text.lower() for k in PHILOSOPHY_KEYWORDS)
 
 
 def validate_first30(first30_text):
     """
-    Structural + psychological enforcement.
+    Elite-level structural enforcement.
     """
 
     if contains_greeting(first30_text):
@@ -55,10 +63,9 @@ def validate_first30(first30_text):
     if not contains_promise(first30_text):
         raise Exception("First30 rejected: no clear promise.")
 
-    # 🔥 NEW — Philosophy enforcement
     if not contains_philosophy_signal(first30_text):
         raise Exception(
-            "First30 rejected: missing viewer-relevance philosophy signal."
+            "First30 rejected: missing viewer relevance philosophy."
         )
 
     return True
