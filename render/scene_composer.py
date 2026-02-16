@@ -6,6 +6,12 @@ import json
 import os
 import pickle
 
+# 🔥 NEW – Visual psychology integration (additive only)
+try:
+    from render.visual_psychology_engine import VisualPsychologyEngine
+except Exception:
+    VisualPsychologyEngine = None
+
 
 class SceneComposer:
 
@@ -13,6 +19,10 @@ class SceneComposer:
 
     def __init__(self):
         os.makedirs(self.CACHE_DIR, exist_ok=True)
+
+        # 🔥 NEW – visual psychology engine (additive only)
+        self._visual_engine = VisualPsychologyEngine() if VisualPsychologyEngine else None
+        self._scene_index_counter = 0
 
     def compose_scene(self, scene_data: Dict) -> Dict:
         """
@@ -38,6 +48,15 @@ class SceneComposer:
             "accent_motion_object": scene_data.get("accent_element", "default_glow"),
             "min_active_elements": 2
         }
+
+        # 🔥 NEW – Apply visual psychology before validation (additive only)
+        if self._visual_engine:
+            layout = self._visual_engine.process_scene(
+                layout,
+                self._scene_index_counter
+            )
+
+        self._scene_index_counter += 1
 
         self._validate_scene(layout)
 
