@@ -5,6 +5,7 @@ import logging
 import os
 import sqlite3
 import yaml
+import datetime
 
 from scripts.upload_cadence_enforcer import enforce_upload_cadence
 from scripts.runway_guard import enforce_runway_guard
@@ -16,11 +17,12 @@ from scripts.thumbnail_variation_generator import ThumbnailVariationGenerator
 from scripts.channel_emotional_index import ChannelEmotionalIndex
 from scripts.style_evolution_manager import StyleEvolutionManager
 from scripts.session_depth_optimizer import SessionDepthOptimizer
+from scripts.packaging_guard import enforce_cooling_period
 from config.channel_growth_plan import load_growth_plan
 
 
 # ============================================================
-# FAIL FAST DECORATOR
+# GLOBAL FAIL FAST
 # ============================================================
 
 def fail_fast(stage_name):
@@ -45,10 +47,6 @@ def fail_fast(stage_name):
     return decorator
 
 
-# ============================================================
-# LOGGING SETUP
-# ============================================================
-
 os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
@@ -57,10 +55,6 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
 
-
-# ============================================================
-# HELPERS
-# ============================================================
 
 def get_total_uploads():
     db_path = "data/performance.db"
@@ -80,10 +74,6 @@ def get_total_uploads():
     return count
 
 
-# ============================================================
-# STYLE EVOLUTION
-# ============================================================
-
 @fail_fast("style_evolution_check")
 def run_style_evolution():
     total_uploads = get_total_uploads()
@@ -91,7 +81,6 @@ def run_style_evolution():
     manager = StyleEvolutionManager()
 
     if manager.should_refresh(total_uploads) and total_uploads != 0:
-
         logging.info(f"[STYLE] Evolution triggered at #{total_uploads}")
 
         config_path = "config/channel_config.yaml"
@@ -112,10 +101,6 @@ def run_style_evolution():
         logging.info(f"[STYLE] No evolution. Uploads={total_uploads}")
 
 
-# ============================================================
-# SESSION DEPTH ROUTING
-# ============================================================
-
 @fail_fast("session_depth_optimization")
 def run_session_depth_optimization():
     optimizer = SessionDepthOptimizer()
@@ -133,10 +118,6 @@ def run_session_depth_optimization():
     logging.info("[SESSION] No cluster data.")
     return None
 
-
-# ============================================================
-# WRAPPED CORE STAGES
-# ============================================================
 
 @fail_fast("manual_override_check")
 def run_manual_override_check():
@@ -192,10 +173,6 @@ def run_adaptive(video_id, saturated_emotion=None):
     )
 
 
-# ============================================================
-# STATE MACHINE
-# ============================================================
-
 class PipelineOrchestrator:
 
     def __init__(self, video_id, title_variants=None, emotion_tag="curiosity"):
@@ -205,6 +182,7 @@ class PipelineOrchestrator:
         self.growth_plan = load_growth_plan()
         self.saturated_emotion = None
         self.cluster_recommendation = None
+        self.created_timestamp = datetime.datetime.now()
 
     def enforce_emotional_governance(self):
         index = ChannelEmotionalIndex()
@@ -232,6 +210,8 @@ class PipelineOrchestrator:
         try:
             logging.info("========== PIPELINE STARTED ==========")
 
+            enforce_cooling_period(self.created_timestamp)
+
             run_manual_override_check()
             run_runway_guard()
             run_upload_cadence()
@@ -243,13 +223,10 @@ class PipelineOrchestrator:
 
             run_performance_tracking(self.video_id)
 
-            # Style evolution (30-upload cycle)
             run_style_evolution()
 
-            # Session routing (end-screen logic)
             self.cluster_recommendation = run_session_depth_optimization()
 
-            # Emotional governance
             self.enforce_emotional_governance()
 
             run_expected_projection()
@@ -270,10 +247,6 @@ class PipelineOrchestrator:
             logging.error(f"PIPELINE FAILED: {str(e)}")
             raise
 
-
-# ============================================================
-# ENTRY POINT
-# ============================================================
 
 if __name__ == "__main__":
 
