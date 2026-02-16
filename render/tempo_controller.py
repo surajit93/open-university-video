@@ -1,5 +1,10 @@
 # render/tempo_controller.py
 
+from typing import List, Dict
+import time
+import logging
+
+
 class TempoController:
 
     def validate_tempo(self, scenes: List[Dict]) -> List[Dict]:
@@ -21,3 +26,14 @@ class TempoController:
             scene["overlay_type"] = "micro_transition_graphic"
 
         return scene
+
+    # --------------------------------
+    # 🔥 NEW: RENDER BENCHMARK LOGGING
+    # --------------------------------
+
+    def benchmark_render(self, render_callable, *args, **kwargs):
+        start = time.time()
+        result = render_callable(*args, **kwargs)
+        duration = time.time() - start
+        logging.info(f"[RENDER BENCHMARK] {duration:.3f}s")
+        return result
