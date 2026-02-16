@@ -9,6 +9,7 @@ from googleapiclient.errors import HttpError
 
 from scripts.youtube_auth import get_authenticated_credentials
 from scripts.retry_utils import retry_with_backoff
+from scripts.analytics_lock import enforce_analytics_lock
 
 PERF_DB = "data/performance.db"
 RETENTION_DIR = "data/retention"
@@ -122,8 +123,18 @@ def calculate_views_per_hour(views, published_hours=24):
 # MAIN TRACKING FUNCTION
 # ==============================
 
-def track_performance(video_id, published_hours=24):
+def track_performance(video_id, published_hours=24, force=False):
+    """
+    force=True allows bypassing analytics lock
+    (Use carefully — only for controlled override scenarios)
+    """
+
+    # 🔐 ANALYTICS LOCK ENFORCEMENT
+    if not force:
+        enforce_analytics_lock()
+
     init_performance_db()
+    ensure_retention_folder()
 
     today = datetime.date.today()
     start_date = (today - datetime.timedelta(days=7)).isoformat()
@@ -149,7 +160,9 @@ def track_performance(video_id, published_hours=24):
         ctr = (views / impressions) * 100 if impressions else 0
         retention_30 = extract_30s_retention(retention_response)
         views_per_hour = calculate_views_per_hour(views, published_hours)
-        returning_viewer_pct = 0  # Future cohort integration
+
+        # Future cohort logic placeholder
+        returning_viewer_pct = 0
 
         conn = sqlite3.connect(PERF_DB)
         cursor = conn.cursor()
@@ -182,6 +195,10 @@ def track_performance(video_id, published_hours=24):
     except Exception as e:
         print(f"[ERROR] Unexpected failure: {e}")
 
+
+# ==============================
+# SAFETY INIT
+# ==============================
 
 def ensure_retention_folder():
     os.makedirs(RETENTION_DIR, exist_ok=True)
