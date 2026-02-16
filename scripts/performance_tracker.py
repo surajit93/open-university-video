@@ -4,20 +4,22 @@ import sqlite3
 import datetime
 import os
 import json
+
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from scripts.youtube_auth import get_authenticated_credentials
 from scripts.retry_utils import retry_with_backoff
 from scripts.analytics_lock import enforce_analytics_lock
+from scripts.dropoff_mapper import DropoffMapper
 
 PERF_DB = "data/performance.db"
 RETENTION_DIR = "data/retention"
 
 
-# ==============================
+# =====================================================
 # DATABASE INIT
-# ==============================
+# =====================================================
 
 def init_performance_db():
     os.makedirs("data", exist_ok=True)
@@ -44,9 +46,9 @@ def init_performance_db():
     conn.close()
 
 
-# ==============================
-# SAFE ANALYTICS SERVICE
-# ==============================
+# =====================================================
+# ANALYTICS SERVICE (RETRY SAFE)
+# =====================================================
 
 def get_analytics_service():
     def build_service():
@@ -56,9 +58,9 @@ def get_analytics_service():
     return retry_with_backoff(build_service)
 
 
-# ==============================
+# =====================================================
 # METRICS FETCH
-# ==============================
+# =====================================================
 
 def fetch_video_metrics(video_id, start_date, end_date):
     service = get_analytics_service()
@@ -73,10 +75,6 @@ def fetch_video_metrics(video_id, start_date, end_date):
         ).execute()
     )
 
-
-# ==============================
-# RETENTION CURVE FETCH
-# ==============================
 
 def fetch_retention_curve(video_id, start_date, end_date):
     service = get_analytics_service()
@@ -94,8 +92,16 @@ def fetch_retention_curve(video_id, start_date, end_date):
     )
 
 
-def store_retention_curve(video_id, data):
+# =====================================================
+# RETENTION HANDLING
+# =====================================================
+
+def ensure_retention_folder():
     os.makedirs(RETENTION_DIR, exist_ok=True)
+
+
+def store_retention_curve(video_id, data):
+    ensure_retention_folder()
 
     with open(os.path.join(RETENTION_DIR, f"{video_id}.json"), "w") as f:
         json.dump(data, f)
@@ -113,28 +119,65 @@ def extract_30s_retention(retention_response):
     return None
 
 
+def detect_major_drop(retention_response):
+    if "rows" not in retention_response:
+        return None, None, None
+
+    rows = retention_response["rows"]
+
+    biggest_delta = 0
+    drop_second = None
+    drop_retention = None
+
+    prev = None
+
+    for row in rows:
+        timeline_ratio = float(row[0])
+        retention_value = float(row[1])
+
+        if prev is not None:
+            delta = prev - retention_value
+            if delta > biggest_delta:
+                biggest_delta = delta
+                drop_second = int(timeline_ratio * 600)
+                drop_retention = retention_value * 100
+
+        prev = retention_value
+
+    return drop_second, drop_retention, biggest_delta
+
+
+def infer_scene_type(second):
+    if second is None:
+        return None
+
+    if second < 30:
+        return "hook"
+    elif second < 120:
+        return "early_explanation"
+    elif second < 300:
+        return "mid_body"
+    else:
+        return "late_section"
+
+
 def calculate_views_per_hour(views, published_hours=24):
     if published_hours <= 0:
         return 0
     return views / published_hours
 
 
-# ==============================
-# MAIN TRACKING FUNCTION
-# ==============================
+# =====================================================
+# MAIN TRACKER
+# =====================================================
 
 def track_performance(video_id, published_hours=24, force=False):
-    """
-    force=True allows bypassing analytics lock
-    (Use carefully — only for controlled override scenarios)
-    """
 
-    # 🔐 ANALYTICS LOCK ENFORCEMENT
+    # 🔒 Analytics lock discipline
     if not force:
         enforce_analytics_lock()
 
     init_performance_db()
-    ensure_retention_folder()
 
     today = datetime.date.today()
     start_date = (today - datetime.timedelta(days=7)).isoformat()
@@ -161,8 +204,11 @@ def track_performance(video_id, published_hours=24, force=False):
         retention_30 = extract_30s_retention(retention_response)
         views_per_hour = calculate_views_per_hour(views, published_hours)
 
-        # Future cohort logic placeholder
         returning_viewer_pct = 0
+
+        # --------------------------------------------------
+        # STORE METRICS
+        # --------------------------------------------------
 
         conn = sqlite3.connect(PERF_DB)
         cursor = conn.cursor()
@@ -188,17 +234,27 @@ def track_performance(video_id, published_hours=24, force=False):
         conn.commit()
         conn.close()
 
-        print(f"[PERFORMANCE] Tracked successfully for {video_id}")
+        # --------------------------------------------------
+        # 🔥 AUTO DROP MAPPING
+        # --------------------------------------------------
+
+        drop_second, drop_retention, severity = detect_major_drop(retention_response)
+
+        if drop_second is not None:
+            scene_type = infer_scene_type(drop_second)
+
+            mapper = DropoffMapper()
+            mapper.store_drop(
+                video_id=video_id,
+                drop_second=drop_second,
+                scene_type=scene_type,
+                retention=drop_retention,
+                severity_score=severity
+            )
+
+        print(f"[PERFORMANCE] Full tracking complete for {video_id}")
 
     except HttpError as e:
         print(f"[ERROR] YouTube API error: {e}")
     except Exception as e:
         print(f"[ERROR] Unexpected failure: {e}")
-
-
-# ==============================
-# SAFETY INIT
-# ==============================
-
-def ensure_retention_folder():
-    os.makedirs(RETENTION_DIR, exist_ok=True)
