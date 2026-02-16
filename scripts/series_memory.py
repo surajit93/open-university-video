@@ -56,3 +56,20 @@ class SeriesMemory:
         conn.close()
 
         return row[0] if row else None
+
+    # 🔥 NEW – Safe helper for future structural use (additive only)
+    def latest_series_video(self, series_name: str) -> Optional[str]:
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+        SELECT last_video_id FROM series_memory
+        WHERE series_name = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """, (series_name,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        return row[0] if row else None
