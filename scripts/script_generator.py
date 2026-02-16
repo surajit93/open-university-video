@@ -2,7 +2,6 @@
 from scripts.first30_validator import validate_first30
 from scripts.policy_guard import PolicyGuard
 
-# Existing imports preserved
 try:
     from scripts.global_sensitivity_guard import GlobalSensitivityGuard
 except Exception:
@@ -19,7 +18,6 @@ try:
 except Exception:
     SeriesMemory = None
 
-# 🔥 NEW – Narrative + Emotion engines
 try:
     from scripts.narrative_domination_engine import NarrativeDominationEngine
 except Exception:
@@ -30,6 +28,12 @@ try:
 except Exception:
     EmotionCurveController = None
 
+# 🔥 NEW – Retention Dominance Engine
+try:
+    from scripts.retention_dominance_engine import RetentionDominanceEngine
+except Exception:
+    RetentionDominanceEngine = None
+
 
 class ScriptGenerator:
 
@@ -38,9 +42,9 @@ class ScriptGenerator:
         self.sensitivity_guard = GlobalSensitivityGuard() if GlobalSensitivityGuard else None
         self.series_memory = SeriesMemory() if SeriesMemory else None
 
-        # 🔥 NEW
         self.narrative_engine = NarrativeDominationEngine() if NarrativeDominationEngine else None
         self.emotion_engine = EmotionCurveController() if EmotionCurveController else None
+        self.retention_engine = RetentionDominanceEngine() if RetentionDominanceEngine else None
 
     def extract_first30(self, full_script: str) -> str:
         words = full_script.split()
@@ -86,15 +90,18 @@ class ScriptGenerator:
         script = inject_callbacks(script, topic)
         script = self._inject_series_callback(script, topic)
 
-        # 🔥 Narrative enforcement
         if self.narrative_engine:
             script = self.narrative_engine.enforce_structure(script)
             script = self.narrative_engine.inject_tension_spikes(script)
 
-        # 🔥 Emotion control
         if self.emotion_engine:
             script = self.emotion_engine.analyze(script)
             script = self.emotion_engine.inject_spikes(script)
+
+        # 🔥 Retention Dominance amplification
+        if self.retention_engine:
+            script = self.retention_engine.amplify_script(script)
+            script = self.retention_engine.rewrite_until_personal(script)
 
         self.policy_guard.check(script)
 
