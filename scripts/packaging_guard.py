@@ -2,9 +2,12 @@
 
 import datetime
 import re
+import sqlite3
+import os
 from collections import Counter
 
 COOLING_SECONDS = 86400  # 24 hours
+TITLE_DB = "data/title_history.db"
 
 
 def enforce_cooling_period(created_timestamp):
@@ -52,3 +55,46 @@ def enforce_entropy_guard(title_history: list, new_title: str, threshold=0.75):
         raise RuntimeError("Packaging entropy violation: title too similar.")
 
     return True
+
+
+# 🔥 NEW – Persistent Title Memory (Additive Only)
+
+def _init_title_db():
+    os.makedirs("data", exist_ok=True)
+    conn = sqlite3.connect(TITLE_DB)
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS title_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        created_at TEXT
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def store_title(title: str):
+    _init_title_db()
+    conn = sqlite3.connect(TITLE_DB)
+    cursor = conn.cursor()
+    cursor.execute("""
+    INSERT INTO title_history (title, created_at)
+    VALUES (?, ?)
+    """, (title, datetime.datetime.utcnow().isoformat()))
+    conn.commit()
+    conn.close()
+
+
+def get_last_n_titles(n=20):
+    _init_title_db()
+    conn = sqlite3.connect(TITLE_DB)
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT title FROM title_history
+    ORDER BY id DESC
+    LIMIT ?
+    """, (n,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [r[0] for r in rows]
