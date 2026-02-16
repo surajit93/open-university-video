@@ -1,3 +1,4 @@
+#scripts/thumbnail_swap_scheduler.py
 import sqlite3
 import datetime
 import os
@@ -8,6 +9,13 @@ try:
     from scripts.pattern_success_memory import PatternSuccessMemory
 except Exception:
     PatternSuccessMemory = None
+
+# 🔥 NEW: Real YouTube upload integration (additive only)
+try:
+    from scripts.youtube_upload import upload_thumbnail
+except Exception:
+    def upload_thumbnail(*args, **kwargs):
+        print("[THUMBNAIL] Upload function not available.")
 
 DB = "data/thumbnail_swaps.db"
 
@@ -74,6 +82,12 @@ def execute_due_swaps(performance_lookup_fn):
         if ctr < 0.04:
             print(f"Swapping thumbnail for {video_id}")
             winner = alternate
+
+        # 🔥 NEW: Actual upload execution (additive only)
+        try:
+            upload_thumbnail(video_id, winner)
+        except Exception as e:
+            print(f"[THUMBNAIL UPLOAD ERROR] {e}")
 
         # 🔥 NEW: Winner persistence
         c.execute("""
