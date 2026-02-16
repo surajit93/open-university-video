@@ -1,3 +1,5 @@
+# script/video_cost_engine.py
+
 import sqlite3
 from datetime import datetime
 
@@ -19,6 +21,7 @@ class VideoCostEngine:
             openai_cost REAL,
             tts_cost REAL,
             youtube_quota_units REAL,
+            render_cost REAL,
             total_cost REAL,
             created_at TEXT
         )
@@ -29,22 +32,25 @@ class VideoCostEngine:
     def record(self, video_id: str,
                openai_cost: float = 0.0,
                tts_cost: float = 0.0,
-               youtube_quota_units: float = 0.0):
+               youtube_quota_units: float = 0.0,
+               render_cost: float = 0.0):
 
-        total = openai_cost + tts_cost
+        total = openai_cost + tts_cost + render_cost
 
         conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
         cursor.execute("""
         INSERT INTO video_costs
         (video_id, openai_cost, tts_cost,
-         youtube_quota_units, total_cost, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+         youtube_quota_units, render_cost,
+         total_cost, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             video_id,
             openai_cost,
             tts_cost,
             youtube_quota_units,
+            render_cost,
             total,
             datetime.utcnow().isoformat()
         ))
