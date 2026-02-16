@@ -1,7 +1,13 @@
 # script/video_cost_engine.py
-
 import sqlite3
 from datetime import datetime
+
+# 🔥 NEW: OpenAI token auto-hook (additive only)
+try:
+    from scripts.openai_token_tracker import get_last_openai_cost
+except Exception:
+    def get_last_openai_cost(*args, **kwargs):
+        return 0.0
 
 
 class VideoCostEngine:
@@ -35,6 +41,10 @@ class VideoCostEngine:
                youtube_quota_units: float = 0.0,
                render_cost: float = 0.0):
 
+        # 🔥 Auto inject OpenAI token cost if not provided
+        if openai_cost == 0.0:
+            openai_cost = get_last_openai_cost(video_id)
+
         total = openai_cost + tts_cost + render_cost
 
         conn = sqlite3.connect(self.DB_PATH)
@@ -56,3 +66,4 @@ class VideoCostEngine:
         ))
         conn.commit()
         conn.close()
+
