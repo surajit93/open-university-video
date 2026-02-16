@@ -3,6 +3,8 @@
 import time
 import logging
 import os
+import sqlite3
+import yaml
 
 from scripts.upload_cadence_enforcer import enforce_upload_cadence
 from scripts.runway_guard import enforce_runway_guard
@@ -12,6 +14,7 @@ from scripts.expected_value_model import run_expected_value_projection
 from scripts.manual_override import check_manual_override
 from scripts.thumbnail_variation_generator import ThumbnailVariationGenerator
 from scripts.channel_emotional_index import ChannelEmotionalIndex
+from scripts.style_evolution_manager import StyleEvolutionManager
 from config.channel_growth_plan import load_growth_plan
 
 
@@ -56,6 +59,64 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
+
+
+# ===============================
+# HELPER – TOTAL UPLOAD COUNT
+# ===============================
+
+def get_total_uploads():
+    db_path = "data/performance.db"
+    if not os.path.exists(db_path):
+        return 0
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT COUNT(DISTINCT video_id)
+    FROM video_performance
+    """)
+
+    count = cursor.fetchone()[0] or 0
+    conn.close()
+    return count
+
+
+# ===============================
+# STYLE EVOLUTION STAGE
+# ===============================
+
+@fail_fast("style_evolution_check")
+def run_style_evolution():
+    total_uploads = get_total_uploads()
+
+    manager = StyleEvolutionManager()
+
+    if manager.should_refresh(total_uploads) and total_uploads != 0:
+        logging.info(
+            f"[STYLE EVOLUTION] Triggered at upload #{total_uploads}"
+        )
+
+        config_path = "config/channel_config.yaml"
+
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+
+        updated_config = manager.evolve_style(config)
+
+        with open(config_path, "w") as f:
+            yaml.safe_dump(updated_config, f)
+
+        logging.info(
+            f"[STYLE EVOLUTION] New accent_color="
+            f"{updated_config.get('accent_color')}"
+        )
+    else:
+        logging.info(
+            f"[STYLE EVOLUTION] No evolution required. "
+            f"Uploads={total_uploads}"
+        )
 
 
 # ===============================
@@ -130,13 +191,8 @@ class PipelineOrchestrator:
         self.saturated_emotion = None
 
     def enforce_emotional_governance(self):
-        """
-        Logs current video emotion and checks for oversaturation.
-        If saturated, sets correction signal for adaptive optimizer.
-        """
         index = ChannelEmotionalIndex()
 
-        # Log current upload emotion
         index.log_emotion(self.video_id, self.emotion_tag)
 
         signal = index.governance_signal()
@@ -163,34 +219,26 @@ class PipelineOrchestrator:
         try:
             logging.info("========== PIPELINE STARTED ==========")
 
-            # 1️⃣ Manual override
             run_manual_override_check()
-
-            # 2️⃣ Runway discipline
             run_runway_guard()
-
-            # 3️⃣ Cadence enforcement
             run_upload_cadence()
 
-            # 4️⃣ Thumbnail enforcement
             best_thumbnail = run_thumbnail_generation(self.title_variants)
             logging.info(
                 f"Thumbnail ready: {best_thumbnail['image_path']}"
             )
 
-            # 5️⃣ Upload assumed complete externally
             logging.info("Upload stage assumed complete.")
 
-            # 6️⃣ Performance tracking
             run_performance_tracking(self.video_id)
 
-            # 7️⃣ Emotional governance (NEW STRUCTURAL CONTROL)
+            # 🔥 NEW — STYLE EVOLUTION CHECK
+            run_style_evolution()
+
             self.enforce_emotional_governance()
 
-            # 8️⃣ Expected growth projection
             run_expected_projection()
 
-            # 9️⃣ Adaptive optimization (with governance signal)
             run_adaptive(
                 self.video_id,
                 saturated_emotion=self.saturated_emotion
