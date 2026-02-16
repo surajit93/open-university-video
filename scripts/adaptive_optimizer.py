@@ -1,5 +1,3 @@
-# scripts/adaptive_optimizer.py
-
 import sqlite3
 import logging
 from statistics import mean
@@ -8,6 +6,13 @@ from scripts.velocity_monitor import VelocityMonitor
 from scripts.pattern_success_memory import PatternSuccessMemory
 from scripts.runway_guard import check_runway
 from config_loader import load_growth_plan
+
+# 🔥 NEW: Plateau detection integration
+try:
+    from scripts.plateau_detector import detect_plateau
+except Exception:
+    def detect_plateau(*args, **kwargs):
+        return {"plateau": False}
 
 PERF_DB = "data/performance.db"
 IMPROVE_DB = "data/improvement_history.db"
@@ -31,6 +36,26 @@ def get_last_n(n=5):
     rows = cursor.fetchall()
     conn.close()
     return rows
+
+
+# 🔥 NEW: Subscriber growth fetch (additive only)
+def get_last_n_subscribers(n=10):
+    conn = sqlite3.connect(PERF_DB)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+        SELECT subscribers_gained
+        FROM video_performance
+        ORDER BY id DESC
+        LIMIT ?
+        """, (n,))
+        rows = cursor.fetchall()
+    except Exception:
+        rows = []
+
+    conn.close()
+    return [r[0] for r in rows if r and r[0] is not None]
 
 
 def get_latest_video_metrics(video_id):
@@ -120,14 +145,22 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
     if latest_metrics:
         pattern_memory.store({
             "video_id": video_id,
-            "hook_type": "default_hook",         # replace with real hook tag later
-            "thumbnail_style": "dark_centered",  # replace with real style later
+            "hook_type": "default_hook",
+            "thumbnail_style": "dark_centered",
             "emotional_tone": saturated_emotion or "neutral",
             "twist_position": 0.6,
             "ctr": latest_metrics["ctr"],
             "retention_30": latest_metrics["retention_30"],
             "velocity": latest_metrics["velocity"]
         })
+
+    # 🔥 NEW: Plateau + Subscriber flatten logic (additive only)
+    subs = get_last_n_subscribers(10)
+    if len(subs) >= 5:
+        plateau_signal = detect_plateau(subs)
+        if plateau_signal.get("plateau"):
+            logging.warning("[PLATEAU DETECTED] Subscriber growth flattening.")
+            pattern_memory.penalize_recent_pattern(video_id)
 
     # ============================================================
     # 1️⃣ Breakout Detection
