@@ -10,8 +10,13 @@ emotional_mix_targets:
   optimism: 0.25
 
 upload_days:
+  - Monday
   - Tuesday
+  - Wednesday
+  - Thursday
   - Friday
+  - Saturday
+  - Sunday
 
 upload_time: "18:00"
 
