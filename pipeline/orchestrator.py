@@ -1,3 +1,5 @@
+# pipeline/orchestrator.py
+
 import time
 import logging
 import os
@@ -9,6 +11,7 @@ from scripts.adaptive_optimizer import run_adaptive_optimization
 from scripts.expected_value_model import run_expected_value_projection
 from scripts.manual_override import check_manual_override
 from scripts.thumbnail_variation_generator import ThumbnailVariationGenerator
+from scripts.channel_emotional_index import ChannelEmotionalIndex
 from config.channel_growth_plan import load_growth_plan
 
 
@@ -77,20 +80,20 @@ def run_upload_cadence():
 @fail_fast("thumbnail_generation")
 def run_thumbnail_generation(title_variants):
     if not title_variants:
-        raise Exception("No title variants provided for thumbnail generation.")
+        raise Exception("No title variants provided.")
 
     generator = ThumbnailVariationGenerator()
     ranked = generator.generate_and_rank(title_variants)
 
     if not ranked:
-        raise Exception("Thumbnail generation failed. No variants returned.")
+        raise Exception("Thumbnail generation failed.")
 
     best = ranked[0]
 
     if not os.path.exists(best["image_path"]):
-        raise Exception("Winning thumbnail file not created.")
+        raise Exception("Winning thumbnail not created.")
 
-    logging.info(f"Winning thumbnail selected: {best['image_path']}")
+    logging.info(f"Winning thumbnail: {best['image_path']}")
     return best
 
 
@@ -109,15 +112,32 @@ def run_adaptive(video_id):
     run_adaptive_optimization(video_id)
 
 
+@fail_fast("emotional_balance_check")
+def run_emotional_balance(video_id, emotion_tag):
+    index = ChannelEmotionalIndex()
+
+    # Log this video's emotion
+    index.log_emotion(video_id, emotion_tag)
+
+    distribution = index.calculate_index()
+    logging.info(f"Current emotional distribution: {distribution}")
+
+    needs_balance, message = index.needs_balance()
+
+    if needs_balance:
+        logging.warning(message)
+
+
 # ===============================
 # STATE MACHINE
 # ===============================
 
 class PipelineOrchestrator:
 
-    def __init__(self, video_id, title_variants=None):
+    def __init__(self, video_id, title_variants=None, emotion_tag="curiosity"):
         self.video_id = video_id
         self.title_variants = title_variants or []
+        self.emotion_tag = emotion_tag
         self.growth_plan = load_growth_plan()
 
     def run(self):
@@ -126,37 +146,29 @@ class PipelineOrchestrator:
         try:
             logging.info("========== PIPELINE STARTED ==========")
 
-            # 1️⃣ Manual Override Check
             run_manual_override_check()
-
-            # 2️⃣ Runway Protection
             run_runway_guard()
-
-            # 3️⃣ Upload Cadence Enforcement
             run_upload_cadence()
 
-            # 4️⃣ Thumbnail Generation (NOW ENFORCED)
             best_thumbnail = run_thumbnail_generation(self.title_variants)
 
             logging.info(
-                f"Thumbnail ready for upload: {best_thumbnail['image_path']}"
+                f"Thumbnail ready: {best_thumbnail['image_path']}"
             )
 
-            # 5️⃣ Upload assumed completed externally
-            logging.info("Upload stage assumed complete.")
+            logging.info("Upload assumed complete.")
 
-            # 6️⃣ Track Performance
             run_performance_tracking(self.video_id)
 
-            # 7️⃣ Expected Growth Projection
-            run_expected_projection()
+            # 🔥 NEW — Emotional mix tracking
+            run_emotional_balance(self.video_id, self.emotion_tag)
 
-            # 8️⃣ Adaptive Optimization
+            run_expected_projection()
             run_adaptive(self.video_id)
 
             total_duration = time.time() - overall_start
             logging.info(
-                f"========== PIPELINE COMPLETED SUCCESSFULLY "
+                f"========== PIPELINE COMPLETED "
                 f"in {total_duration:.2f}s =========="
             )
 
@@ -171,7 +183,6 @@ class PipelineOrchestrator:
 
 if __name__ == "__main__":
 
-    # Example variants — in real system these come from hook/title generator
     sample_titles = [
         "AI Will Replace You",
         "The AI Collapse Nobody Sees",
@@ -182,7 +193,8 @@ if __name__ == "__main__":
 
     orchestrator = PipelineOrchestrator(
         video_id="latest_video",
-        title_variants=sample_titles
+        title_variants=sample_titles,
+        emotion_tag="fear"
     )
 
     orchestrator.run()
