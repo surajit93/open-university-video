@@ -5,6 +5,13 @@ import random
 import logging
 from googleapiclient.errors import HttpError
 
+# 🔥 NEW
+try:
+    from scripts.video_cost_engine import log_api_cost
+except Exception:
+    def log_api_cost(*args, **kwargs):
+        pass
+
 
 def retry_with_backoff(
     func,
@@ -12,7 +19,9 @@ def retry_with_backoff(
     base_delay=2,
     exponential=True,
     jitter=True,
-    escalate_quota=True
+    escalate_quota=True,
+    api_name=None,
+    estimated_cost=0
 ):
     """
     Production-grade retry wrapper.
@@ -21,26 +30,36 @@ def retry_with_backoff(
     - Jitter support
     - Quota detection
     - Structured logging
+    - 🔥 Cost logging hook
     """
 
     for attempt in range(retries):
         try:
-            return func()
+            result = func()
+
+            # 🔥 COST HOOK
+            if api_name:
+                log_api_cost(api_name, estimated_cost)
+
+            return result
 
         except HttpError as e:
             error_str = str(e)
 
-            # Hard stop for quota issues
+            # 🔥 QUOTA ESCALATION (SLEEP UNTIL RESET APPROX)
             if escalate_quota and (
                 "quotaExceeded" in error_str
                 or "userRateLimitExceeded" in error_str
             ):
-                logging.error("[RETRY] Quota exceeded. Escalating.")
+                logging.error("[RETRY] Quota exceeded. Escalating sleep.")
+
+                # Sleep 1 hour as safe reset buffer
+                time.sleep(3600)
                 raise
 
             _sleep(attempt, base_delay, exponential, jitter)
 
-        except Exception as e:
+        except Exception:
             if attempt == retries - 1:
                 raise
 
