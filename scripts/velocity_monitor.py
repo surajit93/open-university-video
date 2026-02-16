@@ -13,14 +13,17 @@ class VelocityMonitor:
         cursor = conn.cursor()
 
         cursor.execute("""
-        SELECT views_48h FROM performance
+        SELECT views_per_hour
+        FROM video_performance
         WHERE video_id = ?
+        ORDER BY date DESC
+        LIMIT 1
         """, (video_id,))
 
         row = cursor.fetchone()
         conn.close()
 
-        return row[0] if row else 0.0
+        return float(row[0]) if row else 0.0
 
     def detect_breakout(self, video_id: str, baseline: float = 1.8) -> Dict:
         velocity = self.get_velocity(video_id)
@@ -29,8 +32,10 @@ class VelocityMonitor:
         cursor = conn.cursor()
 
         cursor.execute("""
-        SELECT AVG(views_48h) FROM performance
+        SELECT AVG(views_per_hour)
+        FROM video_performance
         """)
+
         avg_velocity = cursor.fetchone()[0] or 1
         conn.close()
 
