@@ -18,6 +18,12 @@ try:
 except Exception:
     ViralDNAEngine = None
 
+# 🔥 NEW – Retention Dominance Engine (additive only)
+try:
+    from scripts.retention_dominance_engine import RetentionDominanceEngine
+except Exception:
+    RetentionDominanceEngine = None
+
 
 class TopicRanker:
 
@@ -25,13 +31,9 @@ class TopicRanker:
         self.gate = QualityThresholdGate()
         self.revenue_tracker = RevenueTracker()
 
-        # 🔥 NEW
         self.psych_engine = PsychologicalHookEngine() if PsychologicalHookEngine else None
         self.viral_engine = ViralDNAEngine() if ViralDNAEngine else None
-
-    # ==========================================================
-    # EXISTING BASE SCORING LOGIC (UNCHANGED CORE WEIGHTS)
-    # ==========================================================
+        self.retention_engine = RetentionDominanceEngine() if RetentionDominanceEngine else None
 
     def score_topic(self, topic: Dict) -> Dict:
 
@@ -61,19 +63,28 @@ class TopicRanker:
             (profit_score * weights["profit_weight"])
         )
 
-        # 🔥 NEW – Psychological enforcement (additive only)
+        # 🔥 Retention Dominance Enforcement (additive only)
+        if self.retention_engine:
+            brutality_valid = self.retention_engine.validate_topic_brutality(topic["title"])
+            identity_score = self.retention_engine.identity_threat_score(topic["title"])
+            packaging_score = self.retention_engine.packaging_score(topic["title"])
+
+            if not brutality_valid:
+                final_score *= 0.6  # penalize safely
+
+            final_score += (identity_score * 0.2)
+            final_score += (packaging_score * 0.3)
+
         if self.psych_engine:
             psych_score = self.psych_engine.score_topic(topic["title"])
             try:
                 self.psych_engine.enforce(topic["title"])
             except Exception as e:
                 logging.warning(f"[PSYCHOLOGICAL REJECT] {e}")
-                final_score *= 0.5  # penalize but do not delete topic
-
+                final_score *= 0.5
         else:
             psych_score = 0
 
-        # 🔥 NEW – Viral dominance weighting (additive only)
         if self.viral_engine:
             final_score = self.viral_engine.reweight_topic_score(
                 final_score,
@@ -89,10 +100,6 @@ class TopicRanker:
             "profit_score": profit_score,
             "psych_score": psych_score
         }
-
-    # ==========================================================
-    # PROFIT WEIGHT CALCULATION (UNCHANGED)
-    # ==========================================================
 
     def get_profit_weight(self, cluster: str) -> float:
 
@@ -124,17 +131,9 @@ class TopicRanker:
 
         return round(normalized, 3)
 
-    # ==========================================================
-    # RANKING (UNCHANGED)
-    # ==========================================================
-
     def rank(self, topics: List[Dict]) -> List[Dict]:
         scored = [self.score_topic(t) for t in topics]
         return sorted(scored, key=lambda x: x["priority_score"], reverse=True)
-
-    # ==========================================================
-    # STRICT QUALITY GATE ENFORCEMENT (UNCHANGED)
-    # ==========================================================
 
     def select_top_valid(self, topics: List[Dict]) -> Dict:
 
