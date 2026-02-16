@@ -3,6 +3,7 @@
 import time
 import random
 import logging
+from datetime import datetime, timedelta
 from googleapiclient.errors import HttpError
 
 # 🔥 NEW
@@ -31,13 +32,14 @@ def retry_with_backoff(
     - Quota detection
     - Structured logging
     - 🔥 Cost logging hook
+    - 🔥 Sleep-until-reset detection
     """
 
     for attempt in range(retries):
         try:
             result = func()
 
-            # 🔥 COST HOOK
+            # 🔥 COST HOOK (unchanged behavior)
             if api_name:
                 log_api_cost(api_name, estimated_cost)
 
@@ -46,15 +48,17 @@ def retry_with_backoff(
         except HttpError as e:
             error_str = str(e)
 
-            # 🔥 QUOTA ESCALATION (SLEEP UNTIL RESET APPROX)
             if escalate_quota and (
                 "quotaExceeded" in error_str
                 or "userRateLimitExceeded" in error_str
             ):
-                logging.error("[RETRY] Quota exceeded. Escalating sleep.")
+                logging.error("[RETRY] Quota exceeded. Attempting reset detection.")
 
-                # Sleep 1 hour as safe reset buffer
-                time.sleep(3600)
+                sleep_seconds = _detect_reset_window(e)
+
+                logging.error(f"[RETRY] Sleeping {sleep_seconds}s until quota reset.")
+                time.sleep(sleep_seconds)
+
                 raise
 
             _sleep(attempt, base_delay, exponential, jitter)
@@ -64,6 +68,30 @@ def retry_with_backoff(
                 raise
 
             _sleep(attempt, base_delay, exponential, jitter)
+
+
+def _detect_reset_window(error):
+    """
+    Attempts to detect quota reset window from headers.
+    Fallback = 1 hour.
+    """
+
+    try:
+        headers = getattr(error.resp, "headers", {})
+
+        reset_time = headers.get("X-RateLimit-Reset")
+
+        if reset_time:
+            reset_timestamp = int(reset_time)
+            now_timestamp = int(datetime.utcnow().timestamp())
+            delta = max(reset_timestamp - now_timestamp, 0)
+            return max(delta, 60)
+
+    except Exception:
+        pass
+
+    # Fallback: 1 hour safe window
+    return 3600
 
 
 def _sleep(attempt, base_delay, exponential, jitter):
