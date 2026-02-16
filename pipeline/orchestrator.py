@@ -23,20 +23,20 @@ def fail_fast(stage_name):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
-                logging.info(f"Stage started: {stage_name}")
+                logging.info(f"[START] {stage_name}")
                 start = time.time()
 
                 result = func(*args, **kwargs)
 
                 duration = time.time() - start
                 logging.info(
-                    f"Stage completed: {stage_name} | Duration: {duration:.2f}s"
+                    f"[END] {stage_name} | Duration: {duration:.2f}s"
                 )
                 return result
 
             except Exception as e:
                 logging.error(
-                    f"Pipeline halted at stage '{stage_name}': {str(e)}"
+                    f"[HALT] Stage '{stage_name}' failed: {str(e)}"
                 )
                 raise RuntimeError(
                     f"Pipeline halted at stage '{stage_name}': {str(e)}"
@@ -48,6 +48,8 @@ def fail_fast(stage_name):
 # ===============================
 # LOGGING SETUP
 # ===============================
+
+os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
     filename="logs/pipeline.log",
@@ -63,7 +65,6 @@ logging.basicConfig(
 @fail_fast("manual_override_check")
 def run_manual_override_check():
     if check_manual_override():
-        logging.warning("Manual override active. Halting pipeline.")
         raise Exception("Manual override active.")
 
 
@@ -93,7 +94,7 @@ def run_thumbnail_generation(title_variants):
     if not os.path.exists(best["image_path"]):
         raise Exception("Winning thumbnail not created.")
 
-    logging.info(f"Winning thumbnail: {best['image_path']}")
+    logging.info(f"Winning thumbnail selected: {best['image_path']}")
     return best
 
 
@@ -108,24 +109,11 @@ def run_expected_projection():
 
 
 @fail_fast("adaptive_optimization")
-def run_adaptive(video_id):
-    run_adaptive_optimization(video_id)
-
-
-@fail_fast("emotional_balance_check")
-def run_emotional_balance(video_id, emotion_tag):
-    index = ChannelEmotionalIndex()
-
-    # Log this video's emotion
-    index.log_emotion(video_id, emotion_tag)
-
-    distribution = index.calculate_index()
-    logging.info(f"Current emotional distribution: {distribution}")
-
-    needs_balance, message = index.needs_balance()
-
-    if needs_balance:
-        logging.warning(message)
+def run_adaptive(video_id, saturated_emotion=None):
+    run_adaptive_optimization(
+        video_id=video_id,
+        saturated_emotion=saturated_emotion
+    )
 
 
 # ===============================
@@ -139,6 +127,35 @@ class PipelineOrchestrator:
         self.title_variants = title_variants or []
         self.emotion_tag = emotion_tag
         self.growth_plan = load_growth_plan()
+        self.saturated_emotion = None
+
+    def enforce_emotional_governance(self):
+        """
+        Logs current video emotion and checks for oversaturation.
+        If saturated, sets correction signal for adaptive optimizer.
+        """
+        index = ChannelEmotionalIndex()
+
+        # Log current upload emotion
+        index.log_emotion(self.video_id, self.emotion_tag)
+
+        signal = index.governance_signal()
+
+        logging.info(
+            f"Emotional distribution check: "
+            f"dominant={signal['dominant_emotion']} "
+            f"ratio={signal['ratio']}"
+        )
+
+        if signal["over_saturated"]:
+            logging.warning(
+                f"Emotion oversaturated: "
+                f"{signal['dominant_emotion']} "
+                f"({signal['ratio']})"
+            )
+            self.saturated_emotion = signal["dominant_emotion"]
+        else:
+            self.saturated_emotion = None
 
     def run(self):
         overall_start = time.time()
@@ -146,27 +163,41 @@ class PipelineOrchestrator:
         try:
             logging.info("========== PIPELINE STARTED ==========")
 
+            # 1️⃣ Manual override
             run_manual_override_check()
+
+            # 2️⃣ Runway discipline
             run_runway_guard()
+
+            # 3️⃣ Cadence enforcement
             run_upload_cadence()
 
+            # 4️⃣ Thumbnail enforcement
             best_thumbnail = run_thumbnail_generation(self.title_variants)
-
             logging.info(
                 f"Thumbnail ready: {best_thumbnail['image_path']}"
             )
 
-            logging.info("Upload assumed complete.")
+            # 5️⃣ Upload assumed complete externally
+            logging.info("Upload stage assumed complete.")
 
+            # 6️⃣ Performance tracking
             run_performance_tracking(self.video_id)
 
-            # 🔥 NEW — Emotional mix tracking
-            run_emotional_balance(self.video_id, self.emotion_tag)
+            # 7️⃣ Emotional governance (NEW STRUCTURAL CONTROL)
+            self.enforce_emotional_governance()
 
+            # 8️⃣ Expected growth projection
             run_expected_projection()
-            run_adaptive(self.video_id)
+
+            # 9️⃣ Adaptive optimization (with governance signal)
+            run_adaptive(
+                self.video_id,
+                saturated_emotion=self.saturated_emotion
+            )
 
             total_duration = time.time() - overall_start
+
             logging.info(
                 f"========== PIPELINE COMPLETED "
                 f"in {total_duration:.2f}s =========="
