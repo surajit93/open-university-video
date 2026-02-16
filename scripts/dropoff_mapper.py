@@ -1,60 +1,204 @@
-# scripts/dropoff_mapper.py
+# scripts/performance_tracker.py
 
 import sqlite3
-from typing import Dict
+import datetime
+import os
+import json
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+from scripts.youtube_auth import get_authenticated_credentials
+from scripts.retry_utils import retry_with_backoff
+from scripts.analytics_lock import enforce_analytics_lock
+
+PERF_DB = "data/performance.db"
+RETENTION_DIR = "data/retention"
 
 
-class DropoffMapper:
-    def __init__(self, db_path: str = "data/improvement_history.db"):
-        self.db_path = db_path
-        self._ensure_table()
+# ==============================
+# DATABASE INIT
+# ==============================
 
-    def _ensure_table(self):
-        conn = sqlite3.connect(self.db_path)
+def init_performance_db():
+    os.makedirs("data", exist_ok=True)
+
+    conn = sqlite3.connect(PERF_DB)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS video_performance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        video_id TEXT,
+        date TEXT,
+        impressions INTEGER,
+        ctr REAL,
+        avg_view_duration REAL,
+        retention_30 REAL,
+        views INTEGER,
+        views_per_hour REAL,
+        returning_viewer_pct REAL
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# ==============================
+# SAFE ANALYTICS SERVICE
+# ==============================
+
+def get_analytics_service():
+    def build_service():
+        creds = get_authenticated_credentials()
+        return build("youtubeAnalytics", "v2", credentials=creds)
+
+    return retry_with_backoff(build_service)
+
+
+# ==============================
+# METRICS FETCH
+# ==============================
+
+def fetch_video_metrics(video_id, start_date, end_date):
+    service = get_analytics_service()
+
+    return retry_with_backoff(
+        lambda: service.reports().query(
+            ids="channel==MINE",
+            startDate=start_date,
+            endDate=end_date,
+            metrics="views,impressions,averageViewDuration,averageViewPercentage,subscribersGained",
+            filters=f"video=={video_id}"
+        ).execute()
+    )
+
+
+# ==============================
+# RETENTION CURVE FETCH
+# ==============================
+
+def fetch_retention_curve(video_id, start_date, end_date):
+    service = get_analytics_service()
+
+    return retry_with_backoff(
+        lambda: service.reports().query(
+            ids="channel==MINE",
+            startDate=start_date,
+            endDate=end_date,
+            metrics="audienceWatchRatio",
+            dimensions="elapsedVideoTimeRatio",
+            filters=f"video=={video_id}",
+            sort="elapsedVideoTimeRatio"
+        ).execute()
+    )
+
+
+def store_retention_curve(video_id, data):
+    os.makedirs(RETENTION_DIR, exist_ok=True)
+
+    with open(os.path.join(RETENTION_DIR, f"{video_id}.json"), "w") as f:
+        json.dump(data, f)
+
+
+def extract_30s_retention(retention_response):
+    if "rows" not in retention_response:
+        return None
+
+    for row in retention_response["rows"]:
+        timeline_ratio = float(row[0])
+        if 0.29 <= timeline_ratio <= 0.31:
+            return float(row[1]) * 100
+
+    return None
+
+
+def calculate_views_per_hour(views, published_hours=24):
+    if published_hours <= 0:
+        return 0
+    return views / published_hours
+
+
+# ==============================
+# MAIN TRACKING FUNCTION
+# ==============================
+
+def track_performance(video_id, published_hours=24, force=False):
+    """
+    force=True allows bypassing analytics lock
+    (Use carefully — only for controlled override scenarios)
+    """
+
+    # 🔐 ANALYTICS LOCK ENFORCEMENT
+    if not force:
+        enforce_analytics_lock()
+
+    init_performance_db()
+    ensure_retention_folder()
+
+    today = datetime.date.today()
+    start_date = (today - datetime.timedelta(days=7)).isoformat()
+    end_date = today.isoformat()
+
+    try:
+        metrics_response = fetch_video_metrics(video_id, start_date, end_date)
+        retention_response = fetch_retention_curve(video_id, start_date, end_date)
+
+        store_retention_curve(video_id, retention_response)
+
+        if "rows" not in metrics_response:
+            print("No analytics rows returned.")
+            return
+
+        row = metrics_response["rows"][0]
+
+        views = int(row[0])
+        impressions = int(row[1])
+        avg_view_duration = float(row[2])
+        subscribers_gained = int(row[4])
+
+        ctr = (views / impressions) * 100 if impressions else 0
+        retention_30 = extract_30s_retention(retention_response)
+        views_per_hour = calculate_views_per_hour(views, published_hours)
+
+        # Future cohort logic placeholder
+        returning_viewer_pct = 0
+
+        conn = sqlite3.connect(PERF_DB)
         cursor = conn.cursor()
 
         cursor.execute("""
-        CREATE TABLE IF NOT EXISTS dropoff_patterns (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            video_id TEXT,
-            drop_second INTEGER,
-            scene_type TEXT,
-            retention_at_drop REAL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
+        INSERT INTO video_performance (
+            video_id, date, impressions, ctr,
+            avg_view_duration, retention_30,
+            views, views_per_hour, returning_viewer_pct
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            video_id,
+            datetime.datetime.now().isoformat(),
+            impressions,
+            ctr,
+            avg_view_duration,
+            retention_30,
+            views,
+            views_per_hour,
+            returning_viewer_pct
+        ))
 
         conn.commit()
         conn.close()
 
-    def store_drop(self, video_id: str, drop_second: int,
-                   scene_type: str, retention: float):
+        print(f"[PERFORMANCE] Tracked successfully for {video_id}")
 
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+    except HttpError as e:
+        print(f"[ERROR] YouTube API error: {e}")
+    except Exception as e:
+        print(f"[ERROR] Unexpected failure: {e}")
 
-        cursor.execute("""
-        INSERT INTO dropoff_patterns
-        (video_id, drop_second, scene_type, retention_at_drop)
-        VALUES (?, ?, ?, ?)
-        """, (video_id, drop_second, scene_type, retention))
 
-        conn.commit()
-        conn.close()
+# ==============================
+# SAFETY INIT
+# ==============================
 
-    def worst_scene_type(self):
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-
-        cursor.execute("""
-        SELECT scene_type, COUNT(*) as c
-        FROM dropoff_patterns
-        GROUP BY scene_type
-        ORDER BY c DESC
-        LIMIT 1
-        """)
-
-        row = cursor.fetchone()
-        conn.close()
-
-        return row[0] if row else None
+def ensure_retention_folder():
+    os.makedirs(RETENTION_DIR, exist_ok=True)
