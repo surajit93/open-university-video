@@ -1,7 +1,6 @@
 # scripts/channel_emotional_index.py
 
 import sqlite3
-from datetime import datetime
 
 
 class ChannelEmotionalIndex:
@@ -57,15 +56,40 @@ class ChannelEmotionalIndex:
             return {}
 
         return {
-            tag: round(count / total, 2)
+            tag: round(count / total, 3)
             for tag, count in data
         }
 
-    def needs_balance(self, threshold=0.6):
+    def governance_signal(self, threshold=0.6):
+        """
+        Returns:
+        {
+            "over_saturated": bool,
+            "dominant_emotion": str or None,
+            "ratio": float
+        }
+        """
         distribution = self.calculate_index()
 
-        for tag, ratio in distribution.items():
-            if ratio > threshold:
-                return True, f"Emotion over-saturated: {tag}"
+        if not distribution:
+            return {
+                "over_saturated": False,
+                "dominant_emotion": None,
+                "ratio": 0
+            }
 
-        return False, None
+        dominant = max(distribution.items(), key=lambda x: x[1])
+        emotion, ratio = dominant
+
+        if ratio >= threshold:
+            return {
+                "over_saturated": True,
+                "dominant_emotion": emotion,
+                "ratio": ratio
+            }
+
+        return {
+            "over_saturated": False,
+            "dominant_emotion": emotion,
+            "ratio": ratio
+        }
