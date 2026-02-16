@@ -4,8 +4,18 @@ from typing import List, Dict
 import time
 import logging
 
+# 🔥 NEW – Rhythm enforcement integration (additive only)
+try:
+    from render.rhythm_enforcer import RhythmEnforcer
+except Exception:
+    RhythmEnforcer = None
+
 
 class TempoController:
+
+    def __init__(self):
+        # 🔥 NEW – rhythm engine (additive only)
+        self._rhythm_engine = RhythmEnforcer() if RhythmEnforcer else None
 
     def validate_tempo(self, scenes: List[Dict]) -> List[Dict]:
         validated = []
@@ -17,6 +27,10 @@ class TempoController:
                 scene["duration"] = 7
 
             validated.append(scene)
+
+        # 🔥 NEW – Apply rhythm enforcement AFTER original tempo logic
+        if self._rhythm_engine:
+            validated = self._rhythm_engine.process(validated)
 
         return validated
 
