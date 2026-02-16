@@ -193,3 +193,7 @@ def track_performance(video_id, published_hours=24):
         print(f"[ERROR] YouTube API error: {e}")
     except Exception as e:
         print(f"[ERROR] Unexpected failure: {e}")
+
+def ensure_retention_folder():
+    os.makedirs("data/retention", exist_ok=True)
+
