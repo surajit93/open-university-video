@@ -15,12 +15,13 @@ from scripts.manual_override import check_manual_override
 from scripts.thumbnail_variation_generator import ThumbnailVariationGenerator
 from scripts.channel_emotional_index import ChannelEmotionalIndex
 from scripts.style_evolution_manager import StyleEvolutionManager
+from scripts.session_depth_optimizer import SessionDepthOptimizer
 from config.channel_growth_plan import load_growth_plan
 
 
-# ===============================
+# ============================================================
 # FAIL FAST DECORATOR
-# ===============================
+# ============================================================
 
 def fail_fast(stage_name):
     def decorator(func):
@@ -32,15 +33,11 @@ def fail_fast(stage_name):
                 result = func(*args, **kwargs)
 
                 duration = time.time() - start
-                logging.info(
-                    f"[END] {stage_name} | Duration: {duration:.2f}s"
-                )
+                logging.info(f"[END] {stage_name} | {duration:.2f}s")
                 return result
 
             except Exception as e:
-                logging.error(
-                    f"[HALT] Stage '{stage_name}' failed: {str(e)}"
-                )
+                logging.error(f"[HALT] {stage_name} failed: {str(e)}")
                 raise RuntimeError(
                     f"Pipeline halted at stage '{stage_name}': {str(e)}"
                 )
@@ -48,9 +45,9 @@ def fail_fast(stage_name):
     return decorator
 
 
-# ===============================
+# ============================================================
 # LOGGING SETUP
-# ===============================
+# ============================================================
 
 os.makedirs("logs", exist_ok=True)
 
@@ -61,9 +58,9 @@ logging.basicConfig(
 )
 
 
-# ===============================
-# HELPER – TOTAL UPLOAD COUNT
-# ===============================
+# ============================================================
+# HELPERS
+# ============================================================
 
 def get_total_uploads():
     db_path = "data/performance.db"
@@ -83,9 +80,9 @@ def get_total_uploads():
     return count
 
 
-# ===============================
-# STYLE EVOLUTION STAGE
-# ===============================
+# ============================================================
+# STYLE EVOLUTION
+# ============================================================
 
 @fail_fast("style_evolution_check")
 def run_style_evolution():
@@ -94,9 +91,8 @@ def run_style_evolution():
     manager = StyleEvolutionManager()
 
     if manager.should_refresh(total_uploads) and total_uploads != 0:
-        logging.info(
-            f"[STYLE EVOLUTION] Triggered at upload #{total_uploads}"
-        )
+
+        logging.info(f"[STYLE] Evolution triggered at #{total_uploads}")
 
         config_path = "config/channel_config.yaml"
 
@@ -109,19 +105,38 @@ def run_style_evolution():
             yaml.safe_dump(updated_config, f)
 
         logging.info(
-            f"[STYLE EVOLUTION] New accent_color="
+            f"[STYLE] New accent_color="
             f"{updated_config.get('accent_color')}"
         )
     else:
-        logging.info(
-            f"[STYLE EVOLUTION] No evolution required. "
-            f"Uploads={total_uploads}"
-        )
+        logging.info(f"[STYLE] No evolution. Uploads={total_uploads}")
 
 
-# ===============================
-# WRAPPED CRITICAL STAGES
-# ===============================
+# ============================================================
+# SESSION DEPTH ROUTING
+# ============================================================
+
+@fail_fast("session_depth_optimization")
+def run_session_depth_optimization():
+    optimizer = SessionDepthOptimizer()
+
+    avg_depth = optimizer.average_session_depth()
+    clusters = optimizer.prioritize_clusters()
+
+    logging.info(f"[SESSION] Avg depth={avg_depth}")
+
+    if clusters:
+        top_cluster = clusters[0][0]
+        logging.info(f"[SESSION] Promote cluster: {top_cluster}")
+        return top_cluster
+
+    logging.info("[SESSION] No cluster data.")
+    return None
+
+
+# ============================================================
+# WRAPPED CORE STAGES
+# ============================================================
 
 @fail_fast("manual_override_check")
 def run_manual_override_check():
@@ -155,7 +170,7 @@ def run_thumbnail_generation(title_variants):
     if not os.path.exists(best["image_path"]):
         raise Exception("Winning thumbnail not created.")
 
-    logging.info(f"Winning thumbnail selected: {best['image_path']}")
+    logging.info(f"[THUMBNAIL] Selected: {best['image_path']}")
     return best
 
 
@@ -177,9 +192,9 @@ def run_adaptive(video_id, saturated_emotion=None):
     )
 
 
-# ===============================
+# ============================================================
 # STATE MACHINE
-# ===============================
+# ============================================================
 
 class PipelineOrchestrator:
 
@@ -189,25 +204,23 @@ class PipelineOrchestrator:
         self.emotion_tag = emotion_tag
         self.growth_plan = load_growth_plan()
         self.saturated_emotion = None
+        self.cluster_recommendation = None
 
     def enforce_emotional_governance(self):
         index = ChannelEmotionalIndex()
 
         index.log_emotion(self.video_id, self.emotion_tag)
-
         signal = index.governance_signal()
 
         logging.info(
-            f"Emotional distribution check: "
-            f"dominant={signal['dominant_emotion']} "
+            f"[EMOTION] dominant={signal['dominant_emotion']} "
             f"ratio={signal['ratio']}"
         )
 
         if signal["over_saturated"]:
             logging.warning(
-                f"Emotion oversaturated: "
-                f"{signal['dominant_emotion']} "
-                f"({signal['ratio']})"
+                f"[EMOTION] Oversaturated: "
+                f"{signal['dominant_emotion']}"
             )
             self.saturated_emotion = signal["dominant_emotion"]
         else:
@@ -224,17 +237,19 @@ class PipelineOrchestrator:
             run_upload_cadence()
 
             best_thumbnail = run_thumbnail_generation(self.title_variants)
-            logging.info(
-                f"Thumbnail ready: {best_thumbnail['image_path']}"
-            )
+            logging.info(f"[THUMBNAIL READY] {best_thumbnail['image_path']}")
 
             logging.info("Upload stage assumed complete.")
 
             run_performance_tracking(self.video_id)
 
-            # 🔥 NEW — STYLE EVOLUTION CHECK
+            # Style evolution (30-upload cycle)
             run_style_evolution()
 
+            # Session routing (end-screen logic)
+            self.cluster_recommendation = run_session_depth_optimization()
+
+            # Emotional governance
             self.enforce_emotional_governance()
 
             run_expected_projection()
@@ -247,8 +262,8 @@ class PipelineOrchestrator:
             total_duration = time.time() - overall_start
 
             logging.info(
-                f"========== PIPELINE COMPLETED "
-                f"in {total_duration:.2f}s =========="
+                f"========== PIPELINE COMPLETE "
+                f"{total_duration:.2f}s =========="
             )
 
         except Exception as e:
@@ -256,9 +271,9 @@ class PipelineOrchestrator:
             raise
 
 
-# ===============================
+# ============================================================
 # ENTRY POINT
-# ===============================
+# ============================================================
 
 if __name__ == "__main__":
 
