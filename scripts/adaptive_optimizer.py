@@ -38,7 +38,7 @@ def get_last_n(n=5):
     return rows
 
 
-# 🔥 NEW: Subscriber growth fetch (additive only)
+# 🔥 NEW: Subscriber growth fetch
 def get_last_n_subscribers(n=10):
     conn = sqlite3.connect(PERF_DB)
     cursor = conn.cursor()
@@ -56,6 +56,25 @@ def get_last_n_subscribers(n=10):
 
     conn.close()
     return [r[0] for r in rows if r and r[0] is not None]
+
+
+# 🔥 NEW: Stronger flatten detection (additive only)
+def detect_flatten_trend(values, tolerance=0.1):
+    if len(values) < 5:
+        return False
+
+    first_half = values[:len(values)//2]
+    second_half = values[len(values)//2:]
+
+    avg_first = mean(first_half)
+    avg_second = mean(second_half)
+
+    if avg_first == 0:
+        return False
+
+    change_ratio = abs(avg_second - avg_first) / avg_first
+
+    return change_ratio < tolerance
 
 
 def get_latest_video_metrics(video_id):
@@ -138,10 +157,6 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
     latest_metrics = get_latest_video_metrics(video_id)
     breakout_data = velocity_monitor.detect_breakout(video_id)
 
-    # ============================================================
-    # STORE PERFORMANCE SNAPSHOT (REAL COUPLING)
-    # ============================================================
-
     if latest_metrics:
         pattern_memory.store({
             "video_id": video_id,
@@ -154,47 +169,34 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
             "velocity": latest_metrics["velocity"]
         })
 
-    # 🔥 NEW: Plateau + Subscriber flatten logic (additive only)
+    # 🔥 Subscriber plateau detection (additive only)
     subs = get_last_n_subscribers(10)
+
     if len(subs) >= 5:
         plateau_signal = detect_plateau(subs)
-        if plateau_signal.get("plateau"):
+        flatten_signal = detect_flatten_trend(subs)
+
+        if plateau_signal.get("plateau") or flatten_signal:
             logging.warning("[PLATEAU DETECTED] Subscriber growth flattening.")
             pattern_memory.penalize_recent_pattern(video_id)
 
-    # ============================================================
-    # 1️⃣ Breakout Detection
-    # ============================================================
+    # --- ORIGINAL LOGIC BELOW REMAINS UNCHANGED ---
 
     if breakout_data["is_breakout"]:
         logging.warning(
             f"[BREAKOUT DETECTED] Ratio={breakout_data['ratio']:.2f}"
         )
-
         log_breakout_event(video_id, breakout_data["ratio"])
         pattern_memory.boost_recent_pattern(video_id)
-
         logging.info("[ACTION] Boosting cluster + follow-up priority.")
-
-    # ============================================================
-    # 2️⃣ CTR Governance (Window-based)
-    # ============================================================
 
     if avg_ctr < 4:
         logging.warning("[CTR LOW] Thumbnail regeneration required.")
         pattern_memory.penalize_recent_pattern(video_id)
 
-    # ============================================================
-    # 3️⃣ Retention Governance (Window-based)
-    # ============================================================
-
     if avg_retention < 40:
         logging.warning("[RETENTION LOW] Hook structure penalty applied.")
         pattern_memory.penalize_hook_structure(video_id)
-
-    # ============================================================
-    # 4️⃣ Velocity Flatline Governance
-    # ============================================================
 
     if allow_pivot and avg_velocity < 5:
         logging.warning(
@@ -202,27 +204,15 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         )
         pattern_memory.penalize_recent_pattern(video_id)
 
-    # ============================================================
-    # 5️⃣ Momentum Acceleration
-    # ============================================================
-
     if avg_velocity > 20:
         logging.info("[STRONG MOMENTUM] Boost cluster priority.")
         pattern_memory.boost_recent_pattern(video_id)
-
-    # ============================================================
-    # 6️⃣ Emotional Saturation Control
-    # ============================================================
 
     if saturated_emotion:
         logging.warning(
             f"[EMOTION GOVERNANCE] Penalizing saturated: {saturated_emotion}"
         )
         pattern_memory.penalize_emotion(saturated_emotion)
-
-    # ============================================================
-    # 7️⃣ Weak Structural Detection (Single Video)
-    # ============================================================
 
     if breakout_data["ratio"] < 0.8:
         logging.info("[UNDERPERFORMING] Penalizing structural pattern.")
