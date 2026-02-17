@@ -2,6 +2,7 @@
 
 import json
 import os
+import datetime
 from pathlib import Path
 
 from googleapiclient.discovery import build
@@ -19,6 +20,9 @@ THUMBNAIL_FILE = Path("thumbnail.png")
 TOPIC_FILE = Path("current_topic.json")
 MCQ_LINK_FILE = Path("mcq_link.txt")
 CHANNEL_META_FILE = Path("channel.json")
+
+# 🔥 NEW – Persist uploaded video ID
+LATEST_VIDEO_FILE = Path("latest_video.json")
 
 # =========================
 # ENV
@@ -119,6 +123,19 @@ def main():
 
     video_id = response["id"]
     print("✔ Uploaded video:", video_id)
+
+    # 🔥 NEW – Persist video ID for adaptive system
+    try:
+        LATEST_VIDEO_FILE.write_text(
+            json.dumps({
+                "video_id": video_id,
+                "uploaded_at": datetime.datetime.utcnow().isoformat()
+            }, indent=2),
+            encoding="utf-8"
+        )
+        print("✔ latest_video.json written")
+    except Exception as e:
+        print("⚠️ Failed to write latest_video.json:", e)
 
     # -------------------------
     # THUMBNAIL
