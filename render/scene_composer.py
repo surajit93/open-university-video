@@ -6,8 +6,9 @@ import json
 import os
 import pickle
 
-# 🔥 NEW – Visual psychology integration (additive only)
+# 🔥 Visual psychology integration (additive only)
 try:
+    # IMPORTANT: your file path is #render/visual_psychology_engine.py
     from render.visual_psychology_engine import VisualPsychologyEngine
 except Exception:
     VisualPsychologyEngine = None
@@ -49,7 +50,7 @@ class SceneComposer:
             "min_active_elements": 2
         }
 
-        # 🔥 NEW – Apply visual psychology before validation (additive only)
+        # 🔥 Apply visual psychology BEFORE validation
         if self._visual_engine:
             layout = self._visual_engine.process_scene(
                 layout,
@@ -89,7 +90,7 @@ class SceneComposer:
             raise ValueError("Scene rejected: Not enough active visual elements.")
 
     # ----------------------------
-    # 🔥 NEW: FRAME CACHE ENGINE
+    # 🔥 FRAME CACHE ENGINE (UNCHANGED)
     # ----------------------------
 
     def _generate_cache_key(self, scene_data: Dict) -> str:
