@@ -29,6 +29,9 @@ except Exception:
 PERF_DB = "data/performance.db"
 RETENTION_DIR = "data/retention"
 
+# 🔥 NEW – Topic metadata file (additive only)
+CURRENT_TOPIC_FILE = "current_topic.json"
+
 
 # =====================================================
 # DATABASE INIT
@@ -55,6 +58,21 @@ def init_performance_db():
         returning_viewer_pct REAL,
         subscribers_gained INTEGER,
         subs_per_1000_views REAL
+    )
+    """)
+
+    # 🔥 NEW – Retention intelligence audit table (additive only)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS retention_intelligence_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        video_id TEXT,
+        topic_id TEXT,
+        playlist_cluster TEXT,
+        sequel_chain_id TEXT,
+        retention_type TEXT,
+        addiction_score REAL,
+        weak_segments TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
@@ -189,7 +207,6 @@ def calculate_views_per_hour(views, published_hours=24):
 
 def track_performance(video_id, published_hours=24, force=False):
 
-    # 🔒 Analytics lock discipline (UNCHANGED)
     if not force:
         enforce_analytics_lock()
 
@@ -203,7 +220,6 @@ def track_performance(video_id, published_hours=24, force=False):
         metrics_response = fetch_video_metrics(video_id, start_date, end_date)
         retention_response = fetch_retention_curve(video_id, start_date, end_date)
 
-        # Cost logging (non-blocking)
         log_api_cost("youtube_analytics_call", 0.001)
 
         store_retention_curve(video_id, retention_response)
@@ -222,7 +238,6 @@ def track_performance(video_id, published_hours=24, force=False):
         ctr = (views / impressions) * 100 if impressions else 0
         retention_30 = extract_30s_retention(retention_response)
         views_per_hour = calculate_views_per_hour(views, published_hours)
-
         returning_viewer_pct = 0
 
         subs_per_1000_views = (
@@ -230,7 +245,7 @@ def track_performance(video_id, published_hours=24, force=False):
         )
 
         # --------------------------------------------------
-        # STORE METRICS (EXTENDED BUT NOT ALTERED)
+        # STORE METRICS (UNCHANGED)
         # --------------------------------------------------
 
         conn = sqlite3.connect(PERF_DB)
@@ -258,10 +273,9 @@ def track_performance(video_id, published_hours=24, force=False):
         ))
 
         conn.commit()
-        conn.close()
 
         # --------------------------------------------------
-        # 🔥 AUTO DROP MAPPING (UNCHANGED)
+        # AUTO DROP MAPPING (UNCHANGED)
         # --------------------------------------------------
 
         drop_second, drop_retention, severity = detect_major_drop(retention_response)
@@ -279,8 +293,7 @@ def track_performance(video_id, published_hours=24, force=False):
             )
 
         # --------------------------------------------------
-        # 🔥 NEW – Adaptive Retention Intelligence Hook
-        # (Additive only – no regression risk)
+        # 🔥 ADAPTIVE RETENTION INTELLIGENCE + TOPIC LOGGING
         # --------------------------------------------------
 
         if AdaptiveRetentionIntelligence and "rows" in retention_response:
@@ -289,29 +302,54 @@ def track_performance(video_id, published_hours=24, force=False):
                     float(row[1]) for row in retention_response["rows"]
                 ]
 
-                # Script may not always exist at this stage – safe fallback
-                script_path = "script.txt"
-                if os.path.exists(script_path):
-                    with open(script_path, "r", encoding="utf-8") as f:
+                script_content = ""
+                if os.path.exists("script.txt"):
+                    with open("script.txt", "r", encoding="utf-8") as f:
                         script_content = f.read()
-                else:
-                    script_content = ""
 
                 ari = AdaptiveRetentionIntelligence()
-
                 mapping = ari.map_drops_to_segments(
                     retention_curve=retention_curve,
                     script=script_content
                 )
 
-                if mapping["weak_segments"]:
-                    print(
-                        f"[ADAPTIVE RETENTION] Weak segments detected: "
-                        f"{mapping['weak_segments']}"
-                    )
+                weak_segments = mapping.get("weak_segments", [])
+
+                # 🔥 Load topic metadata (additive only)
+                topic_meta = {}
+                if os.path.exists(CURRENT_TOPIC_FILE):
+                    with open(CURRENT_TOPIC_FILE, "r", encoding="utf-8") as f:
+                        topic_meta = json.load(f)
+
+                cursor.execute("""
+                INSERT INTO retention_intelligence_log (
+                    video_id,
+                    topic_id,
+                    playlist_cluster,
+                    sequel_chain_id,
+                    retention_type,
+                    addiction_score,
+                    weak_segments
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    video_id,
+                    topic_meta.get("id"),
+                    topic_meta.get("playlist_cluster"),
+                    topic_meta.get("sequel_chain_id"),
+                    topic_meta.get("retention_type"),
+                    topic_meta.get("addiction_score"),
+                    json.dumps(weak_segments)
+                ))
+
+                conn.commit()
+
+                if weak_segments:
+                    print(f"[ADAPTIVE RETENTION] Weak segments: {weak_segments}")
 
             except Exception as e:
                 print(f"[ADAPTIVE RETENTION ERROR] {e}")
+
+        conn.close()
 
         print(f"[PERFORMANCE] Full tracking complete for {video_id}")
 
