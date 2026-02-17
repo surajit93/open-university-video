@@ -1,3 +1,4 @@
+# scripts/performance_tracker.py
 import sqlite3
 import datetime
 import os
@@ -17,6 +18,12 @@ try:
 except Exception:
     def log_api_cost(*args, **kwargs):
         pass
+
+# 🔥 NEW – Adaptive Retention Intelligence (additive only)
+try:
+    from scripts.adaptive_retention_intelligence import AdaptiveRetentionIntelligence
+except Exception:
+    AdaptiveRetentionIntelligence = None
 
 
 PERF_DB = "data/performance.db"
@@ -270,6 +277,41 @@ def track_performance(video_id, published_hours=24, force=False):
                 retention=drop_retention,
                 severity_score=severity
             )
+
+        # --------------------------------------------------
+        # 🔥 NEW – Adaptive Retention Intelligence Hook
+        # (Additive only – no regression risk)
+        # --------------------------------------------------
+
+        if AdaptiveRetentionIntelligence and "rows" in retention_response:
+            try:
+                retention_curve = [
+                    float(row[1]) for row in retention_response["rows"]
+                ]
+
+                # Script may not always exist at this stage – safe fallback
+                script_path = "script.txt"
+                if os.path.exists(script_path):
+                    with open(script_path, "r", encoding="utf-8") as f:
+                        script_content = f.read()
+                else:
+                    script_content = ""
+
+                ari = AdaptiveRetentionIntelligence()
+
+                mapping = ari.map_drops_to_segments(
+                    retention_curve=retention_curve,
+                    script=script_content
+                )
+
+                if mapping["weak_segments"]:
+                    print(
+                        f"[ADAPTIVE RETENTION] Weak segments detected: "
+                        f"{mapping['weak_segments']}"
+                    )
+
+            except Exception as e:
+                print(f"[ADAPTIVE RETENTION ERROR] {e}")
 
         print(f"[PERFORMANCE] Full tracking complete for {video_id}")
 
