@@ -27,6 +27,12 @@ try:
 except Exception:
     WritingDominanceEngine = None
 
+# 🔥 NEW – Adaptive Retention Intelligence (additive only)
+try:
+    from scripts.adaptive_retention_intelligence import AdaptiveRetentionIntelligence
+except Exception:
+    AdaptiveRetentionIntelligence = None
+
 
 class TopicRanker:
 
@@ -37,6 +43,9 @@ class TopicRanker:
         self.psych_engine = PsychologicalHookEngine() if PsychologicalHookEngine else None
         self.viral_engine = ViralDNAEngine() if ViralDNAEngine else None
         self.retention_engine = RetentionDominanceEngine() if RetentionDominanceEngine else None
+
+        # 🔥 NEW – Adaptive engine instance (additive only)
+        self.adaptive_engine = AdaptiveRetentionIntelligence() if AdaptiveRetentionIntelligence else None
 
     def score_topic(self, topic: Dict) -> Dict:
 
@@ -98,6 +107,27 @@ class TopicRanker:
                 final_score,
                 topic["title"]
             )
+
+        # 🔥 NEW – Adaptive Retention Intelligence conviction + urgency gate (additive only)
+        if self.adaptive_engine:
+            try:
+                validation = self.adaptive_engine.validate_topic(topic["title"])
+
+                if not validation["approved"]:
+                    logging.warning(
+                        f"[ADAPTIVE TOPIC REJECT SIGNAL] "
+                        f"{topic['title']} | "
+                        f"Conviction={validation['conviction_score']} | "
+                        f"Urgency={validation['urgency_score']}"
+                    )
+                    final_score *= 0.7  # soft penalty only (no override of existing logic)
+
+                # Optional signal boost
+                final_score += validation["conviction_score"] * 0.15
+                final_score += validation["urgency_score"] * 0.15
+
+            except Exception as e:
+                logging.warning(f"[ADAPTIVE ENGINE ERROR] {e}")
 
         return {
             "title": topic["title"],
