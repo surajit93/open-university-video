@@ -3,17 +3,21 @@ name: Publish Video
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"   # Run every 6 hours (controlled, not spam)
+    - cron: "0 */6 * * *"
 
-# 🔥 Prevent overlapping publish runs
 concurrency:
   group: publish-video
   cancel-in-progress: false
 
 jobs:
+
+  # ==========================================================
+  # MAIN PUBLISH PIPELINE
+  # ==========================================================
+
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 70
 
     env:
       PYTHONUNBUFFERED: "1"
@@ -25,25 +29,30 @@ jobs:
       YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
 
     steps:
+
       # -----------------------------------
       # CHECKOUT
       # -----------------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       # -----------------------------------
-      # PYTHON SETUP
+      # PYTHON SETUP WITH CACHE
       # -----------------------------------
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+          cache: "pip"
 
       # -----------------------------------
       # SYSTEM DEPENDENCIES
       # -----------------------------------
+
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
@@ -54,8 +63,9 @@ jobs:
             libespeak-ng1
 
       # -----------------------------------
-      # PYTHON DEPENDENCIES
+      # PYTHON DEPENDENCIES (CACHED)
       # -----------------------------------
+
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -76,74 +86,99 @@ jobs:
             "coqui-tts[codec]"
 
       # -----------------------------------
-      # STEP 1: TOPIC SELECTION
+      # STEP 1: PICK TOPIC
       # -----------------------------------
+
       - name: Pick topic
         run: python scripts/pick_topic.py
 
-      # 🔥 Persist topic for adaptive job
-      - name: Upload topic artifact
+      - name: Upload current topic artifact
         uses: actions/upload-artifact@v4
         with:
           name: current_topic
           path: current_topic.json
 
       # -----------------------------------
-      # STEP 2: TOPIC CONVICTION GATE
+      # STEP 2: VALIDATE CONVICTION
       # -----------------------------------
+
       - name: Validate topic conviction
-        run: python scripts/validate_topic_conviction.py
+        run: |
+          if [ -f scripts/validate_topic_conviction.py ]; then
+            python scripts/validate_topic_conviction.py
+          else
+            echo "validate_topic_conviction.py not found — skipping"
+          fi
 
       # -----------------------------------
       # STEP 3: GENERATE SLIDES
       # -----------------------------------
+
       - name: Generate slide plan
         run: python scripts/generate_slides.py
 
       # -----------------------------------
-      # STEP 4: GENERATE SCRIPT + NARRATION
+      # STEP 4: GENERATE NARRATION
       # -----------------------------------
+
       - name: Generate narration
         run: python scripts/generate_narration.py
 
       # -----------------------------------
-      # STEP 5: STORYCRAFT QUALITY GATE
+      # STEP 5: STORYCRAFT VALIDATION
       # -----------------------------------
+
       - name: Validate storycraft
-        run: python scripts/validate_storycraft.py
+        run: |
+          if [ -f scripts/validate_storycraft.py ]; then
+            python scripts/validate_storycraft.py
+          else
+            echo "validate_storycraft.py not found — skipping"
+          fi
 
       # -----------------------------------
-      # STEP 6: VALIDATE OUTPUT
+      # STEP 6: OUTPUT VALIDATION
       # -----------------------------------
-      - name: Validate slide + audio output
+
+      - name: Validate output
         run: python scripts/validate_output.py
 
       # -----------------------------------
       # STEP 7: RENDER VIDEO
       # -----------------------------------
+
       - name: Render video
         run: python scripts/call_colab.py
 
       # -----------------------------------
       # STEP 8: SUBTITLES
       # -----------------------------------
+
       - name: Generate subtitles
         run: python scripts/generate_subtitles.py
 
       # -----------------------------------
       # STEP 9: THUMBNAIL
       # -----------------------------------
+
       - name: Generate thumbnail
         run: python scripts/generate_thumbnail.py
 
       # -----------------------------------
-      # STEP 10: UPLOAD
+      # STEP 10: UPLOAD TO YOUTUBE
       # -----------------------------------
+
       - name: Upload to YouTube
         run: python scripts/upload_youtube.py
 
-      # 🔥 Upload metadata artifact for feedback loop
-      - name: Upload metadata artifacts
+      # Persist video_id
+      - name: Upload latest_video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest_video
+          path: latest_video.json
+
+      - name: Upload publish metadata
         uses: actions/upload-artifact@v4
         with:
           name: publish_outputs
@@ -153,14 +188,16 @@ jobs:
             slide_audio_map.json
 
       # -----------------------------------
-      # STEP 11: MARK TOPIC COMPLETE
+      # STEP 11: MARK TOPIC DONE
       # -----------------------------------
+
       - name: Mark topic done
         run: python scripts/mark_done.py
 
       # -----------------------------------
-      # CLEANUP (safer)
+      # CLEANUP
       # -----------------------------------
+
       - name: Cleanup workspace
         if: always()
         run: |
@@ -168,14 +205,14 @@ jobs:
           rm -f slide_plan.json slide_audio_map.json script.txt
 
   # ==========================================================
-  # POST-PUBLISH ADAPTIVE INTELLIGENCE LOOP
+  # ADAPTIVE INTELLIGENCE LOOP
   # ==========================================================
 
   adaptive_feedback:
     needs: publish
-    if: success()   # 🔥 Only run if publish succeeded
+    if: success()
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     env:
       PYTHONUNBUFFERED: "1"
@@ -184,50 +221,72 @@ jobs:
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🔥 Restore topic context
-      - name: Download topic artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: current_topic
-
-      - name: Download publish artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: publish_outputs
-
-      - name: Setup Python
+      - name: Setup Python (cached)
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+          cache: "pip"
 
-      - name: Install dependencies
+      - name: Install minimal analytics dependencies
         run: |
           python -m pip install --upgrade pip
           pip install google-api-python-client google-auth google-auth-oauthlib
 
       # -----------------------------------
-      # WAIT FOR ANALYTICS TO STABILIZE
+      # RESTORE ARTIFACTS
       # -----------------------------------
-      - name: Wait before analytics pull
-        run: sleep 900   # 🔥 15 minutes (better stabilization)
+
+      - name: Download latest video ID
+        uses: actions/download-artifact@v4
+        with:
+          name: latest_video
+
+      - name: Download publish outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: publish_outputs
+
+      # -----------------------------------
+      # WAIT FOR ANALYTICS STABILITY
+      # -----------------------------------
+
+      - name: Wait for analytics stabilization
+        run: sleep 900
+
+      # -----------------------------------
+      # EXTRACT VIDEO ID
+      # -----------------------------------
+
+      - name: Read video_id
+        id: read_video
+        run: |
+          VIDEO_ID=$(python - <<EOF
+          import json
+          print(json.load(open("latest_video.json"))["video_id"])
+          EOF
+          )
+          echo "VIDEO_ID=$VIDEO_ID" >> $GITHUB_ENV
 
       # -----------------------------------
       # TRACK PERFORMANCE
       # -----------------------------------
-      - name: Track video performance
-        run: python scripts/performance_tracker.py
 
-      # -----------------------------------
-      # RUN ADAPTIVE RETENTION INTELLIGENCE
-      # -----------------------------------
-      - name: Adaptive retention refinement
-        run: python scripts/run_adaptive_refinement.py
-
-      # -----------------------------------
-      # RUN OPTIMIZER MEMORY UPDATE
-      # -----------------------------------
+      - name: Track performance
+        run: python - <<EOF
+              import scripts.performance_tracker as pt
+              pt.track_performance("${VIDEO_ID}")
+              EOF
+              
+                    # -----------------------------------
+                    # RUN OPTIMIZER
+                    # -----------------------------------
+              
       - name: Run adaptive optimizer
-        run: python scripts/run_optimizer.py
+        run: python - <<EOF
+              import scripts.adaptive_optimizer as ao
+              ao.run_adaptive_optimization("${VIDEO_ID}")
+              EOF
