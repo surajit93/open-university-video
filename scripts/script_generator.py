@@ -1,4 +1,5 @@
 # scripts/script_generator.py
+
 from scripts.first30_validator import validate_first30
 from scripts.policy_guard import PolicyGuard
 
@@ -28,16 +29,22 @@ try:
 except Exception:
     EmotionCurveController = None
 
-# 🔥 NEW – Retention Dominance Engine
+# 🔥 Retention Dominance Engine
 try:
     from scripts.retention_dominance_engine import RetentionDominanceEngine
 except Exception:
     RetentionDominanceEngine = None
 
+# 🔥 NEW – Writing Dominance Engine
+try:
+    from scripts.writing_dominance_engine import WritingDominanceEngine
+except Exception:
+    WritingDominanceEngine = None
+
 
 class ScriptGenerator:
 
-    def __init__(self):
+    def __init__(self, llm_callable=None):
         self.policy_guard = PolicyGuard()
         self.sensitivity_guard = GlobalSensitivityGuard() if GlobalSensitivityGuard else None
         self.series_memory = SeriesMemory() if SeriesMemory else None
@@ -45,6 +52,13 @@ class ScriptGenerator:
         self.narrative_engine = NarrativeDominationEngine() if NarrativeDominationEngine else None
         self.emotion_engine = EmotionCurveController() if EmotionCurveController else None
         self.retention_engine = RetentionDominanceEngine() if RetentionDominanceEngine else None
+
+        # 🔥 Writing engine requires LLM
+        self.writing_engine = (
+            WritingDominanceEngine(llm_callable)
+            if (WritingDominanceEngine and llm_callable)
+            else None
+        )
 
     def extract_first30(self, full_script: str) -> str:
         words = full_script.split()
@@ -85,8 +99,25 @@ class ScriptGenerator:
 
     def generate(self, topic: dict) -> str:
 
-        script = self._generate_script_logic(topic)
+        # -------------------------------------------------
+        # 🔥 WRITING DOMINANCE ENGINE (if available)
+        # -------------------------------------------------
+        if self.writing_engine:
+            result = self.writing_engine.generate_high_retention_script(
+                topic_title=topic["title"],
+                passes=3
+            )
+            script = result["script"]
 
+            # Optional evaluation logging
+            if not result["evaluation"]["approved"]:
+                script = self.writing_engine.rewrite(script, passes=2)
+        else:
+            script = self._generate_script_logic(topic)
+
+        # -------------------------------------------------
+        # EXISTING PIPELINE (UNCHANGED)
+        # -------------------------------------------------
         script = inject_callbacks(script, topic)
         script = self._inject_series_callback(script, topic)
 
@@ -98,7 +129,6 @@ class ScriptGenerator:
             script = self.emotion_engine.analyze(script)
             script = self.emotion_engine.inject_spikes(script)
 
-        # 🔥 Retention Dominance amplification
         if self.retention_engine:
             script = self.retention_engine.amplify_script(script)
             script = self.retention_engine.rewrite_until_personal(script)
