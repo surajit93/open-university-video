@@ -1,3 +1,4 @@
+#scripts/generate_narration.py
 import json, os, sys, re
 from pathlib import Path
 from groq import Groq
@@ -12,9 +13,10 @@ MODEL = "llama-3.1-8b-instant"
 
 SLIDE_PLAN_FILE = Path("slide_plan.json")
 SLIDE_AUDIO_MAP_FILE = Path("slide_audio_map.json")
-
-# transcript output for MCQ generation
 SCRIPT_FILE = Path("script.txt")
+
+# 🔥 NEW: topic metadata injection (additive only)
+CURRENT_TOPIC_FILE = Path("current_topic.json")
 
 MIN_WORDS = 750
 
@@ -42,10 +44,6 @@ def extract_json(text: str) -> dict:
 # ============================
 
 def normalize_narration(narration: list, slides: list) -> list:
-    """
-    Merge multiple narration entries per slide_id into ONE.
-    Deterministic, order-safe, validator-safe.
-    """
     merged = OrderedDict()
 
     for entry in narration:
@@ -73,6 +71,23 @@ def normalize_narration(narration: list, slides: list) -> list:
 
 
 # ============================
+# 🔥 NEW: LOAD TOPIC CONTEXT
+# ============================
+
+def load_topic_context():
+    if not CURRENT_TOPIC_FILE.exists():
+        return {}
+
+    try:
+        topic = json.loads(
+            CURRENT_TOPIC_FILE.read_text(encoding="utf-8")
+        )
+        return topic
+    except Exception:
+        return {}
+
+
+# ============================
 # MAIN
 # ============================
 
@@ -93,10 +108,36 @@ def main():
         print("ERROR: slides missing or invalid in slide_plan.json")
         sys.exit(1)
 
+    # 🔥 Load engineered topic metadata
+    topic = load_topic_context()
+
+    retention_type = topic.get("retention_type", "standard")
+    primary_persona = topic.get("primary_persona", "general_viewer")
+    open_loop_required = topic.get("open_loop_required", False)
+    cliffhanger_required = topic.get("cliffhanger_required", False)
+    outline = topic.get("outline", "")
+    title = topic.get("title", "")
+
     client = Groq(api_key=GROQ_API_KEY)
+
+    # ============================
+    # 🔥 ENGINEERED PROMPT
+    # ============================
 
     prompt = f"""
 Generate ONLY narration JSON.
+
+Video Title:
+{title}
+
+Primary Persona:
+{primary_persona}
+
+Retention Type:
+{retention_type}
+
+Narrative Outline:
+{outline}
 
 Slides:
 {json.dumps(slides, indent=2)}
@@ -111,29 +152,53 @@ STRICT FORMAT:
   ]
 }}
 
-Rules:
-- Explain WHY concepts exist
-- Academic tone
-- Insert [PAUSE] and [SHIFT]
+Hard Rules:
 - Total words >= {MIN_WORDS}
 - No markdown
-- No prose
+- No prose outside JSON
 - No commentary
+- Insert [PAUSE] and [SHIFT]
+
+Retention Engineering Rules:
 """
+
+    # 🔥 Conditional enforcement (additive only)
+    if open_loop_required:
+        prompt += """
+- The first 15 seconds MUST create an unresolved open loop.
+- Do NOT resolve that loop until mid-video.
+"""
+
+    if cliffhanger_required:
+        prompt += """
+- The final slide MUST end with a forward-looking cliffhanger.
+- Tease next episode or deeper layer.
+"""
+
+    prompt += """
+- Use strong identity language.
+- Escalate emotional intensity every few slides.
+- Avoid generic explanation.
+- Use real-world consequences.
+"""
+
+    # ============================
+    # LLM CALL
+    # ============================
 
     resp = client.chat.completions.create(
         model=MODEL,
         messages=[
             {
                 "role": "system",
-                "content": "You are a university lecturer. Return STRICT JSON only."
+                "content": "You are an elite high-retention YouTube script architect. Return STRICT JSON only."
             },
             {
                 "role": "user",
                 "content": prompt
             }
         ],
-        temperature=0.4,
+        temperature=0.6,  # 🔥 Slightly increased for emotion depth
         max_tokens=4096,
     )
 
@@ -149,7 +214,7 @@ Rules:
         print("ERROR: narration missing or invalid")
         sys.exit(1)
 
-    # 🔧 NORMALIZE (THIS FIXES YOUR ERROR)
+    # 🔧 NORMALIZE (unchanged behavior preserved)
     narration = normalize_narration(narration_raw, slides)
 
     # ---------------------------
