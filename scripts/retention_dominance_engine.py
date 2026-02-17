@@ -1,7 +1,13 @@
-#scripts/retention_dominance_engine.py
+# scripts/retention_dominance_engine.py
 
 import re
 from statistics import mean
+
+# 🔥 NEW – Writing Dominance feedback hook (ADDITIVE ONLY)
+try:
+    from scripts.writing_dominance_engine import WritingDominanceEngine
+except Exception:
+    WritingDominanceEngine = None
 
 
 class RetentionDominanceEngine:
@@ -99,6 +105,18 @@ class RetentionDominanceEngine:
 
         if script.lower().count("you") < 6:
             script += "\n\nAsk yourself where you stand in this."
+
+        # 🔥 NEW – Writing Dominance evaluation feedback (ADDITIVE ONLY)
+        if WritingDominanceEngine:
+            try:
+                evaluator = WritingDominanceEngine(lambda x: script)
+                eval_result = evaluator.evaluate(script)
+
+                if not eval_result.get("approved"):
+                    script += "\n\nThe stakes are higher than you realize."
+            except Exception:
+                # Non-blocking safeguard
+                pass
 
         return script
 
