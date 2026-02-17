@@ -62,28 +62,15 @@ jobs:
             espeak-ng-data \
             libespeak-ng1
 
+
       # -----------------------------------
       # PYTHON DEPENDENCIES (CACHED)
       # -----------------------------------
 
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install \
-            papermill \
-            jupyter \
-            requests \
-            google-api-python-client \
-            google-auth \
-            google-auth-oauthlib \
-            pillow \
-            moviepy \
-            groq \
-            torch==2.1.0 \
-            torchaudio==2.1.0 \
-            soundfile \
-            transformers==4.35.2 \
-            "coqui-tts[codec]"
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
 
       # -----------------------------------
       # STEP 1: PICK TOPIC
