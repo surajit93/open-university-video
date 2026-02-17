@@ -1,6 +1,8 @@
 # scripts/adaptive_optimizer.py
 import sqlite3
 import logging
+import os
+import json
 from statistics import mean
 
 from scripts.velocity_monitor import VelocityMonitor
@@ -27,8 +29,12 @@ try:
 except Exception:
     AdaptiveRetentionIntelligence = None
 
+
 PERF_DB = "data/performance.db"
 IMPROVE_DB = "data/improvement_history.db"
+
+# 🔥 NEW – Topic context awareness (additive only)
+CURRENT_TOPIC_FILE = "current_topic.json"
 
 
 # ============================================================
@@ -51,7 +57,6 @@ def get_last_n(n=5):
     return rows
 
 
-# 🔥 NEW: Subscriber growth fetch
 def get_last_n_subscribers(n=10):
     conn = sqlite3.connect(PERF_DB)
     cursor = conn.cursor()
@@ -71,7 +76,6 @@ def get_last_n_subscribers(n=10):
     return [r[0] for r in rows if r and r[0] is not None]
 
 
-# 🔥 NEW: Stronger flatten detection (additive only)
 def detect_flatten_trend(values, tolerance=0.1):
     if len(values) < 5:
         return False
@@ -137,6 +141,18 @@ def log_breakout_event(video_id, ratio):
     conn.close()
 
 
+# 🔥 NEW – Topic metadata loader (additive only)
+def load_current_topic():
+    if not os.path.exists(CURRENT_TOPIC_FILE):
+        return {}
+
+    try:
+        with open(CURRENT_TOPIC_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
 # ============================================================
 # MAIN ENGINE
 # ============================================================
@@ -170,19 +186,30 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
     latest_metrics = get_latest_video_metrics(video_id)
     breakout_data = velocity_monitor.detect_breakout(video_id)
 
+    # 🔥 NEW – Topic awareness integration (additive only)
+    topic_meta = load_current_topic()
+    addiction_score = topic_meta.get("addiction_score", 0.5)
+    playlist_cluster = topic_meta.get("playlist_cluster")
+    sequel_chain_id = topic_meta.get("sequel_chain_id")
+    retention_type = topic_meta.get("retention_type")
+
     if latest_metrics:
         pattern_memory.store({
             "video_id": video_id,
             "hook_type": "default_hook",
-            "thumbnail_style": "dark_centered",
-            "emotional_tone": saturated_emotion or "neutral",
+            "thumbnail_style": topic_meta.get("thumbnail_color_strategy", "dark_centered"),
+            "emotional_tone": saturated_emotion or topic_meta.get("primary_persona", "neutral"),
             "twist_position": 0.6,
             "ctr": latest_metrics["ctr"],
             "retention_30": latest_metrics["retention_30"],
-            "velocity": latest_metrics["velocity"]
+            "velocity": latest_metrics["velocity"],
+            # 🔥 NEW metadata awareness
+            "addiction_score": addiction_score,
+            "playlist_cluster": playlist_cluster,
+            "retention_type": retention_type
         })
 
-    # 🔥 Subscriber plateau detection (additive only)
+    # 🔥 Subscriber plateau detection (unchanged logic preserved)
     subs = get_last_n_subscribers(10)
 
     if len(subs) >= 5:
@@ -193,7 +220,7 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
             logging.warning("[PLATEAU DETECTED] Subscriber growth flattening.")
             pattern_memory.penalize_recent_pattern(video_id)
 
-    # 🔥 NEW: Retention Dominance Weak Point Detection (additive only)
+    # 🔥 Retention Dominance Engine (unchanged logic preserved)
     if RetentionDominanceEngine and latest_metrics:
         try:
             retention_engine = RetentionDominanceEngine()
@@ -214,7 +241,7 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         except Exception as e:
             logging.warning(f"[RETENTION ENGINE ERROR] {e}")
 
-    # 🔥 NEW: Adaptive Retention Intelligence Integration (additive only)
+    # 🔥 Adaptive Retention Intelligence (unchanged logic preserved)
     if AdaptiveRetentionIntelligence:
         try:
             ari = AdaptiveRetentionIntelligence()
@@ -248,7 +275,9 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         except Exception as e:
             logging.warning(f"[ADAPTIVE RETENTION ERROR] {e}")
 
-    # --- ORIGINAL LOGIC BELOW REMAINS UNCHANGED ---
+    # ============================================================
+    # ORIGINAL LOGIC BELOW REMAINS UNCHANGED
+    # ============================================================
 
     if breakout_data["is_breakout"]:
         logging.warning(
@@ -257,6 +286,10 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         log_breakout_event(video_id, breakout_data["ratio"])
         pattern_memory.boost_recent_pattern(video_id)
         logging.info("[ACTION] Boosting cluster + follow-up priority.")
+
+        # 🔥 NEW – Sequel acceleration (additive only)
+        if sequel_chain_id:
+            logging.info(f"[SEQUEL ACCELERATION] Chain={sequel_chain_id}")
 
     if avg_ctr < 4:
         logging.warning("[CTR LOW] Thumbnail regeneration required.")
@@ -275,6 +308,10 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
     if avg_velocity > 20:
         logging.info("[STRONG MOMENTUM] Boost cluster priority.")
         pattern_memory.boost_recent_pattern(video_id)
+
+        # 🔥 NEW – Addiction reinforcement bias (additive only)
+        if addiction_score > 0.75:
+            logging.info("[HIGH ADDICTION SCORE] Reinforcing similar patterns.")
 
     if saturated_emotion:
         logging.warning(
