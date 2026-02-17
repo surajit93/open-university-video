@@ -1,0 +1,40 @@
+# Core HTTP / Utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# YouTube API
+google-api-python-client>=2.120.0
+google-auth>=2.25.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
+# LLM
+groq>=0.5.0
+
+# Image / Video
+pillow>=10.0.0
+moviepy>=1.0.3
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.9
+
+# Audio / TTS
+soundfile>=0.12.1
+coqui-tts[codec]>=0.22.0
+
+# ML
+torch==2.1.0
+torchaudio==2.1.0
+transformers==4.35.2
+accelerate>=0.24.0
+
+# Notebook / Rendering
+papermill>=2.5.0
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# Data
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Retry / Backoff (if used anywhere)
+tenacity>=8.2.0
