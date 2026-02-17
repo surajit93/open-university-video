@@ -5,10 +5,15 @@ on:
   schedule:
     - cron: "0 */6 * * *"   # Run every 6 hours (controlled, not spam)
 
+# 🔥 Prevent overlapping publish runs
+concurrency:
+  group: publish-video
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 60
 
     env:
       PYTHONUNBUFFERED: "1"
@@ -76,6 +81,13 @@ jobs:
       - name: Pick topic
         run: python scripts/pick_topic.py
 
+      # 🔥 Persist topic for adaptive job
+      - name: Upload topic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: current_topic
+          path: current_topic.json
+
       # -----------------------------------
       # STEP 2: TOPIC CONVICTION GATE
       # -----------------------------------
@@ -130,6 +142,16 @@ jobs:
       - name: Upload to YouTube
         run: python scripts/upload_youtube.py
 
+      # 🔥 Upload metadata artifact for feedback loop
+      - name: Upload metadata artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: publish_outputs
+          path: |
+            script.txt
+            slide_plan.json
+            slide_audio_map.json
+
       # -----------------------------------
       # STEP 11: MARK TOPIC COMPLETE
       # -----------------------------------
@@ -137,14 +159,13 @@ jobs:
         run: python scripts/mark_done.py
 
       # -----------------------------------
-      # CLEANUP
+      # CLEANUP (safer)
       # -----------------------------------
       - name: Cleanup workspace
+        if: always()
         run: |
-          rm -rf *.png *.wav *.mp4 *.srt \
-            slide_plan.json \
-            slide_audio_map.json \
-            script.txt
+          rm -f *.png *.wav *.mp4 *.srt
+          rm -f slide_plan.json slide_audio_map.json script.txt
 
   # ==========================================================
   # POST-PUBLISH ADAPTIVE INTELLIGENCE LOOP
@@ -152,8 +173,9 @@ jobs:
 
   adaptive_feedback:
     needs: publish
+    if: success()   # 🔥 Only run if publish succeeded
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
 
     env:
       PYTHONUNBUFFERED: "1"
@@ -164,6 +186,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # 🔥 Restore topic context
+      - name: Download topic artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: current_topic
+
+      - name: Download publish artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: publish_outputs
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -179,7 +212,7 @@ jobs:
       # WAIT FOR ANALYTICS TO STABILIZE
       # -----------------------------------
       - name: Wait before analytics pull
-        run: sleep 600   # 10 minutes buffer
+        run: sleep 900   # 🔥 15 minutes (better stabilization)
 
       # -----------------------------------
       # TRACK PERFORMANCE
