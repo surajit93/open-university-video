@@ -1,4 +1,4 @@
-#scripts/adaptive_optimizer.py
+# scripts/adaptive_optimizer.py
 import sqlite3
 import logging
 from statistics import mean
@@ -20,6 +20,12 @@ try:
     from scripts.retention_dominance_engine import RetentionDominanceEngine
 except Exception:
     RetentionDominanceEngine = None
+
+# 🔥 NEW: Adaptive Retention Intelligence (additive only)
+try:
+    from scripts.adaptive_retention_intelligence import AdaptiveRetentionIntelligence
+except Exception:
+    AdaptiveRetentionIntelligence = None
 
 PERF_DB = "data/performance.db"
 IMPROVE_DB = "data/improvement_history.db"
@@ -192,7 +198,6 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
         try:
             retention_engine = RetentionDominanceEngine()
 
-            # Safe synthetic curve using available metrics
             synthetic_curve = [
                 avg_retention,
                 max(avg_retention - 5, 0),
@@ -208,6 +213,40 @@ def run_adaptive_optimization(video_id, saturated_emotion=None):
 
         except Exception as e:
             logging.warning(f"[RETENTION ENGINE ERROR] {e}")
+
+    # 🔥 NEW: Adaptive Retention Intelligence Integration (additive only)
+    if AdaptiveRetentionIntelligence:
+        try:
+            ari = AdaptiveRetentionIntelligence()
+
+            synthetic_curve = [
+                avg_retention / 100 if avg_retention else 0.5,
+                max((avg_retention - 5) / 100, 0),
+                max((avg_retention - 12) / 100, 0)
+            ]
+
+            validation = ari.validate_topic(f"Video {video_id}")
+
+            mapping = ari.map_drops_to_segments(
+                retention_curve=synthetic_curve,
+                script=""
+            )
+
+            if not validation["approved"]:
+                logging.warning(
+                    f"[ADAPTIVE VALIDATION FAIL] "
+                    f"Conviction={validation['conviction_score']} | "
+                    f"Urgency={validation['urgency_score']}"
+                )
+
+            if mapping["weak_segments"]:
+                logging.warning(
+                    f"[ADAPTIVE WEAK SEGMENTS DETECTED] "
+                    f"{mapping['weak_segments']}"
+                )
+
+        except Exception as e:
+            logging.warning(f"[ADAPTIVE RETENTION ERROR] {e}")
 
     # --- ORIGINAL LOGIC BELOW REMAINS UNCHANGED ---
 
