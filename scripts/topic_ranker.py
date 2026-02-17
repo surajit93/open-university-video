@@ -6,23 +6,26 @@ from typing import Dict, List
 from scripts.quality_threshold_gate import QualityThresholdGate
 from scripts.revenue_tracker import RevenueTracker
 
-# 🔥 NEW – Psychological hook integration (additive only)
 try:
     from scripts.psychological_hook_engine import PsychologicalHookEngine
 except Exception:
     PsychologicalHookEngine = None
 
-# 🔥 NEW – Viral DNA weighting (additive only)
 try:
     from scripts.viral_dna_engine import ViralDNAEngine
 except Exception:
     ViralDNAEngine = None
 
-# 🔥 NEW – Retention Dominance Engine (additive only)
 try:
     from scripts.retention_dominance_engine import RetentionDominanceEngine
 except Exception:
     RetentionDominanceEngine = None
+
+# 🔥 NEW – Writing Dominance feedback
+try:
+    from scripts.writing_dominance_engine import WritingDominanceEngine
+except Exception:
+    WritingDominanceEngine = None
 
 
 class TopicRanker:
@@ -63,17 +66,22 @@ class TopicRanker:
             (profit_score * weights["profit_weight"])
         )
 
-        # 🔥 Retention Dominance Enforcement (additive only)
         if self.retention_engine:
             brutality_valid = self.retention_engine.validate_topic_brutality(topic["title"])
             identity_score = self.retention_engine.identity_threat_score(topic["title"])
             packaging_score = self.retention_engine.packaging_score(topic["title"])
 
             if not brutality_valid:
-                final_score *= 0.6  # penalize safely
+                final_score *= 0.6
 
             final_score += (identity_score * 0.2)
             final_score += (packaging_score * 0.3)
+
+        # 🔥 Writing engine identity signal boost
+        if WritingDominanceEngine:
+            evaluator = WritingDominanceEngine(lambda x: topic["title"])
+            id_score = evaluator.second_person_ratio(topic["title"])
+            final_score += id_score * 0.2
 
         if self.psych_engine:
             psych_score = self.psych_engine.score_topic(topic["title"])
