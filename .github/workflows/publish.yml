@@ -3,12 +3,12 @@ name: Publish Video
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "0 */6 * * *"   # Run every 6 hours (controlled, not spam)
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
 
     env:
       PYTHONUNBUFFERED: "1"
@@ -18,44 +18,27 @@ jobs:
       YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
       YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
-      MCQ_PUSH_TOKEN: ${{ secrets.MCQ_PUSH_TOKEN }}
 
     steps:
-      # ---------------------------
-      # CHECKOUT MAIN REPO ONLY
-      # ---------------------------
+      # -----------------------------------
+      # CHECKOUT
+      # -----------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ---------------------------
-      # CLONE MCQ REPO (PAT AUTH)
-      # ---------------------------
-      - name: Clone MCQ repo (PAT authenticated)
-        run: |
-          rm -rf open-university-mcq
-          git clone https://x-access-token:${MCQ_PUSH_TOKEN}@github.com/surajit93/open-university-mcq.git open-university-mcq
-
-      # ---------------------------
-      # GIT IDENTITY (REQUIRED)
-      # ---------------------------
-      - name: Configure git identity
-        run: |
-          git config --global user.name "Open University CI"
-          git config --global user.email "ci@open-university"
-
-      # ---------------------------
+      # -----------------------------------
       # PYTHON SETUP
-      # ---------------------------
+      # -----------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # ---------------------------
-      # SYSTEM DEPENDENCIES (CRITICAL)
-      # ---------------------------
+      # -----------------------------------
+      # SYSTEM DEPENDENCIES
+      # -----------------------------------
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
@@ -65,9 +48,9 @@ jobs:
             espeak-ng-data \
             libespeak-ng1
 
-      # ---------------------------
-      # PYTHON DEPENDENCIES (CRITICAL)
-      # ---------------------------
+      # -----------------------------------
+      # PYTHON DEPENDENCIES
+      # -----------------------------------
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -75,7 +58,6 @@ jobs:
             papermill \
             jupyter \
             requests \
-            jq \
             google-api-python-client \
             google-auth \
             google-auth-oauthlib \
@@ -88,86 +70,131 @@ jobs:
             transformers==4.35.2 \
             "coqui-tts[codec]"
 
-
-      # ---------------------------
-      # TOPIC SELECTION
-      # ---------------------------
+      # -----------------------------------
+      # STEP 1: TOPIC SELECTION
+      # -----------------------------------
       - name: Pick topic
         run: python scripts/pick_topic.py
 
-      # ---------------------------
-      # SLIDE PLAN
-      # ---------------------------
+      # -----------------------------------
+      # STEP 2: TOPIC CONVICTION GATE
+      # -----------------------------------
+      - name: Validate topic conviction
+        run: python scripts/validate_topic_conviction.py
+
+      # -----------------------------------
+      # STEP 3: GENERATE SLIDES
+      # -----------------------------------
       - name: Generate slide plan
         run: python scripts/generate_slides.py
 
-      # ---------------------------
-      # NARRATION + script.txt
-      # ---------------------------
+      # -----------------------------------
+      # STEP 4: GENERATE SCRIPT + NARRATION
+      # -----------------------------------
       - name: Generate narration
         run: python scripts/generate_narration.py
 
-      # ---------------------------
-      # VALIDATE SLIDES + AUDIO
-      # ---------------------------
+      # -----------------------------------
+      # STEP 5: STORYCRAFT QUALITY GATE
+      # -----------------------------------
+      - name: Validate storycraft
+        run: python scripts/validate_storycraft.py
+
+      # -----------------------------------
+      # STEP 6: VALIDATE OUTPUT
+      # -----------------------------------
       - name: Validate slide + audio output
         run: python scripts/validate_output.py
 
-      # ---------------------------
-      # MCQ GENERATION
-      # ---------------------------
-      - name: Generate MCQs (HTML)
-        run: python scripts/generate_mcq.py
-
-      # ---------------------------
-      # MCQ VALIDATION
-      # ---------------------------
-      - name: Validate MCQs
-        run: python scripts/validate_mcq.py
-
-      # ---------------------------
-      # PUBLISH MCQ (PAT PUSH)
-      # ---------------------------
-      - name: Publish MCQ to GitHub Pages
-        run: python scripts/publish_mcq.py
-
-      # ---------------------------
-      # VIDEO RENDER (PAPERMILL)
-      # ---------------------------
-      - name: Call renderer notebook
+      # -----------------------------------
+      # STEP 7: RENDER VIDEO
+      # -----------------------------------
+      - name: Render video
         run: python scripts/call_colab.py
 
-      # ---------------------------
-      # SUBTITLES
-      # ---------------------------
+      # -----------------------------------
+      # STEP 8: SUBTITLES
+      # -----------------------------------
       - name: Generate subtitles
         run: python scripts/generate_subtitles.py
 
-      # ---------------------------
-      # THUMBNAIL
-      # ---------------------------
+      # -----------------------------------
+      # STEP 9: THUMBNAIL
+      # -----------------------------------
       - name: Generate thumbnail
         run: python scripts/generate_thumbnail.py
 
-      # ---------------------------
-      # UPLOAD TO YOUTUBE
-      # ---------------------------
+      # -----------------------------------
+      # STEP 10: UPLOAD
+      # -----------------------------------
       - name: Upload to YouTube
         run: python scripts/upload_youtube.py
 
-      # ---------------------------
-      # MARK TOPIC DONE
-      # ---------------------------
+      # -----------------------------------
+      # STEP 11: MARK TOPIC COMPLETE
+      # -----------------------------------
       - name: Mark topic done
         run: python scripts/mark_done.py
 
-      # ---------------------------
-      # CLEANUP (END ONLY)
-      # ---------------------------
+      # -----------------------------------
+      # CLEANUP
+      # -----------------------------------
       - name: Cleanup workspace
         run: |
           rm -rf *.png *.wav *.mp4 *.srt \
             slide_plan.json \
             slide_audio_map.json \
-            script.txt \
-            mcq_link.txt
+            script.txt
+
+  # ==========================================================
+  # POST-PUBLISH ADAPTIVE INTELLIGENCE LOOP
+  # ==========================================================
+
+  adaptive_feedback:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      PYTHONUNBUFFERED: "1"
+      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-api-python-client google-auth google-auth-oauthlib
+
+      # -----------------------------------
+      # WAIT FOR ANALYTICS TO STABILIZE
+      # -----------------------------------
+      - name: Wait before analytics pull
+        run: sleep 600   # 10 minutes buffer
+
+      # -----------------------------------
+      # TRACK PERFORMANCE
+      # -----------------------------------
+      - name: Track video performance
+        run: python scripts/performance_tracker.py
+
+      # -----------------------------------
+      # RUN ADAPTIVE RETENTION INTELLIGENCE
+      # -----------------------------------
+      - name: Adaptive retention refinement
+        run: python scripts/run_adaptive_refinement.py
+
+      # -----------------------------------
+      # RUN OPTIMIZER MEMORY UPDATE
+      # -----------------------------------
+      - name: Run adaptive optimizer
+        run: python scripts/run_optimizer.py
