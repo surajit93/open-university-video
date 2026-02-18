@@ -63,6 +63,13 @@ jobs:
             libespeak-ng1 \
             imagemagick
 
+      - name: Relax ImageMagick security policy for MoviePy
+        run: |
+          sudo sed -i 's/<policy domain="coder" rights="none" pattern="TEXT" \/>/<policy domain="coder" rights="read|write" pattern="TEXT" \/>/' /etc/ImageMagick-6/policy.xml || true
+          sudo sed -i 's/<policy domain="coder" rights="none" pattern="LABEL" \/>/<policy domain="coder" rights="read|write" pattern="LABEL" \/>/' /etc/ImageMagick-6/policy.xml || true
+          sudo sed -i 's/<policy domain="path" rights="none" pattern="@\*" \/>/<policy domain="path" rights="read|write" pattern="@\*" \/>/' /etc/ImageMagick-6/policy.xml || true
+     
+
 
       # -----------------------------------
       # PYTHON DEPENDENCIES (CACHED)
