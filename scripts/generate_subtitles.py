@@ -52,7 +52,7 @@ def main():
         if not text:
             raise ValueError(f"Empty spoken_text for slide {slide_id}")
 
-        wav = Path(f"voice_final_{slide_id}.wav")
+        wav = Path(f"voice_{slide_id}.wav")
         dur = wav_duration(wav)
 
         start = cursor
