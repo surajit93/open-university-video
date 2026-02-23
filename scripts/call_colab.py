@@ -71,8 +71,8 @@ def main():
 
     # Coqui + espeak
     # Coqui + espeak
-        os.environ["PHONEMIZER_ESPEAK_PATH"] = "/usr/bin/espeak"
-        os.environ["ESPEAK_PATH"] = "/usr/bin/espeak"
+    os.environ["PHONEMIZER_ESPEAK_PATH"] = "/usr/bin/espeak"
+    os.environ["ESPEAK_PATH"] = "/usr/bin/espeak"
 
     # Hard-disable GPU + thread storms (BIG slowdown fix)
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
