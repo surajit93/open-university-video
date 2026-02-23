@@ -70,8 +70,9 @@ def main():
     os.environ["RENDER_LANG"] = RENDER_LANG
 
     # Coqui + espeak
-    os.environ["PHONEMIZER_ESPEAK_PATH"] = "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"
-    os.environ["ESPEAK_PATH"] = "/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1"
+    # Coqui + espeak
+        os.environ["PHONEMIZER_ESPEAK_PATH"] = "/usr/bin/espeak"
+        os.environ["ESPEAK_PATH"] = "/usr/bin/espeak"
 
     # Hard-disable GPU + thread storms (BIG slowdown fix)
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
