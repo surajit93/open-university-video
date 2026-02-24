@@ -94,8 +94,8 @@ jobs:
       # STEP 3: GENERATE SLIDES
       # -----------------------------------
 
-      - name: Generate slide plan
-        run: python scripts/generate_slides.py
+      - name: Generate storyboard
+        run: python scripts/generate_storyboard.py
 
       # -----------------------------------
       # STEP 4: GENERATE NARRATION
