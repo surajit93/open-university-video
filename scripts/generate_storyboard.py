@@ -1,6 +1,6 @@
 # scripts/generate_storyboard.py
 # PURPOSE:
-# Generate structured storyboard.json (scene-based abstraction layer)
+# Generate structured storyboard.json (intent-driven scene abstraction layer)
 
 import json
 import os
@@ -16,18 +16,22 @@ OUTPUT_FILE = BASE_DIR / "storyboard.json"
 MODEL = "llama3-70b-8192"
 
 SYSTEM_PROMPT = """
-You are a high-retention YouTube storyboard strategist designing a Bright Side level video.
+You are a high-retention YouTube cinematic storyboard strategist.
 
 Your mission:
-Create a cinematic, tension-driven storyboard designed to maximize viewer retention and psychological engagement.
+Create an intent-driven storyboard designed for maximum viewer retention and psychological engagement.
 
 CRITICAL OBJECTIVES:
 - Strong hook in first 3 seconds
-- Escalating challenge structure
-- Emotional pacing curve (tension → pressure → impact → relief → curiosity)
-- Frequent pattern interrupts (every 4–8 seconds)
-- Clear reward payoff moment
-- High visual dominance over text
+- Escalating tension curve
+- Emotional pacing (tension → pressure → impact → relief → curiosity)
+- Pattern interrupts every 4–8 seconds
+- Clear payoff moment
+- Visual dominance over text
+
+IMPORTANT:
+This is NOT a slide deck.
+This is a cinematic execution blueprint.
 
 Output STRICT valid JSON only.
 No commentary.
@@ -48,23 +52,36 @@ STRUCTURE:
       "type": "hook",
       "emotion": "shock",
       "duration": 3,
-      "headline": "...",
-      "subheadline": "...",
-      "template": "challenge_intro"
+      "template": "challenge_intro",
+      "primary_visual_focus": "large centered headline",
+      "layers": [
+        {"role": "background", "style": "dark minimal tension"},
+        {"role": "headline", "text": "..."},
+        {"role": "subheadline", "text": "..."}
+      ]
     }
   ]
 }
 
 REQUIREMENTS:
 
-1. Total video length: 45–60 seconds.
+1. Total video length MUST be between 45 and 60 seconds.
 2. First scene MUST be under 4 seconds.
-3. At least one countdown-driven challenge scene.
-4. At least one high-impact reveal scene.
-5. At least one psychological insight scene.
-6. Final scene must create curiosity for next episode.
+3. At least one countdown scene.
+4. At least one high-impact reveal.
+5. At least one psychological insight.
+6. Final scene must create curiosity.
 
-Scene Types Allowed:
+Each scene MUST define:
+- id
+- type
+- emotion
+- duration
+- template
+- primary_visual_focus
+- layers (array)
+
+Allowed scene types:
 - hook
 - challenge
 - countdown
@@ -73,7 +90,7 @@ Scene Types Allowed:
 - pattern_interrupt
 - call_to_action
 
-Templates Allowed:
+Allowed templates:
 - challenge_intro
 - countdown_scene
 - reveal_flash
@@ -81,16 +98,18 @@ Templates Allowed:
 - rapid_zoom_interrupt
 - end_card
 
-Design scenes visually first, text second.
-Assume strong motion, camera movement, and sound hits will be applied.
+Layer roles allowed:
+- background
+- headline
+- subheadline
+- countdown_timer
+- kinetic_text
+- infographic
+- symbol
+- motion_element
 
-Each scene must define:
-- id
-- type
-- emotion
-- duration
-- template
-- primary_visual_focus (what dominates frame)
+Design scenes visually first, text second.
+Assume camera movement and motion will be applied.
 """
 
 
@@ -107,10 +126,11 @@ def load_topic():
 
 
 def call_llm(topic_text):
-    client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-
-    if not client:
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
         fail("GROQ_API_KEY missing")
+
+    client = Groq(api_key=api_key)
 
     response = client.chat.completions.create(
         model=MODEL,
@@ -134,15 +154,30 @@ def validate_storyboard(data):
     total_duration = 0
 
     for scene in data["scenes"]:
-        required = ["id", "type", "emotion", "duration", "template"]
+        required = [
+            "id",
+            "type",
+            "emotion",
+            "duration",
+            "template",
+            "primary_visual_focus",
+            "layers"
+        ]
+
         for r in required:
             if r not in scene:
                 fail(f"Scene missing field: {r}")
 
+        if not isinstance(scene["layers"], list):
+            fail("Scene layers must be a list")
+
         total_duration += scene["duration"]
 
-    if total_duration < 30:
-        fail("Storyboard too short (<30s)")
+    if total_duration < 45 or total_duration > 60:
+        fail("Storyboard duration must be between 45 and 60 seconds")
+
+    if data["scenes"][0]["duration"] >= 4:
+        fail("First scene must be under 4 seconds")
 
     return True
 
