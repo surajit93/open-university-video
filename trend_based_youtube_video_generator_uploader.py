@@ -378,7 +378,7 @@ def enterprise_compose_video(scenes, narration):
 
 
 from pytrends.request import TrendReq
-from moviepy.editor import (
+from moviepy import (
     ImageClip, AudioFileClip,
     CompositeVideoClip,
     concatenate_videoclips,
