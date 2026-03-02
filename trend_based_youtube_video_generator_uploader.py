@@ -378,14 +378,14 @@ def enterprise_compose_video(scenes, narration):
 
 
 from pytrends.request import TrendReq
-from moviepy import (
+from moviepy.editor import (
     ImageClip, AudioFileClip,
     CompositeVideoClip,
     concatenate_videoclips,
     ColorClip,
     TextClip
 )
-from moviepy.audio.fx import audio_fadein, audio_fadeout
+
 from google.cloud import texttospeech
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
