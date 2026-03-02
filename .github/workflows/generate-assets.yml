@@ -2,9 +2,6 @@ name: Generate Cinematic Assets
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "tools/generate_elite_assets.py"
 
 jobs:
   generate-assets:
@@ -24,15 +21,23 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install FFmpeg
+      - name: Upgrade Pip
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install System Dependencies
         run: |
           sudo apt update
-          sudo apt install -y ffmpeg
+          sudo apt install -y ffmpeg libsm6 libxext6
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install numpy soundfile moviepy scipy pillow
+          pip install numpy scipy pillow soundfile
+          pip install moviepy imageio imageio-ffmpeg decorator proglog tqdm
+
+      - name: Verify MoviePy
+        run: |
+          python -c "import moviepy.editor; print('MoviePy OK')"
 
       - name: Run Asset Generator
         run: |
