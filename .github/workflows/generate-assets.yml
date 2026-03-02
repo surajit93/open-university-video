@@ -1,0 +1,50 @@
+name: Generate Cinematic Assets
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/generate_elite_assets.py"
+
+jobs:
+  generate-assets:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt update
+          sudo apt install -y ffmpeg
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy soundfile moviepy scipy pillow
+
+      - name: Run Asset Generator
+        run: |
+          python tools/generate_elite_assets.py
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Commit and Push Assets
+        run: |
+          git add assets
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-generated cinematic assets [skip ci]"
+          git push
