@@ -108,7 +108,8 @@ jobs:
       # Google Cloud Credentials
       # ----------------------------------
       - name: Create Google Cloud Credential File
-        run: echo '${{ secrets.GOOGLE_CLOUD_JSON }}' > gcloud.json
+        run: |
+          printf "%s" "${{ secrets.GOOGLE_CLOUD_JSON }}" > gcloud.json
 
       # ----------------------------------
       # Decide Mode (Safe logic aligned to cron)
