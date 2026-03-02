@@ -799,7 +799,7 @@ Return JSON list:
     # =============================
 
     resp = groq_client.chat.completions.create(
-    model="llama3-70b-8192",
+    model="llama-3.3-70b-versatile",
     messages=[{"role": "user", "content": prompt}],
     temperature=0.9
     )
@@ -1021,7 +1021,7 @@ def inject_silence_before_reveal(ssml_script):
 def generate_hook_variants(topic):
     prompt = f"Generate 3 high-retention opening hooks for a YouTube video about {topic}"
     resp = groq_client.chat.completions.create(
-        model="llama3-70b-8192",
+        model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}]
     )
 
