@@ -390,11 +390,11 @@ from google.cloud import texttospeech
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.credentials import Credentials
-import openai
+from groq import Groq
 
 # ================= CONFIG (PRESERVED) =================
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 YOUTUBE_DATA_API_KEY = os.getenv("YOUTUBE_DATA_API_KEY")
@@ -403,7 +403,7 @@ YT_CLIENT_ID = os.getenv("YT_CLIENT_ID")
 YT_CLIENT_SECRET = os.getenv("YT_CLIENT_SECRET")
 YT_REFRESH_TOKEN = os.getenv("YT_REFRESH_TOKEN")
 
-openai.api_key = OPENAI_API_KEY
+groq_client = Groq(api_key=GROQ_API_KEY)
 
 ROOT = Path(".")
 OUTPUT = ROOT / "output"
@@ -798,13 +798,13 @@ Return JSON list:
     # 6️⃣ LLM Call
     # =============================
 
-    resp = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role":"user","content":prompt}],
-        temperature=0.92
+    resp = groq_client.chat.completions.create(
+    model="llama3-70b-8192",
+    messages=[{"role": "user", "content": prompt}],
+    temperature=0.9
     )
 
-    scenes = json.loads(resp["choices"][0]["message"]["content"])
+    scenes = json.loads(resp.choices[0].message.content)
 
     # =============================
     # 7️⃣ Post-Generation Structural Reinforcement
@@ -1020,11 +1020,12 @@ def inject_silence_before_reveal(ssml_script):
 
 def generate_hook_variants(topic):
     prompt = f"Generate 3 high-retention opening hooks for a YouTube video about {topic}"
-    resp = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role":"user","content":prompt}]
+    resp = groq_client.chat.completions.create(
+        model="llama3-70b-8192",
+        messages=[{"role": "user", "content": prompt}]
     )
-    hooks = resp["choices"][0]["message"]["content"].split("\n")
+
+    hooks = resp.choices[0].message.content.split("\n")
     return [h for h in hooks if len(h.strip()) > 10][:3]
 
 def select_best_hook(hooks, memory):
