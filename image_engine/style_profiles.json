@@ -1,0 +1,20 @@
+{
+  "high_contrast_neon": {
+    "lighting": "dramatic rim light, high contrast, neon highlights",
+    "color_palette": "electric blue, magenta, deep black",
+    "mood": "intense, psychological tension",
+    "camera": "cinematic close-up, shallow depth of field"
+  },
+  "cinematic_clean": {
+    "lighting": "soft cinematic lighting, balanced exposure",
+    "color_palette": "natural tones, subtle contrast",
+    "mood": "professional documentary",
+    "camera": "medium shot, stabilized frame"
+  },
+  "dark_tension": {
+    "lighting": "low key lighting, shadows dominant",
+    "color_palette": "deep blue, muted gray, black",
+    "mood": "mysterious, suspenseful",
+    "camera": "slow push-in"
+  }
+}
