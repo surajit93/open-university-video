@@ -93,7 +93,7 @@ jobs:
             numpy \
             scipy \
             pillow \
-            openai==0.28.1 \
+            groq \
             requests \
             pytrends \
             google-api-python-client \
