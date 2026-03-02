@@ -804,7 +804,38 @@ Return JSON list:
     temperature=0.9
     )
 
-    scenes = json.loads(resp.choices[0].message.content)
+    raw_content = resp.choices[0].message.content.strip()
+
+    # Remove markdown code fences if present
+    if raw_content.startswith("```"):
+        parts = raw_content.split("```")
+        if len(parts) >= 2:
+            raw_content = parts[1].strip()
+
+    try:
+        scenes = json.loads(raw_content)
+    except json.JSONDecodeError:
+        log.warning("LLM returned non-clean JSON. Attempting extraction...")
+
+        match = re.search(r"\[.*\]", raw_content, re.DOTALL)
+
+        if match:
+            try:
+                scenes = json.loads(match.group(0))
+            except:
+                log.error("JSON extraction failed. Using fallback scene.")
+                scenes = [{
+                    "text": "Something major is happening. And it affects you.",
+                    "emotion": "serious",
+                    "intensity": 0.8
+                }]
+        else:
+            log.error("No JSON array detected. Using fallback scene.")
+            scenes = [{
+                "text": "Something major is happening. And it affects you.",
+                "emotion": "serious",
+                "intensity": 0.8
+            }]
 
     # =============================
     # 7️⃣ Post-Generation Structural Reinforcement
