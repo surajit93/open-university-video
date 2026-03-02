@@ -1,6 +1,6 @@
 import numpy as np
 import soundfile as sf
-from moviepy.editor import VideoClip
+from moviepy import VideoClip
 from pathlib import Path
 from scipy.signal import butter, lfilter
 import random
