@@ -31,7 +31,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Dict
 from datetime import datetime
-from moviepy import VideoFileClip
+from moviepy.editor import VideoFileClip
 
 import requests
 # ================= ENTERPRISE EXPANSION IMPORTS =================
