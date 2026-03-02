@@ -799,7 +799,7 @@ Return JSON list:
     # =============================
 
     resp = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[{"role":"user","content":prompt}],
         temperature=0.92
     )
@@ -1021,7 +1021,7 @@ def inject_silence_before_reveal(ssml_script):
 def generate_hook_variants(topic):
     prompt = f"Generate 3 high-retention opening hooks for a YouTube video about {topic}"
     resp = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[{"role":"user","content":prompt}]
     )
     hooks = resp["choices"][0]["message"]["content"].split("\n")
