@@ -559,13 +559,17 @@ def discover_trends():
     return fallback_topics[:25]
 
 def get_velocity(topic):
-    py = TrendReq()
-    py.build_payload([topic], timeframe="now 7-d")
-    data = py.interest_over_time()
-    if data.empty:
+    try:
+        py = TrendReq(hl='en-US', tz=360)
+        py.build_payload([topic], timeframe="now 7-d")
+        data = py.interest_over_time()
+        if data.empty:
+            return 0.5
+        vals = data[topic].tolist()
+        return max(min((vals[-1] - vals[0]) / 100, 1), 0)
+    except Exception as e:
+        log.warning(f"Velocity failed for {topic}: {e}")
         return 0.5
-    vals = data[topic].tolist()
-    return max(min((vals[-1] - vals[0]) / 100, 1), 0)
 
 def news_weight(topic):
     if not NEWS_API_KEY:
@@ -1203,7 +1207,12 @@ def run():
     memory = load_memory()
 
     trends = discover_trends()
-    scored = [(t, score_topic(t)) for t in trends]
+
+    # Limit velocity scoring to first 5 only
+    limited_trends = trends[:5]
+
+    scored = [(t, score_topic(t)) for t in limited_trends]
+
     topic = sorted(scored, key=lambda x:x[1], reverse=True)[0][0]
     # ================= THUMBNAIL BANDIT SETUP =================
 
