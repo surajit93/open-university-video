@@ -437,8 +437,126 @@ def save_memory(mem):
 MONETIZATION_KEYWORDS = ["ai","money","crypto","finance","future","health","war","market"]
 
 def discover_trends():
-    df = TrendReq().trending_searches(pn="united_states")
-    return [str(x[0]) for x in df.head(8).values]
+    try:
+        py = TrendReq(hl='en-US', tz=360)
+        df = py.trending_searches(pn="united_states")
+        if df is not None and not df.empty:
+            return [str(x[0]) for x in df.head(8).values]
+    except Exception as e:
+        log.warning(f"Pytrends failed: {e}")
+
+    # Fallback to YouTube trending search
+    # Fallback to YouTube trending videos (correct endpoint)
+    try:
+        if YOUTUBE_DATA_API_KEY:
+            r = requests.get(
+                "https://www.googleapis.com/youtube/v3/videos",
+                params={
+                    "part": "snippet",
+                    "chart": "mostPopular",
+                    "regionCode": "US",
+                    "maxResults": 15,
+                    "key": YOUTUBE_DATA_API_KEY
+                }
+            )
+
+            if r.ok:
+                items = r.json().get("items", [])
+                titles = [item["snippet"]["title"] for item in items]
+                if titles:
+                    return titles
+    except Exception as e:
+        log.warning(f"YouTube fallback failed: {e}")
+
+    # Final fallback
+    # Final fallback — large diversified evergreen + volatile pool
+    fallback_topics = [
+        # Tech / AI
+        "Artificial Intelligence",
+        "AI Regulation",
+        "ChatGPT Updates",
+        "Quantum Computing",
+        "Cybersecurity Threats",
+        "Future of Robotics",
+        "Big Tech Layoffs",
+        "Semiconductor Industry",
+        "Open Source AI",
+        "Space Technology",
+
+        # Economy / Finance
+        "Global Recession Risk",
+        "Stock Market Crash",
+        "Federal Reserve Policy",
+        "Cryptocurrency Regulation",
+        "Bitcoin Price Prediction",
+        "Real Estate Market",
+        "Inflation Crisis",
+        "Emerging Markets",
+        "Energy Crisis",
+        "Oil Prices Forecast",
+
+        # Geopolitics
+        "US China Relations",
+        "Middle East Conflict",
+        "Ukraine War Update",
+        "NATO Expansion",
+        "Global Trade War",
+        "BRICS Expansion",
+        "Sanctions Impact",
+        "Military Technology",
+
+        # Society / Culture
+        "Social Media Influence",
+        "Mental Health Crisis",
+        "Remote Work Future",
+        "Education Reform",
+        "Digital Privacy",
+        "Surveillance Technology",
+        "Censorship Debate",
+        "Generational Wealth Gap",
+
+        # Science / Health
+        "Climate Change Effects",
+        "Pandemic Preparedness",
+        "Longevity Research",
+        "Biotechnology Breakthrough",
+        "Gene Editing Ethics",
+        "Mars Colonization",
+        "Renewable Energy Breakthrough",
+
+        # High-CTR Evergreen
+        "The Future of Humanity",
+        "What They Aren't Telling You",
+        "Hidden Forces Shaping the World",
+        "The Collapse Nobody Saw Coming",
+        "The Next Global Crisis",
+        "The Biggest Shift of This Decade",
+        
+        # Entertainment / Celebrity (High CTR Potential)
+        "Celebrity Lawsuit Drama",
+        "Hollywood Scandal",
+        "Netflix Controversy",
+        "Streaming Wars Battle",
+        "Disney Strategy Shift",
+        "Music Industry Collapse",
+        "AI in Film Industry",
+        "Influencer Scandal",
+        "YouTube Creator Drama",
+        "Viral Internet Phenomenon",
+        "Cancel Culture Backlash",
+        "Reality TV Controversy",
+        "Superhero Franchise Fatigue",
+        "Gaming Industry Crisis",
+        "Esports Growth Explosion",
+        "Taylor Swift Industry Impact",
+        "Marvel Box Office Decline",
+        "Streaming Platform Collapse",
+        "The Dark Side of Fame",
+        "The Hidden Economics of Hollywood"
+    ]
+
+    random.shuffle(fallback_topics)
+    return fallback_topics[:25]
 
 def get_velocity(topic):
     py = TrendReq()
