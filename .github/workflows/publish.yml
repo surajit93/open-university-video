@@ -1,272 +1,105 @@
-name: Publish Video
+name: Autonomous YouTube Growth Engine
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"
-
-concurrency:
-  group: publish-video
-  cancel-in-progress: false
+    # Video 1
+    - cron: "0 10 * * *"
+    # Video 2
+    - cron: "0 18 * * *"
+    # Retention update
+    - cron: "0 23 * * *"
+  workflow_dispatch:
 
 jobs:
-
-  publish:
+  run-engine:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 120
 
     env:
-      PYTHONUNBUFFERED: "1"
-      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+      YOUTUBE_DATA_API_KEY: ${{ secrets.YOUTUBE_DATA_API_KEY }}
       YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
       YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
       YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-      YT_CHANNEL_ID: ${{ secrets.YT_CHANNEL_ID }}
-
-      # 🔥 ADD THIS (Coqui fix)
-      PHONEMIZER_ESPEAK_PATH: /usr/bin/espeak
-      ESPEAK_PATH: /usr/bin/espeak
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcloud.json
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      # -------------------------------
+      # System Dependencies
+      # -------------------------------
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install ImageMagick
+        run: sudo apt-get install -y imagemagick
+
+      - name: Install yt-dlp
+        run: |
+          sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+          sudo chmod a+rx /usr/local/bin/yt-dlp
+
+      # -------------------------------
+      # Python Setup
+      # -------------------------------
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: "pip"
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y \
-            ffmpeg \
-            espeak-ng \
-            espeak-ng-data \
-            libespeak-ng1 \
-            imagemagick \
-            fonts-dejavu-core
-
-          # 🔥 ADD THIS (critical)
-          sudo ln -sf /usr/bin/espeak-ng /usr/bin/espeak
-
-      - name: Relax ImageMagick security policy for MoviePy
-        run: |
-          sudo sed -i 's/<policy domain="coder" rights="none" pattern="TEXT" \/>/<policy domain="coder" rights="read|write" pattern="TEXT" \/>/' /etc/ImageMagick-6/policy.xml || true
-          sudo sed -i 's/<policy domain="coder" rights="none" pattern="LABEL" \/>/<policy domain="coder" rights="read|write" pattern="LABEL" \/>/' /etc/ImageMagick-6/policy.xml || true
-          sudo sed -i 's/<policy domain="path" rights="none" pattern="@\*" \/>/<policy domain="path" rights="read|write" pattern="@\*" \/>/' /etc/ImageMagick-6/policy.xml || true
-
-      - name: Install Python dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      # -----------------------------------
-      # STEP 1: PICK TOPIC
-      # -----------------------------------
+          pip install \
+            openai \
+            requests \
+            moviepy \
+            numpy \
+            scipy \
+            pytrends \
+            google-api-python-client \
+            google-auth \
+            google-auth-oauthlib \
+            google-auth-httplib2 \
+            google-cloud-texttospeech
 
-      - name: Pick topic
-        run: python scripts/pick_topic.py
+      # -------------------------------
+      # Google Cloud Credentials
+      # -------------------------------
 
-      - name: Upload current topic artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: current_topic
-          path: current_topic.json
+      - name: Create Google Cloud Credential File
+        run: echo '${{ secrets.GOOGLE_CLOUD_JSON }}' > gcloud.json
 
-      # -----------------------------------
-      # STEP 2: VALIDATE CONVICTION
-      # -----------------------------------
+      # -------------------------------
+      # Decide Mode
+      # -------------------------------
 
-      - name: Validate topic conviction
+      - name: Decide Run Mode
+        id: mode
         run: |
-          if [ -f scripts/validate_topic_conviction.py ]; then
-            python scripts/validate_topic_conviction.py
+          HOUR=$(date -u +"%H")
+          if [ "$HOUR" = "20" ]; then
+            echo "MODE=retention_update" >> $GITHUB_ENV
           else
-            echo "validate_topic_conviction.py not found — skipping"
+            echo "MODE=normal" >> $GITHUB_ENV
           fi
 
-      # -----------------------------------
-      # STEP 3: GENERATE SLIDES
-      # -----------------------------------
+      # -------------------------------
+      # Run Engine
+      # -------------------------------
 
-      - name: Generate storyboard
-        run: python scripts/generate_storyboard.py
-
-      # -----------------------------------
-      # STEP 4: GENERATE NARRATION
-      # -----------------------------------
-
-      - name: Generate narration
-        run: python scripts/generate_narration.py
-
-      # -----------------------------------
-      # STEP 5: STORYCRAFT VALIDATION
-      # -----------------------------------
-
-      - name: Validate storycraft
+      - name: Run YouTube Engine
         run: |
-          if [ -f scripts/validate_storycraft.py ]; then
-            python scripts/validate_storycraft.py
+          if [ "$MODE" = "retention_update" ]; then
+            echo "Running delayed retention update..."
+            MODE=retention_update python trend_based_youtube_video_generator_uploader.py
           else
-            echo "validate_storycraft.py not found — skipping"
+            echo "Generating and uploading video..."
+            python trend_based_youtube_video_generator_uploader.py
           fi
-
-      # -----------------------------------
-      # STEP 6: OUTPUT VALIDATION
-      # -----------------------------------
-
-      - name: Validate output
-        run: python scripts/validate_output.py
-
-      # -----------------------------------
-      # STEP 7: RENDER VIDEO
-      # -----------------------------------
-
-      - name: Render video
-        run: python scripts/call_colab.py
-
-      # -----------------------------------
-      # STEP 8: SUBTITLES
-      # -----------------------------------
-
-      - name: Generate subtitles
-        run: python scripts/generate_subtitles.py
-
-      # -----------------------------------
-      # STEP 9: THUMBNAIL
-      # -----------------------------------
-
-      - name: Generate thumbnail
-        run: python scripts/generate_thumbnail.py
-
-      # -----------------------------------
-      # STEP 10: UPLOAD TO YOUTUBE
-      # -----------------------------------
-
-      - name: Upload to YouTube
-        run: python scripts/upload_youtube.py
-
-      # Persist video_id
-      - name: Upload latest_video artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: latest_video
-          path: latest_video.json
-
-      - name: Upload publish metadata
-        uses: actions/upload-artifact@v4
-        with:
-          name: publish_outputs
-          path: |
-            script.txt
-            slide_plan.json
-            slide_audio_map.json
-
-      # -----------------------------------
-      # STEP 11: MARK TOPIC DONE
-      # -----------------------------------
-
-      - name: Mark topic done
-        run: python scripts/mark_done.py
-
-      # -----------------------------------
-      # CLEANUP
-      # -----------------------------------
-
-      - name: Cleanup workspace
-        if: always()
-        run: |
-          rm -f *.png *.wav *.mp4 *.srt
-          rm -f slide_plan.json slide_audio_map.json script.txt
-
-  # ==========================================================
-  # ADAPTIVE INTELLIGENCE LOOP
-  # ==========================================================
-
-  adaptive_feedback:
-    needs: publish
-    if: success()
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-
-    env:
-      PYTHONUNBUFFERED: "1"
-      YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
-      YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
-      YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python (cached)
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-          cache: "pip"
-
-      - name: Install minimal analytics dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install google-api-python-client google-auth google-auth-oauthlib
-
-      # -----------------------------------
-      # RESTORE ARTIFACTS
-      # -----------------------------------
-
-      - name: Download latest video ID
-        uses: actions/download-artifact@v4
-        with:
-          name: latest_video
-
-      - name: Download publish outputs
-        uses: actions/download-artifact@v4
-        with:
-          name: publish_outputs
-
-      # -----------------------------------
-      # WAIT FOR ANALYTICS STABILITY
-      # -----------------------------------
-
-      - name: Wait for analytics stabilization
-        run: sleep 900
-
-      # -----------------------------------
-      # EXTRACT VIDEO ID
-      # -----------------------------------
-
-      - name: Read video_id
-        id: read_video
-        run: |
-          VIDEO_ID=$(python - <<EOF
-          import json
-          print(json.load(open("latest_video.json"))["video_id"])
-          EOF
-          )
-          echo "VIDEO_ID=$VIDEO_ID" >> $GITHUB_ENV
-
-      # -----------------------------------
-      # TRACK PERFORMANCE
-      # -----------------------------------
-
-      - name: Track performance
-        run: python - <<EOF
-              import scripts.performance_tracker as pt
-              pt.track_performance("${VIDEO_ID}")
-              EOF
-              
-                    # -----------------------------------
-                    # RUN OPTIMIZER
-                    # -----------------------------------
-              
-      - name: Run adaptive optimizer
-        run: python - <<EOF
-              import scripts.adaptive_optimizer as ao
-              ao.run_adaptive_optimization("${VIDEO_ID}")
-              EOF
