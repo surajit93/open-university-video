@@ -93,7 +93,7 @@ jobs:
             numpy \
             scipy \
             pillow \
-            openai \
+            openai==0.28.1 \
             requests \
             pytrends \
             google-api-python-client \
