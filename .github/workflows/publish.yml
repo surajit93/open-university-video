@@ -88,20 +88,20 @@ jobs:
           python -m pip install --upgrade pip
 
           pip install \
-            moviepy==1.0.3 \
-            imageio \
-            imageio-ffmpeg \
-            numpy \
-            scipy \
-            pillow \
-            groq \
-            requests \
-            pytrends \
-            google-api-python-client \
-            google-auth \
-            google-auth-oauthlib \
-            google-auth-httplib2 \
-            google-cloud-texttospeech
+              moviepy==1.0.3 \
+              imageio \
+              imageio-ffmpeg \
+              numpy \
+              scipy \
+              pillow==9.5.0 \
+              groq \
+              requests \
+              pytrends \
+              google-api-python-client \
+              google-auth \
+              google-auth-oauthlib \
+              google-auth-httplib2 \
+              google-cloud-texttospeech
 
       # ----------------------------------
       # Google Cloud Credentials (BASE64 SAFE)
