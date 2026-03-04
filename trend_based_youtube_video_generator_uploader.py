@@ -40,12 +40,13 @@ import statistics
 import uuid
 import shutil
 from collections import defaultdict
-
+from sentence_transformers import SentenceTransformer, util
 # ==========================================================
 # NON-DETERMINISTIC CHAOS ENGINE
 # ==========================================================
 
 CHAOS_LEVELS = ["mild", "moderate", "aggressive"]
+    
 
 def select_chaos_level():
     return random.choices(
@@ -280,18 +281,20 @@ def arc_breaker_injection(scenes):
 # ==========================================================
 
 def attempt_broll_clip(query, duration):
+
     video_id = fetch_youtube_broll(query)
     if not video_id:
         return None
 
     temp_path = CACHE / f"{video_id}.mp4"
 
+    # Download video if not cached
     if not temp_path.exists():
         try:
             subprocess.run([
                 "yt-dlp",
                 f"https://www.youtube.com/watch?v={video_id}",
-                "-f", "mp4",
+                "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
                 "-o", str(temp_path)
             ], check=True)
         except:
@@ -299,10 +302,33 @@ def attempt_broll_clip(query, duration):
 
     try:
         clip = VideoFileClip(str(temp_path))
-        clip = clip.subclip(0, min(duration, clip.duration))
-        clip = clip.resize((1280,720))
-        clip = clip.set_duration(duration)
+
+        # Random segment selection
+        if clip.duration > duration + 2:
+            start = random.uniform(1, clip.duration - duration - 1)
+            clip = clip.subclip(start, start + duration)
+        else:
+            clip = clip.subclip(0, clip.duration)
+
+        # Slight speed variation
+        speed = random.uniform(0.95, 1.05)
+        clip = clip.fx(vfx.speedx, speed)
+
+        # Optional horizontal mirror
+        if random.random() < 0.3:
+            clip = clip.fx(vfx.mirror_x)
+
+        # Resize
+        clip = clip.resize((1280, 720))
+
+        # Ensure duration match
+        if clip.duration < duration:
+            clip = clip.loop(duration=duration)
+        else:
+            clip = clip.set_duration(duration)
+
         return clip
+
     except:
         return None
         
@@ -318,50 +344,74 @@ def enterprise_compose_video(scenes, narration):
     total_duration = narration_clip.duration
     base_duration = total_duration / len(scenes)
 
+    # Beat detection (compute once)
+    beats = detect_beats_from_audio(narration)
+
     final_clips = []
 
     for idx, s in enumerate(scenes):
-        
-        beats = detect_beats_from_audio(narration)
 
         duration = randomized_scene_duration(base_duration)
 
         # Beat reinforcement
-        if beats:
-            if idx < len(beats):
-                duration = max(2.5, min(duration + 0.6, 7))
+        if beats and idx < len(beats):
+            duration = max(2.5, min(duration + 0.6, 7))
 
-        keywords = " ".join(re.findall(r'\b\w+\b', s["text"])[:3])
+        visual_plan = s.get("visual_plan", [])
 
-        broll_clip = attempt_broll_clip(keywords, duration)
+        clip = None
 
-        if broll_clip:
-            clip = broll_clip
-        else:
-            img = fetch_image(keywords)
-            if img:
-                clip = ImageClip(str(img)).set_duration(duration)
-                clip = apply_multi_camera_motion(clip, s["intensity"], duration)
-            else:
-                clip = ColorClip((1280,720),(10,10,10)).set_duration(duration)
+        # Attempt planned visuals
+        for shot in visual_plan:
 
+            if shot.get("type") == "video":
+                clip = attempt_broll_clip(shot.get("query", ""), duration)
+                if clip:
+                    break
+
+            elif shot.get("type") == "image":
+                img = fetch_image(shot.get("query", ""))
+                if img:
+                    clip = ImageClip(str(img)).set_duration(duration)
+                    clip = apply_multi_camera_motion(
+                        clip,
+                        s.get("intensity", 0.5),
+                        duration
+                    )
+                    break
+
+        # Final fallback
+        if clip is None:
+            clip = ColorClip((1280, 720), (10, 10, 10)).set_duration(duration)
+
+        # Subtitle overlay
         subtitle = animated_subtitle(
-            s["text"],
+            s.get("text", ""),
             duration,
-            s["intensity"]
+            s.get("intensity", 0.5)
         )
 
         clip = CompositeVideoClip([clip, subtitle])
 
         final_clips.append(clip)
 
-    # Apply dynamic transitions
+    # Dynamic transitions
     stitched = final_clips[0]
+
     for c in final_clips[1:]:
         stitched = dynamic_transition(stitched, c)
 
+    # Attach narration audio
+    music_path = select_music(scenes[0]["emotion"])
+
+    if music_path:
+        music = AudioFileClip(str(music_path)).volumex(0.15)
+        final_audio = CompositeAudioClip([narration_clip, music])
+    else:
+        final_audio = narration_clip
+
     stitched = stitched.set_audio(
-        narration_clip.audio_fadein(1).audio_fadeout(1)
+        final_audio.audio_fadein(1).audio_fadeout(1)
     )
 
     output = OUTPUT / f"video_{int(time.time())}.mp4"
@@ -381,6 +431,7 @@ from pytrends.request import TrendReq
 from moviepy.editor import (
     ImageClip, AudioFileClip,
     CompositeVideoClip,
+    CompositeAudioClip,
     concatenate_videoclips,
     ColorClip,
     TextClip
@@ -404,6 +455,7 @@ YT_CLIENT_SECRET = os.getenv("YT_CLIENT_SECRET")
 YT_REFRESH_TOKEN = os.getenv("YT_REFRESH_TOKEN")
 
 groq_client = Groq(api_key=GROQ_API_KEY)
+visual_embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 ROOT = Path(".")
 OUTPUT = ROOT / "output"
@@ -417,18 +469,64 @@ CACHE.mkdir(exist_ok=True)
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("RETENTION_MACHINE")
 
+def rank_visual_candidates(scene_text, candidates):
+
+    if not candidates:
+        return None
+
+    scene_emb = visual_embedder.encode(scene_text, convert_to_tensor=True)
+
+    scored = []
+
+    for item in candidates:
+
+        title = item.get("title","")
+        emb = visual_embedder.encode(title, convert_to_tensor=True)
+
+        sim = util.cos_sim(scene_emb, emb).item()
+
+        scored.append((sim, item))
+
+    scored.sort(reverse=True)
+
+    return scored[0][1]
+
+def rank_visual_candidates(scene_text, candidates):
+
+    if not candidates:
+        return None
+
+    scene_emb = visual_embedder.encode(scene_text, convert_to_tensor=True)
+
+    scored = []
+
+    for item in candidates:
+
+        title = item.get("title","")
+        emb = visual_embedder.encode(title, convert_to_tensor=True)
+
+        sim = util.cos_sim(scene_emb, emb).item()
+
+        scored.append((sim, item))
+
+    scored.sort(reverse=True)
+
+    return scored[0][1]
+
 # ================= MEMORY ENGINE =================
 
 def load_memory():
     if MEMORY_FILE.exists():
         return json.loads(MEMORY_FILE.read_text())
     return {
+        "visual_style_success": {},
         "collapse_points": [],
         "best_ctr_titles": [],
         "best_thumbnail_style": None,
-        "archetype_success": {}
+        "archetype_success": {},
+        "scene_success": {},
+        "scene_metrics": []
     }
-
 def save_memory(mem):
     MEMORY_FILE.write_text(json.dumps(mem, indent=2))
 
@@ -626,6 +724,217 @@ ARC_TEMPLATES = [
 def choose_arc(memory):
     return random.choice(ARC_TEMPLATES)
 
+
+# ==========================================================
+# RETENTION SCENE ANALYSIS
+# ==========================================================
+
+SCENE_TYPES = [
+"question",
+"partial_answer",
+"reveal",
+"escalation",
+"twist",
+"emotion"
+]
+
+def classify_scene(scene):
+
+    text = scene["text"].lower()
+
+    if "?" in text:
+        return "question"
+
+    if "but" in text or "however" in text:
+        return "twist"
+
+    if "because" in text or "reason" in text:
+        return "partial_answer"
+
+    return "escalation"
+    
+def enforce_curiosity_loops(scenes):
+
+    prev = None
+
+    for s in scenes:
+
+        t = classify_scene(s)
+
+        if prev == "question" and t == "reveal":
+            s["text"] = "But first, something even stranger happened."
+
+        prev = t
+
+    return scenes
+    
+
+def information_density_score(text):
+
+    words = len(text.split())
+
+    sentences = max(1, text.count("."))
+
+    return words / sentences
+
+
+def enforce_density(scenes):
+
+    for s in scenes:
+
+        if information_density_score(s["text"]) > 18:
+
+            s["text"] = s["text"].replace("that","").replace("very","")
+
+    return scenes
+
+CURIOSITY_WORDS = [
+"but",
+"however",
+"strangely",
+"unexpected",
+"secret",
+"nobody",
+"hidden"
+]
+
+def curiosity_score(text):
+
+    return sum(1 for w in CURIOSITY_WORDS if w in text.lower())
+
+
+def enforce_scene_entropy(scenes):
+
+    prev = None
+
+    for s in scenes:
+
+        t = classify_scene(s)
+
+        if t == prev:
+            s["text"] = "But something unexpected changed everything."
+
+        prev = t
+
+    return scenes
+
+def inject_attention_resets(scenes):
+
+    for i in range(2, len(scenes), 3):
+
+        scenes[i]["text"] += " But here's the strange part."
+
+    return scenes
+    
+def inject_micro_cliffhangers(scenes):
+
+    for i in range(3, len(scenes), 4):
+
+        scenes[i]["text"] += " And what happens next is even stranger."
+
+    return scenes
+
+def enforce_emotional_curve(scenes):
+
+    n = len(scenes)
+
+    for i, s in enumerate(scenes):
+
+        target = i / n
+
+        s["intensity"] = max(s["intensity"], target)
+
+    return scenes
+
+def enforce_narrative_structure(scenes):
+
+    n = len(scenes)
+
+    scenes[0]["intensity"] = 1
+
+    scenes[int(n*0.5)]["text"] += " But the truth is far worse."
+
+    scenes[int(n*0.8)]["text"] += " And that's when everything changed."
+
+    return scenes
+
+def enforce_sentence_rhythm(text):
+
+    parts = text.split(".")
+
+    for i, p in enumerate(parts):
+
+        if i % 2 == 0:
+            parts[i] = p.strip()[:60]
+
+    return ".".join(parts)
+
+def hook_score(text):
+
+    score = 0
+
+    if "?" in text:
+        score += 1
+
+    if any(w in text.lower() for w in ["but","however","suddenly"]):
+        score += 1
+
+    if any(w in text.lower() for w in ["secret","truth","hidden"]):
+        score += 1
+
+    if len(text.split()) < 12:
+        score += 1
+
+    if text.endswith("..."):
+        score += 1
+
+    return score
+
+def drop_probability(scene):
+
+    score = 0
+
+    if len(scene["text"]) > 120:
+        score += 0.3
+
+    if curiosity_score(scene["text"]) == 0:
+        score += 0.3
+
+    return score
+
+INTERRUPTS = [
+"But wait.",
+"Look closer.",
+"Here's the strange part.",
+"Nobody expected this."
+]
+
+def inject_pattern_interrupts(scenes):
+
+    for i in range(4, len(scenes), 5):
+        scenes[i]["text"] = random.choice(INTERRUPTS) + " " + scenes[i]["text"]
+
+    return scenes
+
+def track_open_loops(scenes):
+
+    loops = []
+
+    for i,s in enumerate(scenes):
+
+        if "?" in s["text"]:
+            loops.append(i)
+
+        if "answer" in s["text"] or "because" in s["text"]:
+            if loops:
+                loops.pop()
+
+    if loops:
+        scenes[-1]["text"] += " And now the real answer."
+
+    return scenes    
+
+
 # ================= SCRIPT ENGINE WITH MUTATION =================
 
 def generate_script(topic, memory):
@@ -636,16 +945,26 @@ def generate_script(topic, memory):
 
     collapse_points = memory.get("collapse_points", [])
 
+    # NEW: Scene bias learning (safe if memory empty)
+    scene_bias = sorted(
+        memory.get("scene_success", {}).items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    preferred_scene = scene_bias[0][0] if scene_bias else None
+
     archetype = detect_archetype(topic, memory)
     arc = choose_arc(memory)
 
     # =============================
-    # Demographic Influence (NEW - Step 7)
+    # 2️⃣ Demographic Influence
     # =============================
 
     age_group = memory.get("primary_age_group", "25-34")
 
     age_instruction = ""
+
     if age_group in ["13-17", "18-24"]:
         age_instruction = """
 Use fast-paced language.
@@ -666,10 +985,16 @@ Balance emotional intensity with clarity.
 Use persuasive but grounded tone.
 """
 
-    # Convert collapse timestamps (0.0–1.0 ratios) into structural hints
+    # =============================
+    # 3️⃣ Collapse Intelligence
+    # =============================
+
     collapse_hints = ""
+
     if collapse_points:
+
         collapse_hints += "Previous videos showed audience drop-offs at these timeline ratios:\n"
+
         for cp in collapse_points:
             collapse_hints += f"- Around {cp*100:.1f}% of video length\n"
 
@@ -681,24 +1006,28 @@ Shorten sentences around these regions.
 """
 
     # =============================
-    # 2️⃣ Emotional Arc Mutation
+    # 4️⃣ Emotional Arc Mutation
     # =============================
 
     arc_instructions = {
+
         "escalation": """
 Gradually increase stakes with each section.
 Each scene must raise tension.
 """,
+
         "mystery": """
 Delay key reveal.
 Tease incomplete explanations.
 Force unresolved curiosity loops.
 """,
+
         "contradiction": """
 Introduce a strong belief.
 Then break it with unexpected contradiction.
 Then escalate consequences.
 """,
+
         "inverted_reveal": """
 Start with outcome.
 Then rewind and explain how we got here.
@@ -709,20 +1038,28 @@ Close with bigger implication.
     arc_instruction = arc_instructions.get(arc, "")
 
     # =============================
-    # 3️⃣ Archetype Biasing
+    # 5️⃣ Archetype Bias
     # =============================
 
     archetype_bias = {
-        "fear-driven": "Emphasize risk, danger, collapse, urgency.",
-        "opportunity-driven": "Emphasize growth, leverage, advantage, upside.",
-        "curiosity-driven": "Emphasize secrets, hidden forces, unknown outcomes.",
-        "identity-driven": "Tie narrative to personal identity and belonging."
+
+        "fear-driven":
+            "Emphasize risk, danger, collapse, urgency.",
+
+        "opportunity-driven":
+            "Emphasize growth, leverage, advantage, upside.",
+
+        "curiosity-driven":
+            "Emphasize secrets, hidden forces, unknown outcomes.",
+
+        "identity-driven":
+            "Tie narrative to personal identity and belonging."
     }
 
     archetype_instruction = archetype_bias.get(archetype, "")
 
     # =============================
-    # 4️⃣ Contradiction Escalation Injection
+    # 6️⃣ Contradiction Escalation
     # =============================
 
     contradiction_logic = """
@@ -732,12 +1069,13 @@ This must increase emotional intensity.
 """
 
     # =============================
-    # 6️⃣ Collapse-Based Early Aggression (NEW - Step 6)
+    # 7️⃣ Early Aggression Logic
     # =============================
 
     early_aggression_instruction = ""
 
     if collapse_points and any(cp < 0.2 for cp in collapse_points):
+
         early_aggression_instruction = """
 Very important:
 Previous videos lost audience very early.
@@ -749,7 +1087,19 @@ No slow introduction.
 """
 
     # =============================
-    # 5️⃣ Mutation-Aware Prompt
+    # 8️⃣ Scene Bias Prompt Injection
+    # =============================
+
+    scene_bias_instruction = ""
+
+    if preferred_scene:
+        scene_bias_instruction = f"""
+Prefer these scene types if possible:
+{preferred_scene}
+"""
+
+    # =============================
+    # 9️⃣ Prompt Construction
     # =============================
 
     prompt = f"""
@@ -758,6 +1108,8 @@ Create a high-retention YouTube script about "{topic}".
 Audience Archetype: {archetype}
 Narrative Arc Style: {arc}
 Primary Audience Age Group: {age_group}
+
+{scene_bias_instruction}
 
 {arc_instruction}
 
@@ -789,48 +1141,69 @@ Scene requirements:
 - Use pattern interrupts before historical drop-off zones.
 
 Return JSON list:
+
 [
   {{"text":"...", "emotion":"...", "intensity":0.1}}
 ]
 """
 
     # =============================
-    # 6️⃣ LLM Call
+    # 10️⃣ LLM Call
     # =============================
 
     resp = groq_client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
-    messages=[{"role": "user", "content": prompt}],
-    temperature=0.9
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.9
     )
 
     raw_content = resp.choices[0].message.content.strip()
 
-    # Remove markdown code fences if present
+    # =============================
+    # 11️⃣ Remove Markdown Wrapping
+    # =============================
+
     if raw_content.startswith("```"):
+
         parts = raw_content.split("```")
+
         if len(parts) >= 2:
             raw_content = parts[1].strip()
 
+    # =============================
+    # 12️⃣ JSON Safety Parsing
+    # =============================
+
     try:
+
         scenes = json.loads(raw_content)
+
     except json.JSONDecodeError:
+
         log.warning("LLM returned non-clean JSON. Attempting extraction...")
 
         match = re.search(r"\[.*\]", raw_content, re.DOTALL)
 
         if match:
+
             try:
+
                 scenes = json.loads(match.group(0))
+
             except:
+
                 log.error("JSON extraction failed. Using fallback scene.")
+
                 scenes = [{
                     "text": "Something major is happening. And it affects you.",
                     "emotion": "serious",
                     "intensity": 0.8
                 }]
+
         else:
+
             log.error("No JSON array detected. Using fallback scene.")
+
             scenes = [{
                 "text": "Something major is happening. And it affects you.",
                 "emotion": "serious",
@@ -838,7 +1211,7 @@ Return JSON list:
             }]
 
     # =============================
-    # 7️⃣ Post-Generation Structural Reinforcement
+    # 13️⃣ Post-Generation Reinforcement
     # =============================
 
     total = len(scenes)
@@ -847,26 +1220,57 @@ Return JSON list:
 
         position_ratio = idx / total
 
-        # If scene falls near previous collapse region, force spike
+        # Reinforce known collapse zones
         for cp in collapse_points:
+
             if abs(position_ratio - cp) < 0.05:
-                scene["intensity"] = min(scene["intensity"] + 0.25, 1.0)
+
+                scene["intensity"] = min(scene.get("intensity", 0.5) + 0.25, 1.0)
+
                 scene["text"] += " But here's the part nobody expects."
 
-        # Ensure first scene is dominant hook
+        # First scene must be dominant hook
         if idx == 0:
             scene["intensity"] = 0.98
 
-        # Extra reinforcement if early collapse historically happened
+        # Early collapse reinforcement
         if collapse_points and any(cp < 0.2 for cp in collapse_points):
-            if idx < 3:
-                scene["intensity"] = min(1.0, scene["intensity"] + 0.15)
 
-        # Ensure final callback spike
+            if idx < 3:
+
+                scene["intensity"] = min(
+                    1.0,
+                    scene.get("intensity", 0.5) + 0.15
+                )
+
+        # Final scene callback spike
         if idx == total - 1:
             scene["intensity"] = 1.0
 
     return scenes
+    
+def optimize_script_for_retention(scenes, memory):
+
+    scenes = enforce_curiosity_loops(scenes)
+    scenes = enforce_scene_entropy(scenes)
+    scenes = enforce_density(scenes)
+    scenes = inject_attention_resets(scenes)
+    scenes = inject_micro_cliffhangers(scenes)
+    scenes = enforce_emotional_curve(scenes)
+    scenes = enforce_narrative_structure(scenes)
+    scenes = inject_pattern_interrupts(scenes)
+
+    for s in scenes:
+
+        if curiosity_score(s["text"]) == 0:
+            s["text"] += " But here's where things get strange."
+
+        s["text"] = enforce_sentence_rhythm(s["text"])
+
+        if drop_probability(s) > 0.4:
+            s["text"] += " But the real story is even more surprising."
+
+    return scenes    
 
 # ================= RETENTION GRAPH INGESTION =================
 
@@ -927,27 +1331,156 @@ def detect_collapse_points(report):
         if rows[i][1] < rows[i-1][1] * 0.7:
             collapse.append(rows[i][0])
     return collapse
+    
+def learn_scene_patterns(scenes, collapse_points, memory):
+
+    for idx,s in enumerate(scenes):
+
+        pos = idx / len(scenes)
+
+        record = {
+            "position":pos,
+            "scene_type":classify_scene(s),
+            "emotion":s["emotion"],
+            "intensity":s["intensity"]
+        }
+        
+        style = s.get("visual_plan",[{}])[0].get("type","unknown")
+
+        memory["visual_style_success"].setdefault(style,0)
+        memory["visual_style_success"][style]+=1
+
+        memory["scene_metrics"].append(record)    
 
 # ================= SSML AUDIO PSYCHOLOGY =================
 
 def build_ssml_script(scenes):
+
     ssml = "<speak>"
+
     for s in scenes:
-        rate = 1.0 + (s["intensity"] * 0.2)
-        ssml += f'<prosody rate="{rate}">'
-        ssml += s["text"]
-        ssml += '</prosody><break time="400ms"/>'
+
+        intensity = s["intensity"]
+
+        rate = 1.0 + intensity * 0.15
+        pitch = f"+{int(intensity * 6)}st"
+
+        # Dynamic pause based on scene intensity
+        pause = 200 + int(intensity * 400)
+
+        text = s["text"]
+
+        # Emphasize strong curiosity words
+        text = re.sub(
+            r"(secret|truth|unexpected)",
+            r'<emphasis level="strong">\1</emphasis>',
+            text,
+            flags=re.IGNORECASE
+        )
+
+        # Add dramatic break before transition words
+        text = re.sub(
+            r"(But|However|Suddenly|And then)",
+            r'<break time="300ms"/><emphasis level="strong">\1</emphasis>',
+            text
+        )
+
+        ssml += f'''
+        <prosody rate="{rate}" pitch="{pitch}">
+        {text}
+        </prosody>
+        <break time="{pause}ms"/>
+        '''
+
     ssml += "</speak>"
+
     return ssml
+
+def extract_visual_keywords(scene_text):
+
+    prompt = f"""
+Extract 3 visual search keywords for media retrieval.
+
+Scene:
+{scene_text}
+
+Rules:
+- nouns only
+- concrete visual concepts
+- no abstract words
+- return comma separated
+
+Example:
+"AI replacing jobs" → robots, office workers, automation
+
+Output only keywords.
+"""
+
+    resp = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role":"user","content":prompt}]
+    )
+
+    out = resp.choices[0].message.content.strip()
+
+    return [k.strip() for k in out.split(",")][:3]
+
+# ==========================================================
+# VISUAL SCENE PLANNER
+# ==========================================================
+
+def plan_visuals_for_scene(scene):
+
+    prompt = f"""
+Convert the following narration scene into visual shots.
+
+Scene:
+{scene["text"]}
+
+Return JSON list like:
+
+[
+ {"type":"video","query":"..."},
+ {"type":"image","query":"..."}
+]
+
+Rules:
+- queries must describe visible things
+- avoid abstract words
+- max 3 shots
+"""
+
+    resp = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role":"user","content":prompt}]
+    )
+
+    raw = resp.choices[0].message.content.strip()
+
+    try:
+        return json.loads(raw)
+    except:
+        return [{"type":"image","query":scene["text"]}]    
+
+VOICE_MAP = {
+    "shock":"en-US-Wavenet-F",
+    "fear":"en-US-Wavenet-C",
+    "mystery":"en-US-Wavenet-C",
+    "curiosity":"en-US-Wavenet-A",
+    "serious":"en-US-Wavenet-D",
+    "neutral":"en-US-Wavenet-D"
+}
 
 def generate_narration(text):
     client = texttospeech.TextToSpeechClient()
 
+    voice_name = VOICE_MAP.get("serious","en-US-Wavenet-D")
+    
     response = client.synthesize_speech(
         input=texttospeech.SynthesisInput(ssml=text),
         voice=texttospeech.VoiceSelectionParams(
             language_code="en-US",
-            name="en-US-Wavenet-D"
+            name=voice_name
         ),
         audio_config=texttospeech.AudioConfig(
             audio_encoding=texttospeech.AudioEncoding.LINEAR16,
@@ -977,8 +1510,20 @@ def fetch_news_image(topic):
         return None
     path = CACHE / f"news_{hash(topic)}.jpg"
     if not path.exists():
-        with open(path,"wb") as f:
-            f.write(requests.get(img_url).content)
+        try:
+            r = requests.get(img_url, timeout=10)
+
+            if not r.ok or len(r.content) < 1000:
+                return None
+
+            with open(path,"wb") as f:
+                f.write(r.content)
+
+            return path
+
+        except:
+            return None
+            
     return path
 
 def fetch_image(query):
@@ -992,12 +1537,34 @@ def fetch_image(query):
         params={"query":query,"per_page":1})
     if not r.ok:
         return None
-    url=r.json()["photos"][0]["src"]["large"]
+    
+    photos = r.json().get("photos",[])
+
+    candidates = []
+
+    for p in photos[:5]:
+        candidates.append({
+            "title":p.get("alt",""),
+            "url":p["src"]["large"]
+        })
+
+    best = rank_visual_candidates(query, candidates)
+
+    if not best:
+        return None
+
+    url = best["url"]
+    
     path=CACHE/f"{hash(query)}.jpg"
     if not path.exists():
         with open(path,"wb") as f:
             f.write(requests.get(url).content)
-    return path
+    try:
+        from PIL import Image
+        Image.open(path).verify()
+        return path
+    except:
+        return None
 
 # ================= THUMBNAIL A/B TRACKING =================
 
@@ -1019,6 +1586,23 @@ from scipy.io import wavfile
 
 # ================= BEAT DETECTION ENGINE =================
 
+def master_audio(input_path):
+
+    output_path = OUTPUT / "narration_mastered.wav"
+
+    try:
+        subprocess.run([
+            "ffmpeg",
+            "-i", str(input_path),
+            "-af", "acompressor,alimiter",
+            str(output_path)
+        ], check=True)
+
+        return output_path
+
+    except:
+        return input_path
+        
 def detect_beats_from_audio(audio_path):
     try:
         rate, data = wavfile.read(str(audio_path))
@@ -1089,11 +1673,10 @@ def inject_mid_cliffhanger(scenes):
 
 def apply_multi_camera_motion(clip, intensity, duration):
 
-    base_zoom = 1 + intensity * 0.04
-    oscillation = 0.01 * intensity
+    zoom = 1 + intensity * 0.08
 
     def motion(t):
-        return 1 + base_zoom * t/duration + oscillation*np.sin(t*2)
+        return 1 + (zoom-1)*(t/duration)
 
     return clip.resize(lambda t: motion(t))
 
@@ -1117,6 +1700,26 @@ def animated_subtitle(text, duration, intensity):
 
 # ================= ENHANCED VIDEO ENGINE =================
 
+def select_music(emotion):
+
+    emotion_map = {
+        "fear":"tension",
+        "shock":"tension",
+        "mystery":"mystery",
+        "curiosity":"mystery",
+        "serious":"calm",
+        "neutral":"calm"
+    }
+
+    folder = emotion_map.get(emotion,"calm")
+
+    tracks = list((MUSIC_DIR / folder).glob("*.mp3"))
+
+    if not tracks:
+        return None
+
+    return random.choice(tracks)
+
 def compose_video(scenes,narration):
 
     narration_clip=AudioFileClip(str(narration))
@@ -1128,9 +1731,12 @@ def compose_video(scenes,narration):
 
     for idx,s in enumerate(scenes):
 
-        keywords=" ".join(re.findall(r'\b\w+\b',s["text"])[:3])
-        img=fetch_image(keywords)
-        duration=per_scene
+        keywords = extract_visual_keywords(s["text"])
+        query = " ".join(keywords)
+
+        img = fetch_image(query)
+
+        duration = min(per_scene, 4)
 
         if img:
             clip=ImageClip(str(img)).set_duration(duration)
@@ -1146,7 +1752,6 @@ def compose_video(scenes,narration):
 
         clip=CompositeVideoClip([clip,subtitle])
 
-        # Hard visual cut every 3–5 seconds
         if duration > 5:
             clip = clip.subclip(0, min(duration,5))
 
@@ -1154,8 +1759,16 @@ def compose_video(scenes,narration):
 
     final=concatenate_videoclips(clips,method="compose")
 
-    final=final.set_audio(
-        narration_clip.audio_fadein(1).audio_fadeout(1)
+    music_path = select_music(scenes[0]["emotion"])
+
+    if music_path:
+        music = AudioFileClip(str(music_path)).volumex(0.15)
+        final_audio = CompositeAudioClip([narration_clip, music])
+    else:
+        final_audio = narration_clip
+
+    final = final.set_audio(
+        final_audio.audio_fadein(1).audio_fadeout(1)
     )
 
     output=OUTPUT/f"video_{int(time.time())}.mp4"
@@ -1181,6 +1794,14 @@ def delayed_retention_update():
         report = pull_retention_graph(video_id)
         collapse_points = detect_collapse_points(report)
         memory["collapse_points"] = collapse_points
+        for s in scenes:
+
+            t = classify_scene(s)
+
+            memory["scene_success"].setdefault(t, 0)
+
+            memory["scene_success"][t] += 1
+            
         save_memory(memory)
         log.info("Delayed retention learning complete")
     except:
@@ -1232,6 +1853,26 @@ def upload_to_youtube(video_path, title, description, thumbnail_path):
     ).execute()
 
     return video_id
+    
+def generate_title(topic):
+
+    prompt=f"""
+Generate a compelling YouTube title about:
+
+{topic}
+
+Rules:
+- curiosity driven
+- under 60 characters
+- no clickbait phrases like "What they aren't telling you"
+"""
+
+    r=groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role":"user","content":prompt}]
+    )
+
+    return r.choices[0].message.content.strip()    
 # ================= MAIN =================
 
 def run():
@@ -1264,8 +1905,16 @@ def run():
 
     hooks = generate_hook_variants(topic)
     best_hook = select_best_hook(hooks, memory)
+    if hook_score(best_hook) < 2:
+        hooks = generate_hook_variants(topic)
+        best_hook = random.choice(hooks)
 
     scenes = generate_script(topic, memory)
+    scenes = optimize_script_for_retention(scenes, memory)
+    scenes = track_open_loops(scenes)
+    
+    for s in scenes:
+        s["visual_plan"] = plan_visuals_for_scene(s)
 
     # Force best hook into first scene
     if scenes:
@@ -1288,10 +1937,11 @@ def run():
     ssml_script = inject_silence_before_reveal(ssml_script)
 
     narration = generate_narration(ssml_script)
+    narration = master_audio(narration)
 
     video = enterprise_compose_video(scenes, narration)
 
-    title = f"{topic} — What They’re Not Telling You"
+    title = generate_title(topic)
     description = f"Full breakdown of {topic}. Future impact, hidden forces, and what it means for you."
 
     video_id = upload_to_youtube(video, title, description, chosen_thumb)
@@ -1341,6 +1991,7 @@ def run():
         report = pull_retention_graph(video_id)
         collapse_points = detect_collapse_points(report)
         memory["collapse_points"] = collapse_points
+        learn_scene_patterns(scenes, collapse_points, memory)
     except:
         pass
 
