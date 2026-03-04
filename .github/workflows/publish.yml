@@ -26,7 +26,6 @@ jobs:
       GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcloud.json
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
-
     steps:
       # ----------------------------------
       # Checkout
@@ -105,11 +104,11 @@ jobs:
             google-cloud-texttospeech
 
       # ----------------------------------
-      # Google Cloud Credentials
+      # Google Cloud Credentials (BASE64 SAFE)
       # ----------------------------------
       - name: Create Google Cloud Credential File
         run: |
-          printf "%s" "${{ secrets.GOOGLE_CLOUD_JSON }}" > gcloud.json
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" | base64 -d > gcloud.json
 
       # ----------------------------------
       # Decide Mode (Safe logic aligned to cron)
