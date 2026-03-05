@@ -1475,27 +1475,45 @@ def generate_narration(ssml_text):
     client = texttospeech.TextToSpeechClient()
     voice_name = VOICE_MAP.get("serious", "en-US-Wavenet-D")
 
-    MAX_BYTES = 4500
+    MAX_BYTES = 4800  # safe margin under 5000
 
-    # Remove accidental nested speak tags
+    # Remove outer speak if present
     ssml_text = ssml_text.replace("<speak>", "").replace("</speak>", "")
 
-    # Split safely on prosody blocks instead of sentences
-    blocks = re.split(r'(?=\\s*<prosody)', ssml_text)
+    # Split by prosody blocks (safe SSML boundaries)
+    blocks = re.findall(r'<prosody.*?>.*?</prosody>\s*<break.*?/>', ssml_text, re.DOTALL)
+
+    if not blocks:
+        blocks = [ssml_text]
 
     parts = []
     current = ""
 
     for block in blocks:
 
-        if len((current + block).encode("utf-8")) > MAX_BYTES:
+        candidate = current + block
+
+        wrapped = f"<speak>{candidate}</speak>"
+
+        if len(wrapped.encode("utf-8")) > MAX_BYTES:
 
             if current:
                 parts.append(current)
-            current = block
+
+            # If single block too large, hard truncate safely
+            if len(block.encode("utf-8")) > MAX_BYTES:
+
+                safe_block = block.encode("utf-8")[:MAX_BYTES-50].decode("utf-8", errors="ignore")
+
+                parts.append(safe_block)
+
+                current = ""
+
+            else:
+                current = block
 
         else:
-            current += block
+            current = candidate
 
     if current:
         parts.append(current)
@@ -1504,10 +1522,6 @@ def generate_narration(ssml_text):
 
     for i, chunk in enumerate(parts):
 
-        # Clean broken tags if any
-        chunk = re.sub(r'</?speak>', '', chunk)
-
-        # Wrap properly
         chunk = f"<speak>{chunk}</speak>"
 
         response = client.synthesize_speech(
@@ -1535,12 +1549,13 @@ def generate_narration(ssml_text):
         subprocess.run([
             "ffmpeg",
             "-y",
-            "-i",
-            "concat:" + "|".join(audio_chunks),
-            "-acodec",
-            "copy",
+            "-f", "concat",
+            "-safe", "0",
+            "-i", "<(for f in " + " ".join(audio_chunks) + "; do echo \"file '$f'\"; done)",
+            "-c", "copy",
             str(final_output)
-        ], check=True)
+        ], shell=True, check=True)
+
     except:
         shutil.copy(audio_chunks[0], final_output)
 
@@ -1847,7 +1862,8 @@ def delayed_retention_update():
         report = pull_retention_graph(video_id)
         collapse_points = detect_collapse_points(report)
         memory["collapse_points"] = collapse_points
-        for s in scenes:
+
+        for s in memory.get("scene_metrics", []):
 
             t = classify_scene(s)
 
