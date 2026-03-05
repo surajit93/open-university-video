@@ -491,27 +491,6 @@ def rank_visual_candidates(scene_text, candidates):
 
     return scored[0][1]
 
-def rank_visual_candidates(scene_text, candidates):
-
-    if not candidates:
-        return None
-
-    scene_emb = visual_embedder.encode(scene_text, convert_to_tensor=True)
-
-    scored = []
-
-    for item in candidates:
-
-        title = item.get("title","")
-        emb = visual_embedder.encode(title, convert_to_tensor=True)
-
-        sim = util.cos_sim(scene_emb, emb).item()
-
-        scored.append((sim, item))
-
-    scored.sort(reverse=True)
-
-    return scored[0][1]
 
 # ================= MEMORY ENGINE =================
 
@@ -1442,8 +1421,8 @@ Scene:
 Return JSON list like:
 
 [
-  {"type":"video","query":"..."},
-  {"type":"image","query":"..."}
+  {{"type":"video","query":"..."}},
+  {{"type":"image","query":"..."}}
 ]
 
 Rules:
@@ -1459,7 +1438,6 @@ Rules:
 
     raw = resp.choices[0].message.content.strip()
 
-    # Remove markdown code blocks if LLM returns them
     if raw.startswith("```"):
         parts = raw.split("```")
         if len(parts) >= 2:
@@ -1478,7 +1456,6 @@ Rules:
             except:
                 pass
 
-        # Safe fallback
         return [{
             "type": "image",
             "query": scene_text
