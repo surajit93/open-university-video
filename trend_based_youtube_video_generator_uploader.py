@@ -1431,24 +1431,26 @@ Output only keywords.
 
 def plan_visuals_for_scene(scene):
 
-    prompt = f"""
+    scene_text = scene.get("text", "")
+
+    prompt = """
 Convert the following narration scene into visual shots.
 
 Scene:
-{scene["text"]}
+{scene_text}
 
 Return JSON list like:
 
 [
- {"type":"video","query":"..."},
- {"type":"image","query":"..."}
+  {"type":"video","query":"..."},
+  {"type":"image","query":"..."}
 ]
 
 Rules:
 - queries must describe visible things
 - avoid abstract words
 - max 3 shots
-"""
+""".format(scene_text=scene_text)
 
     resp = groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -1457,10 +1459,30 @@ Rules:
 
     raw = resp.choices[0].message.content.strip()
 
+    # Remove markdown code blocks if LLM returns them
+    if raw.startswith("```"):
+        parts = raw.split("```")
+        if len(parts) >= 2:
+            raw = parts[1].strip()
+
     try:
         return json.loads(raw)
-    except:
-        return [{"type":"image","query":scene["text"]}]    
+
+    except json.JSONDecodeError:
+
+        match = re.search(r"\[.*\]", raw, re.DOTALL)
+
+        if match:
+            try:
+                return json.loads(match.group(0))
+            except:
+                pass
+
+        # Safe fallback
+        return [{
+            "type": "image",
+            "query": scene_text
+        }]    
 
 VOICE_MAP = {
     "shock":"en-US-Wavenet-F",
