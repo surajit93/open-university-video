@@ -342,20 +342,13 @@ def enterprise_compose_video(scenes, narration):
 
     narration_clip = AudioFileClip(str(narration))
     total_duration = narration_clip.duration
-    base_duration = total_duration / len(scenes)
-
-    # Beat detection (compute once)
-    beats = detect_beats_from_audio(narration)
+    scene_durations = allocate_scene_durations(scenes, total_duration)
 
     final_clips = []
 
     for idx, s in enumerate(scenes):
 
-        duration = randomized_scene_duration(base_duration)
-
-        # Beat reinforcement
-        if beats and idx < len(beats):
-            duration = max(2.5, min(duration + 0.6, 7))
+        duration = scene_durations[idx] if idx < len(scene_durations) else max(2.0, total_duration / len(scenes))
 
         visual_plan = s.get("visual_plan", [])
 
@@ -364,13 +357,15 @@ def enterprise_compose_video(scenes, narration):
         # Attempt planned visuals
         for shot in visual_plan:
 
+            query = normalize_visual_query(shot.get("query", ""), s.get("text", ""))
+
             if shot.get("type") == "video":
-                clip = attempt_broll_clip(shot.get("query", ""), duration)
+                clip = attempt_broll_clip(query, duration)
                 if clip:
                     break
 
             elif shot.get("type") == "image":
-                img = fetch_image(shot.get("query", ""))
+                img = fetch_image(query)
                 if img:
                     clip = ImageClip(str(img)).set_duration(duration)
                     clip = apply_multi_camera_motion(
@@ -1404,6 +1399,71 @@ Output only keywords.
 
     return [k.strip() for k in out.split(",")][:3]
 
+
+ABSTRACT_VISUAL_TERMS = {
+    "truth", "future", "system", "change", "impact", "concept", "strategy",
+    "process", "idea", "problem", "result", "growth", "decline", "society",
+    "economy", "history", "story", "technology", "innovation", "power"
+}
+
+
+def normalize_visual_query(raw_query, fallback_text=""):
+
+    source = f"{raw_query or ''} {fallback_text or ''}".lower()
+    tokens = re.findall(r"[a-zA-Z]{3,}", source)
+
+    if not tokens:
+        return ""
+
+    stopwords = {
+        "with", "from", "into", "about", "that", "this", "these", "those",
+        "very", "more", "most", "just", "over", "under", "between", "around",
+        "where", "when", "while", "after", "before", "because", "through",
+        "people", "person", "thing", "things", "part", "video", "scene", "audio"
+    }
+
+    filtered = []
+
+    for t in tokens:
+        if t in stopwords or t in ABSTRACT_VISUAL_TERMS:
+            continue
+        if t not in filtered:
+            filtered.append(t)
+
+    if not filtered:
+        filtered = [t for t in tokens if t not in stopwords][:3]
+
+    return " ".join(filtered[:4])
+
+
+def allocate_scene_durations(scenes, total_duration):
+
+    if not scenes:
+        return []
+
+    weights = []
+
+    for scene in scenes:
+        text = scene.get("text", "")
+        word_count = max(1, len(re.findall(r"\w+", text)))
+        intensity = float(scene.get("intensity", 0.5) or 0.5)
+        weights.append(word_count * (0.7 + intensity * 0.6))
+
+    weight_sum = sum(weights) or len(scenes)
+    durations = [max(2.0, total_duration * (w / weight_sum)) for w in weights]
+
+    scale = total_duration / (sum(durations) or total_duration)
+    durations = [d * scale for d in durations]
+
+    running = 0.0
+    for i in range(len(durations) - 1):
+        durations[i] = round(max(1.5, durations[i]), 2)
+        running += durations[i]
+
+    durations[-1] = round(max(1.5, total_duration - running), 2)
+
+    return durations
+
 # ==========================================================
 # VISUAL SCENE PLANNER
 # ==========================================================
@@ -1444,7 +1504,28 @@ Rules:
             raw = parts[1].strip()
 
     try:
-        return json.loads(raw)
+        planned = json.loads(raw)
+
+        if isinstance(planned, list):
+            sanitized = []
+            for shot in planned[:3]:
+                if not isinstance(shot, dict):
+                    continue
+
+                shot_type = shot.get("type", "image")
+                if shot_type not in {"image", "video"}:
+                    shot_type = "image"
+
+                clean_query = normalize_visual_query(
+                    shot.get("query", ""),
+                    scene_text
+                )
+
+                if clean_query:
+                    sanitized.append({"type": shot_type, "query": clean_query})
+
+            if sanitized:
+                return sanitized
 
     except json.JSONDecodeError:
 
@@ -1452,14 +1533,30 @@ Rules:
 
         if match:
             try:
-                return json.loads(match.group(0))
+                planned = json.loads(match.group(0))
+                if isinstance(planned, list) and planned:
+                    sanitized = []
+                    for shot in planned[:3]:
+                        if not isinstance(shot, dict):
+                            continue
+                        shot_type = shot.get("type", "image")
+                        if shot_type not in {"image", "video"}:
+                            shot_type = "image"
+                        clean_query = normalize_visual_query(
+                            shot.get("query", ""),
+                            scene_text
+                        )
+                        if clean_query:
+                            sanitized.append({"type": shot_type, "query": clean_query})
+                    if sanitized:
+                        return sanitized
             except:
                 pass
 
-        return [{
-            "type": "image",
-            "query": scene_text
-        }]    
+    return [{
+        "type": "image",
+        "query": normalize_visual_query(scene_text, scene_text) or "cinematic documentary scene"
+    }]
 
 VOICE_MAP = {
     "shock":"en-US-Wavenet-F",
