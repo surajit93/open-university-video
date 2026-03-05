@@ -1470,27 +1470,81 @@ VOICE_MAP = {
     "neutral":"en-US-Wavenet-D"
 }
 
-def generate_narration(text):
+def generate_narration(ssml_text):
+
     client = texttospeech.TextToSpeechClient()
+    voice_name = VOICE_MAP.get("serious", "en-US-Wavenet-D")
 
-    voice_name = VOICE_MAP.get("serious","en-US-Wavenet-D")
-    
-    response = client.synthesize_speech(
-        input=texttospeech.SynthesisInput(ssml=text),
-        voice=texttospeech.VoiceSelectionParams(
-            language_code="en-US",
-            name=voice_name
-        ),
-        audio_config=texttospeech.AudioConfig(
-            audio_encoding=texttospeech.AudioEncoding.LINEAR16,
-            speaking_rate=1.0
+    MAX_BYTES = 4500
+
+    # Remove accidental nested speak tags
+    ssml_text = ssml_text.replace("<speak>", "").replace("</speak>", "")
+
+    # Split safely on prosody blocks instead of sentences
+    blocks = re.split(r'(?=\\s*<prosody)', ssml_text)
+
+    parts = []
+    current = ""
+
+    for block in blocks:
+
+        if len((current + block).encode("utf-8")) > MAX_BYTES:
+
+            if current:
+                parts.append(current)
+            current = block
+
+        else:
+            current += block
+
+    if current:
+        parts.append(current)
+
+    audio_chunks = []
+
+    for i, chunk in enumerate(parts):
+
+        # Clean broken tags if any
+        chunk = re.sub(r'</?speak>', '', chunk)
+
+        # Wrap properly
+        chunk = f"<speak>{chunk}</speak>"
+
+        response = client.synthesize_speech(
+            input=texttospeech.SynthesisInput(ssml=chunk),
+            voice=texttospeech.VoiceSelectionParams(
+                language_code="en-US",
+                name=voice_name
+            ),
+            audio_config=texttospeech.AudioConfig(
+                audio_encoding=texttospeech.AudioEncoding.LINEAR16,
+                speaking_rate=1.0
+            )
         )
-    )
 
-    out = OUTPUT / "narration.wav"
-    with open(out,"wb") as f:
-        f.write(response.audio_content)
-    return out
+        part_path = OUTPUT / f"narration_part_{i}.wav"
+
+        with open(part_path, "wb") as f:
+            f.write(response.audio_content)
+
+        audio_chunks.append(str(part_path))
+
+    final_output = OUTPUT / "narration.wav"
+
+    try:
+        subprocess.run([
+            "ffmpeg",
+            "-y",
+            "-i",
+            "concat:" + "|".join(audio_chunks),
+            "-acodec",
+            "copy",
+            str(final_output)
+        ], check=True)
+    except:
+        shutil.copy(audio_chunks[0], final_output)
+
+    return final_output
 
 # ================= MULTI SOURCE MEDIA =================
 
