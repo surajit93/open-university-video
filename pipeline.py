@@ -206,15 +206,45 @@ def discover_trending_topics():
 
     pytrend = TrendReq()
 
-    google = pytrend.trending_searches(pn="united_states")
-    google_trends = list(google[0:15][0])
+    google_trends = []
+
+    try:
+
+        google = pytrend.trending_searches(pn="US")
+
+        google_trends = list(google[0:15][0])
+
+        print("Google trends:", google_trends)
+
+    except Exception as e:
+
+        print("Google Trends failed:", e)
+
+        google_trends = []
 
     news_url = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=20&apiKey={NEWS_API_KEY}"
     news = requests.get(news_url).json()
 
     news_topics = [a["title"] for a in news.get("articles", [])]
 
-    seeds = list(set(google_trends + news_topics))[:15]
+    seeds = list(set(google_trends + news_topics))
+
+    if len(seeds) == 0:
+
+        print("No external trends found. Using fallback topics.")
+
+        seeds = [
+            "Artificial Intelligence breakthroughs",
+            "Future of robotics",
+            "Space exploration discoveries",
+            "New scientific discoveries",
+            "Technology changing the world",
+            "Mysteries of the universe",
+            "Future of human civilization",
+            "Hidden technologies shaping society"
+        ]
+
+    seeds = seeds[:15]
 
     print("Seed topics:", seeds)
 
