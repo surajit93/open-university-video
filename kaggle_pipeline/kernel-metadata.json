@@ -1,1 +1,13 @@
-
+{
+ "id": "openuniversitymedia/youtube_automation_video_uploader",
+ "title": "ai-video-factory",
+ "code_file": "notebook.ipynb",
+ "language": "python",
+ "kernel_type": "notebook",
+ "is_private": true,
+ "enable_gpu": true,
+ "enable_internet": true,
+ "dataset_sources": [],
+ "competition_sources": [],
+ "kernel_sources": []
+}
