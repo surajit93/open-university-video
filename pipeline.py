@@ -32,7 +32,7 @@ YT_REFRESH_TOKEN = os.getenv("YT_REFRESH_TOKEN")
 
 VIDEOS_PER_DAY = 2
 
-MAX_SCRIPT_REWRITES = 6
+MAX_SCRIPT_REWRITES = 3
 KAGGLE_TIMEOUT = 1800
 
 
@@ -49,13 +49,23 @@ def safe_json(text):
         return json.loads(text[start:end])
 
 
-def retry_request(func, attempts=3):
+def retry_request(func, attempts=6):
+
     for i in range(attempts):
+
         try:
             return func()
+
         except Exception as e:
-            print("Retry:", e)
-            time.sleep(3)
+
+            if "RATE_LIMIT" in str(e):
+                wait = 6 + i*3
+                print(f"Rate limited. Waiting {wait}s")
+                time.sleep(wait)
+            else:
+                print("Retry:", e)
+                time.sleep(3)
+
     raise Exception("Max retries reached")
 
 
@@ -65,6 +75,19 @@ def safe_api_json(r):
         data = r.json()
     except:
         raise Exception("API returned invalid JSON")
+
+    # If Groq returned an error
+    if "error" in data:
+
+        msg = data["error"]["message"]
+
+        # Handle rate limit
+        if "rate limit" in msg.lower() or "tokens per minute" in msg.lower():
+            print("Groq rate limit hit. Waiting 5 seconds...")
+            time.sleep(5)
+            raise Exception("RATE_LIMIT")
+
+        raise Exception(f"Groq API error: {msg}")
 
     if "choices" not in data:
         raise Exception(f"Malformed API response: {data}")
