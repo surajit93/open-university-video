@@ -16,6 +16,7 @@ from google.oauth2.credentials import Credentials
 # =========================
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
@@ -75,7 +76,7 @@ def safe_api_json(r):
 # GROQ HELPER
 # =========================
 
-def groq_chat(prompt, model="llama-3.1-70b-versatile"):
+def groq_chat(prompt, model=GROQ_MODEL):
 
     r = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
