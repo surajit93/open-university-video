@@ -78,17 +78,17 @@ def safe_api_json(r):
 def groq_chat(prompt, model="mixtral-8x7b-32768"):
 
     r = requests.post(
-		"https://api.groq.com/openai/v1/chat/completions",
-		headers={
-			"Authorization": f"Bearer {GROQ_API_KEY}",
-			"Content-Type": "application/json"
-		},
-		json={
-			"model": model,
-			"messages":[{"role":"user","content":prompt}]
-		},
-		timeout=120
-		)
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": model,
+            "messages":[{"role":"user","content":prompt}]
+        },
+        timeout=120
+        )
 
     return safe_api_json(r)
 
@@ -133,9 +133,9 @@ Return ONLY a short visual description suitable for image generation.
 """
 
         data = groq_chat(prompt)
-		
-		if not data or "choices" not in data:
-			raise Exception("Groq API returned invalid response")
+        
+        if not data or "choices" not in data:
+            raise Exception("Groq API returned invalid response")
 
         return data["choices"][0]["message"]["content"]
 
@@ -202,9 +202,9 @@ Return list only.
 """
 
         data = groq_chat(prompt)
-		
-		if not data or "choices" not in data:
-			raise Exception("Groq API returned invalid response")
+        
+        if not data or "choices" not in data:
+            raise Exception("Groq API returned invalid response")
 
         angles = data["choices"][0]["message"]["content"].split("\n")
 
@@ -333,12 +333,12 @@ Return list only.
 
     angles = generate_angles(expanded)
 
-	print("Generated angles:", angles)
+    print("Generated angles:", angles)
 
-	# Filter for narrative tension
-	angles = filter_storyworthy_topics(angles)
+    # Filter for narrative tension
+    angles = filter_storyworthy_topics(angles)
 
-	print("Storyworthy topics:", angles)
+    print("Storyworthy topics:", angles)
 
     print("Generated angles:", angles)
 
@@ -435,9 +435,9 @@ Topic:
 
         data = groq_chat(prompt)
 
-		if not data or "choices" not in data:
-			raise Exception("Groq API returned invalid response")
-		
+        if not data or "choices" not in data:
+            raise Exception("Groq API returned invalid response")
+        
 
         return data["choices"][0]["message"]["content"]
 
@@ -560,9 +560,9 @@ Topic:
 
         data = groq_chat(prompt)
 
-		if not data or "choices" not in data:
-			raise Exception("Groq API returned invalid response")
-		
+        if not data or "choices" not in data:
+            raise Exception("Groq API returned invalid response")
+        
 
         return data["choices"][0]["message"]["content"]
 
@@ -639,8 +639,8 @@ Return ONLY JSON. Do not include explanations.
 
         data = groq_chat(prompt)
 
-		if not data or "choices" not in data:
-			raise Exception("Groq API returned invalid response")
+        if not data or "choices" not in data:
+            raise Exception("Groq API returned invalid response")
 
         return safe_json(data["choices"][0]["message"]["content"])
 
@@ -684,9 +684,9 @@ Only strengthen engagement.
 
     data = groq_chat(prompt)
 
-	if not data or "choices" not in data:
-		raise Exception("Groq API returned invalid response")
-	
+    if not data or "choices" not in data:
+        raise Exception("Groq API returned invalid response")
+    
 
     return data["choices"][0]["message"]["content"]
 
@@ -755,9 +755,9 @@ Return JSON in this format:
 
         data = groq_chat(prompt)
 
-		if not data or "choices" not in data:
-			raise Exception("Groq API returned invalid response")
-		
+        if not data or "choices" not in data:
+            raise Exception("Groq API returned invalid response")
+        
 
         return safe_json(data["choices"][0]["message"]["content"])
 
