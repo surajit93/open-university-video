@@ -75,7 +75,7 @@ def safe_api_json(r):
 # GROQ HELPER
 # =========================
 
-def groq_chat(prompt, model="mixtral-8x7b-32768"):
+def groq_chat(prompt, model="llama-3.1-70b-versatile"):
 
     r = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
@@ -88,7 +88,7 @@ def groq_chat(prompt, model="mixtral-8x7b-32768"):
             "messages":[{"role":"user","content":prompt}]
         },
         timeout=120
-        )
+    )
 
     return safe_api_json(r)
 
