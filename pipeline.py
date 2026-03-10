@@ -904,7 +904,7 @@ def send_to_kaggle(script):
 
     print("Notebook pushed. Waiting for execution...")
 
-    kernel = f"{KAGGLE_USERNAME}/YOUR_KERNEL"
+    kernel = f"{KAGGLE_USERNAME}/ai-video-factory"
 
     start_time = time.time()
 
