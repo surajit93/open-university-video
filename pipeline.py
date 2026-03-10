@@ -321,14 +321,32 @@ def discover_trending_topics():
     if len(seeds) == 0:
 
         seeds = [
-            "Artificial Intelligence breakthroughs",
-            "Future of robotics",
-            "Space exploration discoveries",
-            "New scientific discoveries",
-            "Technology changing the world",
-            "Mysteries of the universe",
-            "Future of human civilization",
-            "Hidden technologies shaping society"
+
+            "The secret AI experiment scientists never expected to work",
+            "The dangerous technology researchers say could change humanity forever",
+            "The discovery scientists made that they initially refused to believe",
+            "The hidden scientific experiment that produced terrifying results",
+            "The mysterious signal from deep space that scientists still cannot explain",
+            "The government project researchers claim was kept secret for decades",
+            "The unexpected discovery scientists made while studying the universe",
+            "The experiment that produced results nobody thought were possible",
+            "The strange object detected in space that confused astronomers",
+            "The scientific discovery that forced experts to rethink everything",
+            "The technology breakthrough that scientists say could reshape civilization",
+            "The mysterious anomaly discovered during a deep space mission",
+            "The controversial experiment that shocked the scientific community",
+            "The hidden technology researchers are quietly developing right now",
+            "The unexplained cosmic signal that triggered global investigation",
+            "The strange phenomenon scientists discovered while studying Earth",
+            "The scientific project that produced results nobody could explain",
+            "The unexpected discovery made during a high-risk experiment",
+            "The experiment that revealed something surprising about human intelligence",
+            "The mysterious event scientists detected but still cannot explain",
+            "The strange discovery scientists made while exploring deep space",
+            "The breakthrough technology that could completely change the future",
+            "The unexplained signal researchers detected from far beyond our galaxy",
+            "The hidden discovery scientists say could alter our understanding of reality",
+            "The scientific mystery researchers are racing to solve"
         ]
 
     seeds = seeds[:15]
@@ -369,39 +387,75 @@ Return list only.
 
     print("Storyworthy topics:", angles)
 
-    print("Generated angles:", angles)
+    ranked = rank_topics(angles)
 
-    def rank_topics():
+    print("Top topics:", ranked)
 
-        prompt = f"""
+    if not ranked:
+        ranked = angles
+
+    return ranked[:VIDEOS_PER_DAY]
+    
+    
+def rank_topics(angles):
+
+    prompt = f"""
 Rank these YouTube topics for viral potential.
 
 Consider:
 
-curiosity
-controversy
-global interest
-story potential
-future impact
-emotional tension
-shock factor
+- curiosity
+- controversy
+- global interest
+- story potential
+- future impact
+- emotional tension
+- shock factor
 
 Topics:
 {angles}
 
-Return ranked list.
+IMPORTANT RULES:
+
+Return ONLY a numbered list.
+
+Example format:
+
+1. topic one
+2. topic two
+3. topic three
+4. topic four
+5. topic five
+
+Do NOT include explanations.
+Do NOT include commentary.
+Do NOT include markdown formatting.
+Do NOT include quotes.
+Return only the numbered list.
 """
 
+    def call():
         return groq_chat(prompt)
 
-    ranked = retry_request(rank_topics)["choices"][0]["message"]["content"]
+    ranked_text = retry_request(call)["choices"][0]["message"]["content"]
 
-    ranked = ranked.split("\n")
-    ranked = [x.strip("- ").strip() for x in ranked if x]
+    lines = ranked_text.split("\n")
 
-    print("Top topics:", ranked)
+    ranked = []
 
-    return ranked[:VIDEOS_PER_DAY]
+    for line in lines:
+
+        line = line.strip()
+
+        m = re.match(r"^\d+[\.\)]\s*(.+)", line)
+
+        if m:
+            topic = m.group(1).strip()
+
+            if len(topic) > 10:
+                ranked.append(topic)
+
+    return ranked    
 
 
 # =========================
