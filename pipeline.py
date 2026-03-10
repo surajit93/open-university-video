@@ -51,7 +51,7 @@ def safe_json(text):
         return json.loads(text[start:end])
 
 
-def retry_request(func, attempts=6):
+def retry_request(func, attempts=10):
 
     for i in range(attempts):
 
@@ -61,12 +61,18 @@ def retry_request(func, attempts=6):
         except Exception as e:
 
             if "RATE_LIMIT" in str(e):
-                wait = 6 + i*3
-                print(f"Rate limited. Waiting {wait}s")
+
+                wait = 15 + i * 10
+
+                print(f"Groq rate limit. Waiting {wait}s")
+
                 time.sleep(wait)
+
             else:
+
                 print("Retry:", e)
-                time.sleep(3)
+
+                time.sleep(5)
 
     raise Exception("Max retries reached")
 
@@ -119,7 +125,7 @@ def groq_chat(prompt, model=GROQ_MODEL):
     data = safe_api_json(r)
 
     # throttle to avoid Groq TPM limits
-    time.sleep(3)
+    time.sleep(8)
 
     return data
 
@@ -1097,24 +1103,25 @@ def run_pipeline():
 
         candidate = generate_script(topic, outline)
 
-        last_score = 0
+        last_score = -1
 
         while score < 9 and rewrites < MAX_SCRIPT_REWRITES:
 
-            if score <= last_score:
-                break
-
-            last_score = score
-
             result = score_script(candidate)
 
-            score = result.get("overall",0)
+            score = result.get("overall", 0)
 
             print("Script score:", score)
 
             if score >= 9:
                 script = candidate
                 break
+
+            if score <= last_score:
+                print("Score not improving, stopping rewrites")
+                break
+
+            last_score = score
 
             candidate = rewrite_script(candidate, result)
 
