@@ -125,7 +125,7 @@ def groq_chat(prompt, model=GROQ_MODEL):
     data = safe_api_json(r)
 
     # throttle to avoid Groq TPM limits
-    time.sleep(8)
+    time.sleep(12)
 
     return data
 
@@ -216,6 +216,60 @@ def generate_thumbnail(prompt):
     return retry_request(call)
 
 
+
+def generate_best_topics(seeds):
+
+    def call():
+
+        prompt = f"""
+You are selecting the best viral YouTube topics.
+
+Goal:
+Pick topics capable of reaching 1M+ views.
+
+Rules:
+
+Topics must include:
+- mystery
+- shocking discovery
+- hidden truth
+- dangerous technology
+- unexplained phenomenon
+- scientific breakthrough
+- future implications
+
+Seeds:
+{seeds}
+
+Generate the TOP 10 most viral YouTube video topics.
+
+Return ONLY a numbered list.
+
+Example format:
+
+1. topic
+2. topic
+3. topic
+"""
+
+        data = groq_chat(prompt)
+
+        return data["choices"][0]["message"]["content"]
+
+    text = retry_request(call)
+
+    lines = text.split("\n")
+
+    topics = []
+
+    for line in lines:
+
+        m = re.match(r"^\d+[\.\)]\s*(.+)", line)
+
+        if m:
+            topics.append(m.group(1).strip())
+
+    return topics
 # =========================
 # VIRAL ANGLE GENERATOR
 # =========================
@@ -374,68 +428,77 @@ def discover_trending_topics():
     news_topics = []
 
     # ---------------------------
-    # 1. GOOGLE TRENDS
+    # GOOGLE TRENDS
     # ---------------------------
 
     try:
+
         pytrend = TrendReq(
             hl="en-US",
             tz=360
         )
 
         google = pytrend.trending_searches(pn="united_states")
+
         google_trends = google[0].tolist()[:15]
 
         print("Google trends:", google_trends)
 
     except Exception as e:
+
         print("Google Trends failed:", e)
 
     # ---------------------------
-    # 2. YOUTUBE TRENDING (fallback)
+    # YOUTUBE TRENDING
     # ---------------------------
 
-    if len(google_trends) == 0:
-        try:
+    try:
 
-            r = requests.get(
-                "https://www.youtube.com/feed/trending",
-                headers={"User-Agent": "Mozilla/5.0"}
-            )
+        youtube = youtube_client()
 
-            titles = re.findall(r'"title":{"runs":\[{"text":"(.*?)"}\]', r.text)
+        request = youtube.videos().list(
+            part="snippet",
+            chart="mostPopular",
+            regionCode="US",
+            maxResults=25
+        )
 
-            youtube_trends = titles[:15]
+        response = request.execute()
 
-            print("YouTube trends:", youtube_trends)
+        youtube_trends = [
+            v["snippet"]["title"]
+            for v in response.get("items", [])
+        ]
 
-        except Exception as e:
+        print("YouTube trends:", youtube_trends[:10])
 
-            print("YouTube scrape failed:", e)
+    except Exception as e:
 
-    # ---------------------------
-    # 3. NEWS API (fallback)
-    # ---------------------------
-
-    if len(google_trends) == 0 and len(youtube_trends) == 0:
-        try:
-            news_url = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=20&apiKey={NEWS_API_KEY}"
-
-            news = requests.get(news_url, timeout=30).json()
-
-            news_topics = [
-                re.split(r"[-|:]", a["title"])[0].strip()
-                for a in news.get("articles", [])
-            ]
-
-            print("News topics:", news_topics[:10])
-
-        except Exception as e:
-            print("News API failed:", e)
-            news_topics = []
+        print("YouTube API failed:", e)
 
     # ---------------------------
-    # MERGE SOURCES
+    # NEWS API
+    # ---------------------------
+
+    try:
+
+        news_url = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=20&apiKey={NEWS_API_KEY}"
+
+        news = requests.get(news_url, timeout=30).json()
+
+        news_topics = [
+            re.split(r"[-|:]", a["title"])[0].strip()
+            for a in news.get("articles", [])
+        ]
+
+        print("News topics:", news_topics[:10])
+
+    except Exception as e:
+
+        print("News API failed:", e)
+
+    # ---------------------------
+    # MERGE SEEDS
     # ---------------------------
 
     seeds = list(set(google_trends + youtube_trends + news_topics))
@@ -447,91 +510,323 @@ def discover_trending_topics():
     if len(seeds) == 0:
 
         seeds = [
-            "The secret AI experiment scientists never expected to work",
-            "The dangerous technology researchers say could change humanity forever",
-            "The discovery scientists made that they initially refused to believe",
-            "The hidden scientific experiment that produced terrifying results",
-            "The mysterious signal from deep space that scientists still cannot explain",
-            "The government project researchers claim was kept secret for decades",
-            "The unexpected discovery scientists made while studying the universe",
-            "The experiment that produced results nobody thought were possible",
-            "The strange object detected in space that confused astronomers",
-            "The scientific discovery that forced experts to rethink everything",
-            "The technology breakthrough that scientists say could reshape civilization",
-            "The mysterious anomaly discovered during a deep space mission",
-            "The controversial experiment that shocked the scientific community",
-            "The hidden technology researchers are quietly developing right now",
-            "The unexplained cosmic signal that triggered global investigation",
-            "The strange phenomenon scientists discovered while studying Earth",
-            "The scientific project that produced results nobody could explain",
-            "The unexpected discovery made during a high-risk experiment",
-            "The experiment that revealed something surprising about human intelligence",
-            "The mysterious event scientists detected but still cannot explain",
-            "The strange discovery scientists made while exploring deep space",
-            "The breakthrough technology that could completely change the future",
-            "The unexplained signal researchers detected from far beyond our galaxy",
-            "The hidden discovery scientists say could alter our understanding of reality",
-            "The scientific mystery researchers are racing to solve"
-        ]
 
-    seeds = seeds[:15]
+                # -----------------------
+                # MONEY / WEALTH / FINANCIAL FREEDOM
+                # -----------------------
+
+                "The wealth strategy experienced investors quietly use before major market shifts",
+                "The financial mistake millions make that slowly destroys long-term wealth",
+                "The hidden investing pattern experts notice before economic booms",
+                "The money rule wealthy individuals follow during financial crises",
+                "The surprising financial behavior that quietly builds massive wealth",
+                "The investment strategy professionals use when markets become unstable",
+                "The little-known wealth protection method used during economic uncertainty",
+                "The financial habit that silently separates wealthy people from everyone else",
+                "The surprising economic signal investors watch before major opportunities",
+                "The financial principle that helped some investors grow fortunes over time",
+
+
+                # -----------------------
+                # HEALTH / LONGEVITY / HUMAN BODY
+                # -----------------------
+
+                "The daily habit researchers link to dramatically longer lifespans",
+                "The surprising health pattern scientists discovered among people living past 100",
+                "The silent health mistake doctors say many people repeat for years",
+                "The hidden biological process scientists believe may control aging",
+                "The sleep discovery researchers say could change long-term health",
+                "The unexpected lifestyle factor scientists associate with longevity",
+                "The surprising health signal doctors notice before serious problems appear",
+                "The unusual habit researchers discovered while studying long-lived populations",
+                "The biological mechanism scientists believe influences how humans age",
+                "The simple health behavior linked to improved long-term wellbeing",
+
+
+                # -----------------------
+                # PSYCHOLOGY / HUMAN BEHAVIOR / INFLUENCE
+                # -----------------------
+
+                "The psychological pattern that quietly influences most human decisions",
+                "The subtle behavior that dramatically changes how people perceive you",
+                "The communication technique psychologists say increases persuasion",
+                "The surprising mental bias that shapes everyday decision making",
+                "The behavioral signal experts associate with strong leadership",
+                "The psychological trigger that can change how people respond to ideas",
+                "The subtle communication mistake that weakens influence",
+                "The conversation habit highly persuasive people use instinctively",
+                "The human behavior pattern psychologists observe during high pressure situations",
+                "The mental shortcut the brain uses when making complex decisions",
+
+
+                # -----------------------
+                # SUCCESS / PRODUCTIVITY / HIGH PERFORMANCE
+                # -----------------------
+
+                "The daily discipline habit shared by highly successful individuals",
+                "The productivity system some high performers quietly rely on",
+                "The mental model exceptional problem-solvers frequently use",
+                "The focus strategy experts use to maintain extreme productivity",
+                "The surprising routine researchers associate with high achievement",
+                "The decision habit that quietly improves long-term success",
+                "The productivity mistake that silently reduces performance",
+                "The cognitive strategy that helps people make better decisions",
+                "The simple habit that increases long-term discipline",
+                "The performance mindset researchers observe in high achievers",
+
+
+                # -----------------------
+                # STUDY / LEARNING / EXAM PERFORMANCE
+                # -----------------------
+
+                "The learning technique researchers say dramatically improves memory retention",
+                "The study strategy high-performing students often rely on",
+                "The cognitive trick that helps information stay longer in memory",
+                "The revision pattern educators associate with exam success",
+                "The surprising study habit researchers link to faster learning",
+                "The mental strategy students use during high-pressure exams",
+                "The learning shortcut scientists discovered in neuroscience research",
+                "The focus technique that helps students absorb information faster",
+                "The cognitive habit linked to stronger academic performance",
+                "The study mistake that quietly weakens memory recall",
+
+
+                # -----------------------
+                # TECHNOLOGY / AI / FUTURE
+                # -----------------------
+
+                "The artificial intelligence behavior researchers did not expect to observe",
+                "The technology breakthrough scientists believe could reshape industries",
+                "The unexpected capability researchers discovered in advanced AI systems",
+                "The computing discovery that surprised technology experts",
+                "The technological development researchers believe could transform society",
+                "The innovation scientists say may redefine human capability",
+                "The AI experiment that produced results nobody predicted",
+                "The emerging technology experts believe could change daily life",
+                "The discovery in computing power that stunned researchers",
+                "The technological shift researchers believe could shape the next decade",
+
+
+                # -----------------------
+                # SCIENCE / MYSTERY / UNKNOWN DISCOVERIES
+                # -----------------------
+
+                "The mysterious signal scientists detected while studying deep space",
+                "The scientific anomaly researchers discovered during a major experiment",
+                "The discovery that forced scientists to reconsider existing theories",
+                "The strange phenomenon researchers observed that remains unexplained",
+                "The unexpected observation scientists are still trying to understand",
+                "The discovery researchers believe could change how we understand reality",
+                "The unexplained anomaly detected using modern scientific instruments",
+                "The phenomenon scientists continue investigating years later",
+                "The unusual discovery researchers made during advanced experiments",
+                "The scientific mystery experts are still trying to solve",
+
+
+                # -----------------------
+                # SURVIVAL / RISK / EXTREME HUMAN CONDITIONS
+                # -----------------------
+
+                "The survival behavior experts observe during extreme danger",
+                "The mental response humans experience in life-threatening situations",
+                "The survival skill experts say increases chances in disasters",
+                "The psychological reaction researchers observe during crises",
+                "The surprising factor that determines survival in emergencies",
+                "The behavior pattern experts notice under extreme pressure",
+                "The mental strategy used by people who survive extreme conditions",
+                "The resilience trait researchers associate with survival",
+                "The unexpected decision pattern humans show during danger",
+                "The survival instinct scientists continue studying",
+
+                # -----------------------
+                # MONEY / WEALTH / FINANCIAL ADVANTAGE
+                # -----------------------
+
+                "The financial habit that quietly builds wealth while most people overlook it",
+                "The investing principle wealthy individuals rely on during uncertain markets",
+                "The money mistake that slowly erodes wealth for millions of people",
+                "The financial signal experienced investors watch before major opportunities",
+                "The wealth protection strategy some investors use during economic instability",
+                "The simple money rule that quietly compounds wealth over time",
+                "The financial behavior that separates long-term investors from short-term gamblers",
+                "The investing mindset that helped ordinary people build extraordinary wealth",
+                "The financial pattern experts notice before markets dramatically shift",
+                "The wealth building strategy that could change how people think about money",
+
+
+                # -----------------------
+                # HEALTH / LONGEVITY / PERSONAL WELLBEING
+                # -----------------------
+
+                "The daily habit researchers link to dramatically longer and healthier lives",
+                "The surprising lifestyle pattern scientists discovered among people living past 100",
+                "The silent health mistake doctors say many people unknowingly repeat",
+                "The sleep behavior researchers believe strongly influences long-term health",
+                "The biological process scientists are studying to better understand aging",
+                "The simple habit researchers associate with improved long-term health",
+                "The unexpected health signal doctors sometimes notice before serious illness",
+                "The longevity pattern scientists discovered while studying centenarians",
+                "The lifestyle factor researchers believe influences how humans age",
+                "The health routine that could quietly improve long-term wellbeing",
+
+
+                # -----------------------
+                # PSYCHOLOGY / INFLUENCE / SOCIAL ADVANTAGE
+                # -----------------------
+
+                "The psychological habit that quietly increases influence in conversations",
+                "The subtle behavior that changes how people perceive confidence",
+                "The persuasion technique psychologists say improves communication impact",
+                "The surprising mental bias that influences everyday decisions",
+                "The communication mistake that weakens influence without people realizing it",
+                "The psychological pattern experts say shapes many human interactions",
+                "The conversation habit highly persuasive people naturally use",
+                "The subtle signal that makes people appear more trustworthy",
+                "The mental shortcut the brain uses when making complex decisions",
+                "The behavioral insight psychologists say improves social awareness",
+
+
+                # -----------------------
+                # SUCCESS / PRODUCTIVITY / PERSONAL PERFORMANCE
+                # -----------------------
+
+                "The discipline habit many high performers quietly practice every day",
+                "The productivity system some successful individuals rely on for focus",
+                "The mental model exceptional problem-solvers frequently use",
+                "The focus strategy researchers say improves long-term productivity",
+                "The daily routine researchers associate with sustained success",
+                "The productivity mistake that slowly reduces long-term performance",
+                "The mindset pattern observed in highly disciplined individuals",
+                "The cognitive habit linked to better decision making",
+                "The simple change that can dramatically improve daily productivity",
+                "The performance principle many successful people follow consistently",
+
+
+                # -----------------------
+                # STUDY / LEARNING / EXAM SUCCESS
+                # -----------------------
+
+                "The learning technique researchers say dramatically improves memory retention",
+                "The study strategy top students rely on during high-pressure exams",
+                "The cognitive trick that helps information stay longer in memory",
+                "The revision habit associated with stronger exam performance",
+                "The learning shortcut researchers discovered in neuroscience",
+                "The focus technique that helps students absorb information faster",
+                "The memory strategy that improves recall during stressful exams",
+                "The study mistake that weakens learning efficiency",
+                "The learning pattern educators associate with academic success",
+                "The mental framework that helps people understand complex topics faster",
+
+
+                # -----------------------
+                # TECHNOLOGY / AI / FUTURE ADVANTAGE
+                # -----------------------
+
+                "The artificial intelligence capability researchers did not expect to observe",
+                "The technology development experts believe could change everyday life",
+                "The computing discovery that surprised many technology researchers",
+                "The emerging technology scientists believe may reshape industries",
+                "The AI experiment that produced results nobody predicted",
+                "The technological shift researchers believe will shape the next decade",
+                "The innovation scientists say may redefine human capability",
+                "The computing breakthrough researchers are closely watching",
+                "The new technology researchers believe could transform productivity",
+                "The discovery in artificial intelligence that surprised its creators",
+
+
+                # -----------------------
+                # SCIENCE / DISCOVERY / HIDDEN KNOWLEDGE
+                # -----------------------
+
+                "The mysterious signal scientists detected while studying deep space",
+                "The scientific anomaly researchers discovered during a major experiment",
+                "The discovery that forced scientists to rethink existing theories",
+                "The strange phenomenon researchers observed that remains unexplained",
+                "The unexpected observation scientists are still trying to understand",
+                "The discovery researchers believe could change our understanding of reality",
+                "The unexplained anomaly detected using modern scientific instruments",
+                "The phenomenon scientists continue investigating years later",
+                "The unusual discovery researchers made during advanced experiments",
+                "The scientific mystery experts are still trying to solve",
+
+
+                # -----------------------
+                # SURVIVAL / RISK / HUMAN LIMITS
+                # -----------------------
+
+                "The survival habit experts say increases chances during emergencies",
+                "The psychological response humans experience in life-threatening situations",
+                "The survival skill that dramatically improves chances in dangerous conditions",
+                "The surprising factor experts say influences survival during disasters",
+                "The behavior pattern researchers observe under extreme pressure",
+                "The mental strategy used by people who survive extreme situations",
+                "The resilience trait experts associate with long-term survival",
+                "The decision pattern humans follow during crisis situations",
+                "The survival instinct scientists continue studying today",
+                "The unexpected behavior humans display in extreme danger"
+                ]
+
+    seeds = seeds[:20]
 
     print("Seed topics:", seeds)
 
     # ---------------------------
-    # EXPAND TOPICS
+    # GROQ VIRAL TOPIC GENERATION
     # ---------------------------
 
-    def expand_topics():
+    def generate_topics():
 
         prompt = f"""
-Expand each topic into multiple viral YouTube angles.
+You are selecting the most viral YouTube documentary topics.
 
 Goal:
-Find angles capable of getting 1M+ views.
+Find topics capable of getting millions of views.
 
-Angles must include tension, mystery, or revelation.
+Rules:
+
+Topics must include at least one of these elements:
+
+- shocking scientific discovery
+- dangerous experiment
+- hidden technology
+- mysterious signal
+- unexplained cosmic event
+- secret research
+- future technology risk
+- unexpected discovery
 
 Seeds:
 {seeds}
 
-Return list only.
+Generate the TOP 10 most viral YouTube video topics.
+
+Return ONLY a numbered list.
+
+Example:
+
+1. topic
+2. topic
+3. topic
 """
 
         return groq_chat(prompt)
 
-    expanded = retry_request(expand_topics)["choices"][0]["message"]["content"]
+    text = retry_request(generate_topics)["choices"][0]["message"]["content"]
 
-    expanded = expanded.split("\n")
-    expanded = [x.strip("- ").strip() for x in expanded if x]
+    lines = text.split("\n")
 
-    print("Expanded topics:", expanded)
+    topics = []
 
-    # ---------------------------
-    # VIRAL ANGLES
-    # ---------------------------
+    for line in lines:
 
-    angles = generate_angles(expanded)
-    print("Generated angles:", angles)
+        m = re.match(r"^\d+[\.\)]\s*(.+)", line)
 
-    # ---------------------------
-    # STORY FILTER
-    # ---------------------------
+        if m:
+            topics.append(m.group(1).strip())
 
-    angles = filter_storyworthy_topics(angles)
-    print("Storyworthy topics:", angles)
+    print("Generated topics:", topics)
 
-    # ---------------------------
-    # RANK TOPICS
-    # ---------------------------
-
-    ranked = rank_topics(angles)
-    print("Top topics:", ranked)
-
-    if not ranked:
-        ranked = angles
-
-    return ranked[:VIDEOS_PER_DAY]    
+    return topics[:VIDEOS_PER_DAY]    
 
 
 # =========================
@@ -1095,39 +1390,21 @@ def run_pipeline():
 
         print("Processing:", topic)
 
+        # ---------------------------
+        # GENERATE OUTLINE
+        # ---------------------------
+
         outline = generate_outline(topic)
 
-        script = None
-        score = 0
-        rewrites = 0
+        # ---------------------------
+        # GENERATE SCRIPT
+        # ---------------------------
 
-        candidate = generate_script(topic, outline)
+        script = generate_script(topic, outline)
 
-        last_score = -1
-
-        while score < 9 and rewrites < MAX_SCRIPT_REWRITES:
-
-            result = score_script(candidate)
-
-            score = result.get("overall", 0)
-
-            print("Script score:", score)
-
-            if score >= 9:
-                script = candidate
-                break
-
-            if score <= last_score:
-                print("Score not improving, stopping rewrites")
-                break
-
-            last_score = score
-
-            candidate = rewrite_script(candidate, result)
-
-            rewrites += 1
-
-        script = candidate
+        # ---------------------------
+        # GENERATE METADATA
+        # ---------------------------
 
         metadata = generate_metadata(script)
 
@@ -1135,8 +1412,17 @@ def run_pipeline():
         description = metadata["description"]
         hashtags = metadata["hashtags"]
 
+        # ---------------------------
+        # THUMBNAIL
+        # ---------------------------
+
         thumbnail_prompt = generate_thumbnail_prompt(title)
+
         thumbnail_path = generate_thumbnail(thumbnail_prompt)
+
+        # ---------------------------
+        # VIDEO GENERATION
+        # ---------------------------
 
         send_to_kaggle(script)
 
@@ -1148,6 +1434,10 @@ def run_pipeline():
         video_path = videos[0]
 
         print("Video found:", video_path)
+
+        # ---------------------------
+        # UPLOAD
+        # ---------------------------
 
         upload_video(
             video_path,
