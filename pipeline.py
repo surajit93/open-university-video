@@ -180,20 +180,28 @@ def generate_thumbnail(prompt):
 
     def call():
 
-        api = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+        api = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
 
-        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+        headers = {
+            "Authorization": f"Bearer {HF_TOKEN}",
+            "Content-Type": "application/json"
+        }
 
-        r = requests.post(api, headers=headers, json={"inputs":prompt})
+        r = requests.post(
+            api,
+            headers=headers,
+            json={"inputs": prompt},
+            timeout=120
+        )
 
         if r.status_code != 200:
             raise Exception(f"HuggingFace image error: {r.text}")
 
         Path("artifacts").mkdir(exist_ok=True)
 
-        path="artifacts/thumbnail.png"
+        path = "artifacts/thumbnail.png"
 
-        with open(path,"wb") as f:
+        with open(path, "wb") as f:
             f.write(r.content)
 
         return path
