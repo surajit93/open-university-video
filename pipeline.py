@@ -301,6 +301,66 @@ Return one topic per line.
 # TOPIC DISCOVERY
 # =========================
 
+def rank_topics(angles):
+
+    prompt = f"""
+Rank these YouTube topics for viral potential.
+
+Consider:
+
+- curiosity
+- controversy
+- global interest
+- story potential
+- future impact
+- emotional tension
+- shock factor
+
+Topics:
+{angles}
+
+IMPORTANT RULES:
+
+Return ONLY a numbered list.
+
+Example format:
+
+1. topic one
+2. topic two
+3. topic three
+4. topic four
+5. topic five
+
+Do NOT include explanations.
+Do NOT include commentary.
+Do NOT include markdown formatting.
+Do NOT include quotes.
+Return only the numbered list.
+"""
+
+    def call():
+        return groq_chat(prompt)
+
+    ranked_text = retry_request(call)["choices"][0]["message"]["content"]
+
+    lines = ranked_text.split("\n")
+
+    ranked = []
+
+    for line in lines:
+
+        line = line.strip()
+
+        m = re.match(r"^\d+[\.\)]\s*(.+)", line)
+
+        if m:
+            topic = m.group(1).strip()
+
+            if len(topic) > 10:
+                ranked.append(topic)
+
+    return ranked
+
 def discover_trending_topics():
 
     google_trends = []
@@ -314,9 +374,7 @@ def discover_trending_topics():
     try:
         pytrend = TrendReq(
             hl="en-US",
-            tz=360,
-            retries=2,
-            backoff_factor=0.5
+            tz=360
         )
 
         google = pytrend.trending_searches(pn="united_states")
@@ -333,27 +391,21 @@ def discover_trending_topics():
 
     if len(google_trends) == 0:
         try:
-            youtube = youtube_client()
 
-            request = youtube.videos().list(
-                part="snippet",
-                chart="mostPopular",
-                regionCode="US",
-                maxResults=25
+            r = requests.get(
+                "https://www.youtube.com/feed/trending",
+                headers={"User-Agent": "Mozilla/5.0"}
             )
 
-            response = request.execute()
+            titles = re.findall(r'"title":{"runs":\[{"text":"(.*?)"}\]', r.text)
 
-            youtube_trends = [
-                v["snippet"]["title"]
-                for v in response.get("items", [])
-            ]
+            youtube_trends = titles[:15]
 
-            print("YouTube trends:", youtube_trends[:10])
+            print("YouTube trends:", youtube_trends)
 
         except Exception as e:
-            print("YouTube Trends failed:", e)
-            youtube_trends = []
+
+            print("YouTube scrape failed:", e)
 
     # ---------------------------
     # 3. NEWS API (fallback)
@@ -366,7 +418,7 @@ def discover_trending_topics():
             news = requests.get(news_url, timeout=30).json()
 
             news_topics = [
-                a["title"]
+                re.split(r"[-|:]", a["title"])[0].strip()
                 for a in news.get("articles", [])
             ]
 
