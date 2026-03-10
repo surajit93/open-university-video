@@ -303,143 +303,130 @@ Return one topic per line.
 
 def discover_trending_topics():
 
+    google_trends = []
+    youtube_trends = []
+    news_topics = []
 
-google_trends = []
-youtube_trends = []
-news_topics = []
-
-# ---------------------------
-# 1️⃣ GOOGLE TRENDS
-# ---------------------------
-
-try:
-
-    pytrend = TrendReq(
-        hl="en-US",
-        tz=360,
-        retries=2,
-        backoff_factor=0.5
-    )
-
-    google = pytrend.trending_searches(pn="united_states")
-
-    google_trends = google[0].tolist()[:15]
-
-    print("Google trends:", google_trends)
-
-except Exception as e:
-
-    print("Google Trends failed:", e)
-
-# ---------------------------
-# 2️⃣ YOUTUBE TRENDING (fallback)
-# ---------------------------
-
-if len(google_trends) == 0:
+    # ---------------------------
+    # 1. GOOGLE TRENDS
+    # ---------------------------
 
     try:
-
-        youtube = youtube_client()
-
-        request = youtube.videos().list(
-            part="snippet",
-            chart="mostPopular",
-            regionCode="US",
-            maxResults=25
+        pytrend = TrendReq(
+            hl="en-US",
+            tz=360,
+            retries=2,
+            backoff_factor=0.5
         )
 
-        response = request.execute()
+        google = pytrend.trending_searches(pn="united_states")
+        google_trends = google[0].tolist()[:15]
 
-        youtube_trends = [
-            v["snippet"]["title"]
-            for v in response.get("items", [])
+        print("Google trends:", google_trends)
+
+    except Exception as e:
+        print("Google Trends failed:", e)
+
+    # ---------------------------
+    # 2. YOUTUBE TRENDING (fallback)
+    # ---------------------------
+
+    if len(google_trends) == 0:
+        try:
+            youtube = youtube_client()
+
+            request = youtube.videos().list(
+                part="snippet",
+                chart="mostPopular",
+                regionCode="US",
+                maxResults=25
+            )
+
+            response = request.execute()
+
+            youtube_trends = [
+                v["snippet"]["title"]
+                for v in response.get("items", [])
+            ]
+
+            print("YouTube trends:", youtube_trends[:10])
+
+        except Exception as e:
+            print("YouTube Trends failed:", e)
+            youtube_trends = []
+
+    # ---------------------------
+    # 3. NEWS API (fallback)
+    # ---------------------------
+
+    if len(google_trends) == 0 and len(youtube_trends) == 0:
+        try:
+            news_url = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=20&apiKey={NEWS_API_KEY}"
+
+            news = requests.get(news_url, timeout=30).json()
+
+            news_topics = [
+                a["title"]
+                for a in news.get("articles", [])
+            ]
+
+            print("News topics:", news_topics[:10])
+
+        except Exception as e:
+            print("News API failed:", e)
+            news_topics = []
+
+    # ---------------------------
+    # MERGE SOURCES
+    # ---------------------------
+
+    seeds = list(set(google_trends + youtube_trends + news_topics))
+
+    # ---------------------------
+    # HARD FALLBACK SEEDS
+    # ---------------------------
+
+    if len(seeds) == 0:
+
+        seeds = [
+            "The secret AI experiment scientists never expected to work",
+            "The dangerous technology researchers say could change humanity forever",
+            "The discovery scientists made that they initially refused to believe",
+            "The hidden scientific experiment that produced terrifying results",
+            "The mysterious signal from deep space that scientists still cannot explain",
+            "The government project researchers claim was kept secret for decades",
+            "The unexpected discovery scientists made while studying the universe",
+            "The experiment that produced results nobody thought were possible",
+            "The strange object detected in space that confused astronomers",
+            "The scientific discovery that forced experts to rethink everything",
+            "The technology breakthrough that scientists say could reshape civilization",
+            "The mysterious anomaly discovered during a deep space mission",
+            "The controversial experiment that shocked the scientific community",
+            "The hidden technology researchers are quietly developing right now",
+            "The unexplained cosmic signal that triggered global investigation",
+            "The strange phenomenon scientists discovered while studying Earth",
+            "The scientific project that produced results nobody could explain",
+            "The unexpected discovery made during a high-risk experiment",
+            "The experiment that revealed something surprising about human intelligence",
+            "The mysterious event scientists detected but still cannot explain",
+            "The strange discovery scientists made while exploring deep space",
+            "The breakthrough technology that could completely change the future",
+            "The unexplained signal researchers detected from far beyond our galaxy",
+            "The hidden discovery scientists say could alter our understanding of reality",
+            "The scientific mystery researchers are racing to solve"
         ]
 
-        print("YouTube trends:", youtube_trends[:10])
+    seeds = seeds[:15]
 
-    except Exception as e:
+    print("Seed topics:", seeds)
 
-        print("YouTube Trends failed:", e)
+    # ---------------------------
+    # EXPAND TOPICS
+    # ---------------------------
 
-        youtube_trends = []
+    def expand_topics():
 
-# ---------------------------
-# 3️⃣ NEWS API (fallback)
-# ---------------------------
-
-if len(google_trends) == 0 and len(youtube_trends) == 0:
-
-    try:
-
-        news_url = f"https://newsapi.org/v2/top-headlines?language=en&pageSize=20&apiKey={NEWS_API_KEY}"
-
-        news = requests.get(news_url, timeout=30).json()
-
-        news_topics = [a["title"] for a in news.get("articles", [])]
-
-        print("News topics:", news_topics[:10])
-
-    except Exception as e:
-
-        print("News API failed:", e)
-
-        news_topics = []
-
-# ---------------------------
-# MERGE SOURCES
-# ---------------------------
-
-seeds = list(set(google_trends + youtube_trends + news_topics))
-
-# ---------------------------
-# HARD FALLBACK SEEDS
-# ---------------------------
-
-if len(seeds) == 0:
-
-    seeds = [
-
-        "The secret AI experiment scientists never expected to work",
-        "The dangerous technology researchers say could change humanity forever",
-        "The discovery scientists made that they initially refused to believe",
-        "The hidden scientific experiment that produced terrifying results",
-        "The mysterious signal from deep space that scientists still cannot explain",
-        "The government project researchers claim was kept secret for decades",
-        "The unexpected discovery scientists made while studying the universe",
-        "The experiment that produced results nobody thought were possible",
-        "The strange object detected in space that confused astronomers",
-        "The scientific discovery that forced experts to rethink everything",
-        "The technology breakthrough that scientists say could reshape civilization",
-        "The mysterious anomaly discovered during a deep space mission",
-        "The controversial experiment that shocked the scientific community",
-        "The hidden technology researchers are quietly developing right now",
-        "The unexplained cosmic signal that triggered global investigation",
-        "The strange phenomenon scientists discovered while studying Earth",
-        "The scientific project that produced results nobody could explain",
-        "The unexpected discovery made during a high-risk experiment",
-        "The experiment that revealed something surprising about human intelligence",
-        "The mysterious event scientists detected but still cannot explain",
-        "The strange discovery scientists made while exploring deep space",
-        "The breakthrough technology that could completely change the future",
-        "The unexplained signal researchers detected from far beyond our galaxy",
-        "The hidden discovery scientists say could alter our understanding of reality",
-        "The scientific mystery researchers are racing to solve"
-
-    ]
-
-seeds = seeds[:15]
-
-print("Seed topics:", seeds)
-
-# ---------------------------
-# EXPAND TOPICS
-# ---------------------------
-
-def expand_topics():
-
-    prompt = f"""
-
-
+        prompt = f"""
 Expand each topic into multiple viral YouTube angles.
 
 Goal:
@@ -453,107 +440,40 @@ Seeds:
 Return list only.
 """
 
-
-    return groq_chat(prompt)
-
-expanded = retry_request(expand_topics)["choices"][0]["message"]["content"]
-
-expanded = expanded.split("\n")
-expanded = [x.strip("- ").strip() for x in expanded if x]
-
-print("Expanded topics:", expanded)
-
-# ---------------------------
-# VIRAL ANGLES
-# ---------------------------
-
-angles = generate_angles(expanded)
-
-print("Generated angles:", angles)
-
-# ---------------------------
-# STORY FILTER
-# ---------------------------
-
-angles = filter_storyworthy_topics(angles)
-
-print("Storyworthy topics:", angles)
-
-# ---------------------------
-# RANK TOPICS
-# ---------------------------
-
-ranked = rank_topics(angles)
-
-print("Top topics:", ranked)
-
-if not ranked:
-    ranked = angles
-
-return ranked[:VIDEOS_PER_DAY]
-
-
-    
-    
-def rank_topics(angles):
-
-    prompt = f"""
-Rank these YouTube topics for viral potential.
-
-Consider:
-
-- curiosity
-- controversy
-- global interest
-- story potential
-- future impact
-- emotional tension
-- shock factor
-
-Topics:
-{angles}
-
-IMPORTANT RULES:
-
-Return ONLY a numbered list.
-
-Example format:
-
-1. topic one
-2. topic two
-3. topic three
-4. topic four
-5. topic five
-
-Do NOT include explanations.
-Do NOT include commentary.
-Do NOT include markdown formatting.
-Do NOT include quotes.
-Return only the numbered list.
-"""
-
-    def call():
         return groq_chat(prompt)
 
-    ranked_text = retry_request(call)["choices"][0]["message"]["content"]
+    expanded = retry_request(expand_topics)["choices"][0]["message"]["content"]
 
-    lines = ranked_text.split("\n")
+    expanded = expanded.split("\n")
+    expanded = [x.strip("- ").strip() for x in expanded if x]
 
-    ranked = []
+    print("Expanded topics:", expanded)
 
-    for line in lines:
+    # ---------------------------
+    # VIRAL ANGLES
+    # ---------------------------
 
-        line = line.strip()
+    angles = generate_angles(expanded)
+    print("Generated angles:", angles)
 
-        m = re.match(r"^\d+[\.\)]\s*(.+)", line)
+    # ---------------------------
+    # STORY FILTER
+    # ---------------------------
 
-        if m:
-            topic = m.group(1).strip()
+    angles = filter_storyworthy_topics(angles)
+    print("Storyworthy topics:", angles)
 
-            if len(topic) > 10:
-                ranked.append(topic)
+    # ---------------------------
+    # RANK TOPICS
+    # ---------------------------
 
-    return ranked    
+    ranked = rank_topics(angles)
+    print("Top topics:", ranked)
+
+    if not ranked:
+        ranked = angles
+
+    return ranked[:VIDEOS_PER_DAY]    
 
 
 # =========================
