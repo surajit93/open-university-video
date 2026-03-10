@@ -882,7 +882,7 @@ def send_to_kaggle(script):
 
     Path("kaggle_pipeline/input").mkdir(parents=True, exist_ok=True)
 
-    with open("kaggle_pipeline/input/transcript.txt","w") as f:
+    with open("kaggle_pipeline/input/transcript.txt", "w") as f:
         f.write(script)
 
     pushed = False
@@ -890,7 +890,7 @@ def send_to_kaggle(script):
     for i in range(3):
         try:
             subprocess.run(
-                ["kaggle","kernels","push","-p","kaggle_pipeline"],
+                ["kaggle", "kernels", "push", "-p", "kaggle_pipeline"],
                 check=True
             )
             pushed = True
@@ -908,10 +908,13 @@ def send_to_kaggle(script):
 
     start_time = time.time()
 
+    # small delay so Kaggle registers the job
+    time.sleep(10)
+
     while True:
 
         result = subprocess.check_output(
-            ["kaggle","kernels","status", kernel]
+            ["kaggle", "kernels", "status", kernel]
         ).decode()
 
         print(result)
@@ -919,29 +922,39 @@ def send_to_kaggle(script):
         lower = result.lower()
 
         if "complete" in lower:
+            print("Kaggle kernel finished successfully.")
             break
 
         if "error" in lower:
-            raise Exception("Kaggle kernel execution failed")
+            print("Kaggle reported ERROR status. Attempting to download outputs anyway.")
+            break
+
+        if "running" in lower or "queued" in lower:
+            print("Kernel still running...")
 
         if time.time() - start_time > KAGGLE_TIMEOUT:
             raise Exception("Kaggle kernel timeout")
 
         time.sleep(30)
 
-    print("Notebook finished. Downloading output...")
+    print("Attempting to download kernel outputs...")
 
-    subprocess.run(
-        [
-            "kaggle",
-            "kernels",
-            "output",
-            kernel,
-            "-p",
-            "artifacts"
-        ],
-        check=True
-    )
+    try:
+        subprocess.run(
+            [
+                "kaggle",
+                "kernels",
+                "output",
+                kernel,
+                "-p",
+                "artifacts"
+            ],
+            check=True
+        )
+        print("Artifacts downloaded successfully.")
+
+    except Exception as e:
+        raise Exception(f"Kaggle kernel finished but artifact download failed: {e}")
 
 
 # =========================
