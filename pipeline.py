@@ -830,11 +830,11 @@ Script:
 
 Return JSON in this format:
 
-{
+{{
  "title": "",
  "description": "",
  "hashtags": []
-}
+}}
 """
 
         data = groq_chat(prompt)
