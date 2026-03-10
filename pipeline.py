@@ -885,22 +885,22 @@ def send_to_kaggle(script):
     with open("kaggle_pipeline/input/transcript.txt","w") as f:
         f.write(script)
 
+    pushed = False
+
     for i in range(3):
-
         try:
-
             subprocess.run(
                 ["kaggle","kernels","push","-p","kaggle_pipeline"],
                 check=True
             )
-
+            pushed = True
             break
-
         except Exception as e:
-
             print("Kaggle push retry:", e)
-
             time.sleep(10)
+
+    if not pushed:
+        raise Exception("Kaggle push failed")
 
     print("Notebook pushed. Waiting for execution...")
 
