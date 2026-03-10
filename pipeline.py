@@ -32,7 +32,7 @@ YT_REFRESH_TOKEN = os.getenv("YT_REFRESH_TOKEN")
 
 VIDEOS_PER_DAY = 2
 
-MAX_SCRIPT_REWRITES = 3
+MAX_SCRIPT_REWRITES = 2
 KAGGLE_TIMEOUT = 1800
 
 
@@ -114,7 +114,12 @@ def groq_chat(prompt, model=GROQ_MODEL):
         timeout=120
     )
 
-    return safe_api_json(r)
+    data = safe_api_json(r)
+
+    # throttle to avoid Groq TPM limits
+    time.sleep(3)
+
+    return data
 
 
 # =========================
@@ -955,7 +960,14 @@ def run_pipeline():
 
         candidate = generate_script(topic, outline)
 
+        last_score = 0
+
         while score < 9 and rewrites < MAX_SCRIPT_REWRITES:
+
+            if score <= last_score:
+                break
+
+            last_score = score
 
             result = score_script(candidate)
 
