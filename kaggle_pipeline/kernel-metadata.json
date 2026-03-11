@@ -1,13 +1,10 @@
 {
  "id": "openuniversitymedia/ai-video-factory",
  "title": "ai-video-factory",
- "code_file": "__notebook__.ipynb",
+ "code_file": "notebook.ipynb",
  "language": "python",
  "kernel_type": "notebook",
  "is_private": true,
  "enable_gpu": true,
- "enable_internet": true,
- "dataset_sources": [],
- "competition_sources": [],
- "kernel_sources": []
+ "enable_internet": true
 }
