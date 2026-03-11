@@ -1284,9 +1284,7 @@ def send_to_kaggle(script):
 
     setup_kaggle_auth()
 
-    Path("kaggle_pipeline/input").mkdir(parents=True, exist_ok=True)
-
-    with open("kaggle_pipeline/input/transcript.txt", "w") as f:
+    with open("kaggle_pipeline/transcript.txt", "w") as f:
         f.write(script)
 
     pushed = False
