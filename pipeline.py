@@ -1218,6 +1218,48 @@ Return JSON in this format:
     return retry_request(call)
 
 
+
+def generate_full_video_package(topic):
+
+    def call():
+
+        prompt = f"""
+Create a viral YouTube video package.
+
+Topic:
+{topic}
+
+Generate ALL of the following:
+
+1) High retention outline (8–10 min video)
+
+2) Full cinematic narration script (1300–1500 words)
+
+3) YouTube metadata
+
+TITLE RULES:
+55–65 characters
+curiosity gap
+mystery + consequence
+
+Return STRICT JSON:
+
+{{
+ "outline": "",
+ "script": "",
+ "title": "",
+ "description": "",
+ "hashtags": []
+}}
+
+"""
+
+        data = groq_chat(prompt)
+
+        return safe_json(data["choices"][0]["message"]["content"])
+
+    return retry_request(call)
+
 # =========================
 # KAGGLE EXECUTION
 # =========================
@@ -1394,23 +1436,14 @@ def run_pipeline():
         # GENERATE OUTLINE
         # ---------------------------
 
-        outline = generate_outline(topic)
+        package = generate_full_video_package(topic)
 
-        # ---------------------------
-        # GENERATE SCRIPT
-        # ---------------------------
+        outline = package["outline"]
+        script = package["script"]
 
-        script = generate_script(topic, outline)
-
-        # ---------------------------
-        # GENERATE METADATA
-        # ---------------------------
-
-        metadata = generate_metadata(script)
-
-        title = metadata["title"]
-        description = metadata["description"]
-        hashtags = metadata["hashtags"]
+        title = package["title"]
+        description = package["description"]
+        hashtags = package["hashtags"]
 
         # ---------------------------
         # THUMBNAIL
