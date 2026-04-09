@@ -76,21 +76,19 @@ jobs:
           pip install kaggle
 
       # -------------------------------
-      # Kaggle auth (FIXED)
+      # Kaggle auth (FIXED SAFE)
       # -------------------------------
       - name: Configure Kaggle credentials
         run: |
           mkdir -p ~/.kaggle
-          cat > ~/.kaggle/kaggle.json <<EOF
-{
-  "username": "${KAGGLE_USERNAME}",
-  "key": "${KAGGLE_KEY}"
-}
-EOF
+          echo "{
+            \"username\": \"${KAGGLE_USERNAME}\",
+            \"key\": \"${KAGGLE_KEY}\"
+          }" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
       # -------------------------------
-      # Debug env (safe visibility)
+      # Debug env
       # -------------------------------
       - name: Debug env
         run: |
@@ -98,14 +96,14 @@ EOF
           echo "HF_TOKEN length=${#HF_TOKEN}"
 
       # -------------------------------
-      # Run pipeline (unbuffered)
+      # Run pipeline
       # -------------------------------
       - name: Run pipeline
         run: |
-          python -u pipeline.py || true
+          python -u pipeline.py
 
       # -------------------------------
-      # Ensure Kaggle dataset upload (FIXED EOF)
+      # Kaggle dataset upload (FIXED SAFE)
       # -------------------------------
       - name: Force Kaggle dataset upload
         if: always()
@@ -120,13 +118,11 @@ EOF
           OWNER_SLUG="${KAGGLE_USERNAME}/${DATASET_SLUG}"
 
           if [ ! -f kaggle_pipeline/input/dataset-metadata.json ]; then
-cat > kaggle_pipeline/input/dataset-metadata.json <<EOF
-{
-  "title": "Open University Video Input",
-  "id": "${OWNER_SLUG}",
-  "licenses": [{"name": "CC0-1.0"}]
-}
-EOF
+            echo "{
+              \"title\": \"Open University Video Input\",
+              \"id\": \"${OWNER_SLUG}\",
+              \"licenses\": [{\"name\": \"CC0-1.0\"}]
+            }" > kaggle_pipeline/input/dataset-metadata.json
           fi
 
           kaggle datasets status "${OWNER_SLUG}" >/dev/null 2>&1 || \
