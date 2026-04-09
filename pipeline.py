@@ -54,12 +54,14 @@ PLACEHOLDER_THUMBNAIL_B64 = (
 # =========================
 
 def safe_json(text):
+    cleaned = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F]", "", str(text))
     try:
-        return json.loads(text)
+        return json.loads(cleaned)
     except:
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        return json.loads(text[start:end])
+        start = cleaned.find("{")
+        end = cleaned.rfind("}") + 1
+        return json.loads(cleaned[start:end])
+
 
 
 def retry_request(func, attempts=3, context="request", fallback=None, raise_on_failure=False):

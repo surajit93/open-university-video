@@ -95,13 +95,16 @@ jobs:
       # -------------------------------
       - name: Configure Kaggle credentials
         run: |
+          set -euo pipefail
           mkdir -p ~/.kaggle
-          cat > ~/.kaggle/kaggle.json <<EOF
-          {
-            "username": "${KAGGLE_USERNAME}",
-            "key": "${KAGGLE_KEY}"
-          }
-          EOF
+          cat > ~/.kaggle/kaggle.json << 'EOF'
+{
+  "username": "${KAGGLE_USERNAME}",
+  "key": "${KAGGLE_KEY}"
+}
+EOF
+          sed -i "s|\${KAGGLE_USERNAME}|${KAGGLE_USERNAME}|g" ~/.kaggle/kaggle.json
+          sed -i "s|\${KAGGLE_KEY}|${KAGGLE_KEY}|g" ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
       - name: Debug - env check
@@ -124,6 +127,7 @@ jobs:
       - name: Force Kaggle dataset upload
         if: always()
         run: |
+          set -euo pipefail
           mkdir -p kaggle_pipeline/input
           if [ -f kaggle_pipeline/transcript.txt ]; then
             cp kaggle_pipeline/transcript.txt kaggle_pipeline/input/transcript.txt
@@ -133,17 +137,17 @@ jobs:
           OWNER_SLUG="${KAGGLE_USERNAME}/${DATASET_SLUG}"
 
           if [ ! -f kaggle_pipeline/input/dataset-metadata.json ]; then
-            cat > kaggle_pipeline/input/dataset-metadata.json <<EOF
-            {
-              "title": "Open University Video Input",
-              "id": "${OWNER_SLUG}",
-              "licenses": [{"name": "CC0-1.0"}]
-            }
-            EOF
+            cat > kaggle_pipeline/input/dataset-metadata.json << 'EOF'
+{
+  "title": "Open University Video Input",
+  "id": "__OWNER_SLUG__",
+  "licenses": [{"name": "CC0-1.0"}]
+}
+EOF
+            sed -i "s|__OWNER_SLUG__|${OWNER_SLUG}|g" kaggle_pipeline/input/dataset-metadata.json
           fi
 
-          kaggle datasets status "${OWNER_SLUG}" >/dev/null 2>&1
-          if [ $? -ne 0 ]; then
+          if ! kaggle datasets status "${OWNER_SLUG}" >/dev/null 2>&1; then
             kaggle datasets create -p kaggle_pipeline/input --dir-mode zip || true
           fi
 
