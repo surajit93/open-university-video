@@ -104,13 +104,18 @@ jobs:
           EOF
           chmod 600 ~/.kaggle/kaggle.json
 
-
+      - name: Debug - env check
+        run: |
+          echo "KAGGLE_USERNAME=${KAGGLE_USERNAME}"
+          echo "HF_TOKEN length=${#HF_TOKEN}"
+          echo "NEWS_API_KEY length=${#NEWS_API_KEY}"
+          
       # -------------------------------
       # Run the AI video pipeline
       # -------------------------------
       - name: Run pipeline
         run: |
-          python pipeline.py
+          python -u pipeline.py
 
 
       # -------------------------------
