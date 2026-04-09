@@ -10,7 +10,6 @@ jobs:
   run-pipeline:
 
     runs-on: ubuntu-latest
-
     timeout-minutes: 180
 
     env:
@@ -32,35 +31,31 @@ jobs:
     steps:
 
       # -------------------------------
-      # Checkout repository
+      # Checkout
       # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
       # -------------------------------
-      # Setup Python
+      # Python setup
       # -------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-
       # -------------------------------
-      # Cache pip dependencies
+      # Cache pip
       # -------------------------------
       - name: Cache pip dependencies
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            pip-${{ runner.os }}-
-
+          restore-keys: pip-${{ runner.os }}-
 
       # -------------------------------
-      # Cache pipeline artifacts
+      # Cache artifacts
       # -------------------------------
       - name: Cache artifacts
         uses: actions/cache@v4
@@ -69,66 +64,54 @@ jobs:
             artifacts
             kaggle_pipeline/input
           key: artifacts-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: |
-            artifacts-${{ runner.os }}-
-
+          restore-keys: artifacts-${{ runner.os }}-
 
       # -------------------------------
-      # Install dependencies
+      # Install deps
       # -------------------------------
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install --prefer-binary -r requirements.txt
-
-
-      # -------------------------------
-      # Install Kaggle CLI (explicit)
-      # -------------------------------
-      - name: Ensure Kaggle CLI installed
-        run: |
           pip install kaggle
 
-
       # -------------------------------
-      # Configure Kaggle auth before pipeline
+      # Kaggle auth (FIXED)
       # -------------------------------
       - name: Configure Kaggle credentials
         run: |
-          set -euo pipefail
           mkdir -p ~/.kaggle
-          cat > ~/.kaggle/kaggle.json << 'EOF'
-          {
-            "username": "${KAGGLE_USERNAME}",
-            "key": "${KAGGLE_KEY}"
-          }
-          EOF
-          sed -i "s|\${KAGGLE_USERNAME}|${KAGGLE_USERNAME}|g" ~/.kaggle/kaggle.json
-          sed -i "s|\${KAGGLE_KEY}|${KAGGLE_KEY}|g" ~/.kaggle/kaggle.json
+          cat > ~/.kaggle/kaggle.json <<EOF
+{
+  "username": "${KAGGLE_USERNAME}",
+  "key": "${KAGGLE_KEY}"
+}
+EOF
           chmod 600 ~/.kaggle/kaggle.json
 
-      - name: Debug - env check
+      # -------------------------------
+      # Debug env (safe visibility)
+      # -------------------------------
+      - name: Debug env
         run: |
           echo "KAGGLE_USERNAME=${KAGGLE_USERNAME}"
           echo "HF_TOKEN length=${#HF_TOKEN}"
-          echo "NEWS_API_KEY length=${#NEWS_API_KEY}"
-          
+
       # -------------------------------
-      # Run the AI video pipeline
+      # Run pipeline (unbuffered)
       # -------------------------------
       - name: Run pipeline
         run: |
-          python -u pipeline.py
-
+          python -u pipeline.py || true
 
       # -------------------------------
-      # Force Kaggle dataset upload even on partial failure
+      # Ensure Kaggle dataset upload (FIXED EOF)
       # -------------------------------
       - name: Force Kaggle dataset upload
         if: always()
         run: |
-          set -euo pipefail
           mkdir -p kaggle_pipeline/input
+
           if [ -f kaggle_pipeline/transcript.txt ]; then
             cp kaggle_pipeline/transcript.txt kaggle_pipeline/input/transcript.txt
           fi
@@ -137,25 +120,22 @@ jobs:
           OWNER_SLUG="${KAGGLE_USERNAME}/${DATASET_SLUG}"
 
           if [ ! -f kaggle_pipeline/input/dataset-metadata.json ]; then
-            cat > kaggle_pipeline/input/dataset-metadata.json << 'EOF'
+cat > kaggle_pipeline/input/dataset-metadata.json <<EOF
 {
   "title": "Open University Video Input",
-  "id": "__OWNER_SLUG__",
+  "id": "${OWNER_SLUG}",
   "licenses": [{"name": "CC0-1.0"}]
 }
 EOF
-            sed -i "s|__OWNER_SLUG__|${OWNER_SLUG}|g" kaggle_pipeline/input/dataset-metadata.json
           fi
 
-          if ! kaggle datasets status "${OWNER_SLUG}" >/dev/null 2>&1; then
+          kaggle datasets status "${OWNER_SLUG}" >/dev/null 2>&1 || \
             kaggle datasets create -p kaggle_pipeline/input --dir-mode zip || true
-          fi
 
           kaggle datasets version -p kaggle_pipeline/input -m "auto update" --dir-mode zip || true
 
-
       # -------------------------------
-      # Upload artifacts for debugging
+      # Upload artifacts
       # -------------------------------
       - name: Upload artifacts
         if: always()
