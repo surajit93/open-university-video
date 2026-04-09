@@ -98,11 +98,11 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.kaggle
           cat > ~/.kaggle/kaggle.json << 'EOF'
-{
-  "username": "${KAGGLE_USERNAME}",
-  "key": "${KAGGLE_KEY}"
-}
-EOF
+          {
+            "username": "${KAGGLE_USERNAME}",
+            "key": "${KAGGLE_KEY}"
+          }
+          EOF
           sed -i "s|\${KAGGLE_USERNAME}|${KAGGLE_USERNAME}|g" ~/.kaggle/kaggle.json
           sed -i "s|\${KAGGLE_KEY}|${KAGGLE_KEY}|g" ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
