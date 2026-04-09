@@ -91,11 +91,58 @@ jobs:
 
 
       # -------------------------------
+      # Configure Kaggle auth before pipeline
+      # -------------------------------
+      - name: Configure Kaggle credentials
+        run: |
+          mkdir -p ~/.kaggle
+          cat > ~/.kaggle/kaggle.json <<EOF
+          {
+            "username": "${KAGGLE_USERNAME}",
+            "key": "${KAGGLE_KEY}"
+          }
+          EOF
+          chmod 600 ~/.kaggle/kaggle.json
+
+
+      # -------------------------------
       # Run the AI video pipeline
       # -------------------------------
       - name: Run pipeline
         run: |
           python pipeline.py
+
+
+      # -------------------------------
+      # Force Kaggle dataset upload even on partial failure
+      # -------------------------------
+      - name: Force Kaggle dataset upload
+        if: always()
+        run: |
+          mkdir -p kaggle_pipeline/input
+          if [ -f kaggle_pipeline/transcript.txt ]; then
+            cp kaggle_pipeline/transcript.txt kaggle_pipeline/input/transcript.txt
+          fi
+
+          DATASET_SLUG="${KAGGLE_DATASET_SLUG:-open-university-video-input}"
+          OWNER_SLUG="${KAGGLE_USERNAME}/${DATASET_SLUG}"
+
+          if [ ! -f kaggle_pipeline/input/dataset-metadata.json ]; then
+            cat > kaggle_pipeline/input/dataset-metadata.json <<EOF
+            {
+              "title": "Open University Video Input",
+              "id": "${OWNER_SLUG}",
+              "licenses": [{"name": "CC0-1.0"}]
+            }
+            EOF
+          fi
+
+          kaggle datasets status "${OWNER_SLUG}" >/dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            kaggle datasets create -p kaggle_pipeline/input --dir-mode zip || true
+          fi
+
+          kaggle datasets version -p kaggle_pipeline/input -m "auto update" --dir-mode zip || true
 
 
       # -------------------------------
